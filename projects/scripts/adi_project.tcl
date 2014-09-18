@@ -58,6 +58,13 @@ proc adi_project_create {project_name} {
     set project_board "not-applicable"
   }
 
+   if [regexp "_sdrdc$" $project_name] {
+    set xl_board "sdrdc"
+    set project_part "xc7z030fbg484-2" 
+    set project_board "not-applicable"
+  }
+
+
   # planahead - 6 and down
 
   if {$xl_board eq "ml605"} {
