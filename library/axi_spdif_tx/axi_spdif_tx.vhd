@@ -120,8 +120,10 @@ architecture IMP of axi_spdif_tx is
 	signal conf_ratio : std_logic_vector(7 downto 0);
 	signal conf_tinten, conf_txdata, conf_txen : std_logic;
 	signal channel : std_logic;
+	signal enable : boolean;
 
 	signal fifo_data_out : std_logic_vector(31 downto 0);
+	signal fifo_data_ack : std_logic;
 	signal fifo_reset : std_logic;
 	signal tx_fifo_stb : std_logic;
 
@@ -135,6 +137,8 @@ architecture IMP of axi_spdif_tx is
 begin
 
 	fifo_reset <= not conf_txdata;
+	enable <= conf_txdata = '1';
+	fifo_data_ack <= channel and sample_data_ack;
 
 	streaming_dma_gen: if C_DMA_TYPE = 0 generate
 		fifo: entity axi_streaming_dma_tx_fifo
@@ -146,16 +150,20 @@ begin
 				clk		=> S_AXI_ACLK,
 				resetn		=> S_AXI_ARESETN,
 				fifo_reset	=> fifo_reset,
-				enable		=> conf_txdata = '1',
+				enable		=> enable,
 				S_AXIS_ACLK	=> S_AXIS_ACLK,
 				S_AXIS_TREADY	=> S_AXIS_TREADY,
 				S_AXIS_TDATA	=> S_AXIS_TDATA,
 				S_AXIS_TVALID	=> S_AXIS_TLAST,
 				S_AXIS_TLAST	=> S_AXIS_TVALID,
 
-				out_ack		=> channel and sample_data_ack,
+				out_ack		=> fifo_data_ack,
 				out_data	=> fifo_data_out
 			);
+	end generate;
+
+	no_streaming_dma_gen: if C_DMA_TYPE /= 0 generate
+		S_AXIS_TREADY <= '0';
 	end generate;
 
 	pl330_dma_gen: if C_DMA_TYPE = 1 generate
@@ -171,12 +179,12 @@ begin
 				clk		=> S_AXI_ACLK,
 				resetn		=> S_AXI_ARESETN,
 				fifo_reset	=> fifo_reset,
-				enable		=> conf_txdata = '1',
+				enable		=> enable,
 
 				in_data		=> wr_data,
 				in_stb		=> tx_fifo_stb,
 
-				out_ack		=> channel and sample_data_ack,
+				out_ack		=> fifo_data_ack,
 				out_data	=> fifo_data_out,
 
 				dclk		=> DMA_REQ_ACLK,
@@ -189,6 +197,13 @@ begin
 				drtype		=> DMA_REQ_DRTYPE,
 				drlast		=> DMA_REQ_DRLAST
 			);
+	end generate;
+
+	no_pl330_dma_gen: if C_DMA_TYPE /= 1 generate
+		DMA_REQ_DAREADY <= '0';
+		DMA_REQ_DRVALID <= '0';
+		DMA_REQ_DRTYPE <= (others => '0');
+		DMA_REQ_DRLAST <= '0';
 	end generate;
 
 	sample_data_mux: process (fifo_data_out, channel) is
@@ -294,7 +309,7 @@ begin
 		end if;
 	end process;
 
-	process (rd_addr)
+	process (rd_addr, config_reg, chstatus_reg)
 	begin
 		case rd_addr is
 			when 0 => rd_data <= config_reg;

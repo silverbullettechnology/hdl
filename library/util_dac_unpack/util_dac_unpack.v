@@ -81,7 +81,6 @@ module util_dac_unpack (
 
   parameter CHANNELS = 8; // valid values are 4 and 8
   parameter DATA_WIDTH = 16;
-  localparam DMA_WIDTH = CHANNELS * DATA_WIDTH;
 
   input                   clk;
 
@@ -117,11 +116,12 @@ module util_dac_unpack (
   input                    dac_valid_07;
   output  [DATA_WIDTH-1:0] dac_data_07;
 
-  input                    fifo_valid;
-  output                   dma_rd;
-  input   [DMA_WIDTH-1:0]  dma_data;
+  input                             fifo_valid;
+  output                            dma_rd;
+  input   [CHANNELS*DATA_WIDTH-1:0] dma_data;
 
 
+  localparam DMA_WIDTH = CHANNELS*DATA_WIDTH;
 
   wire [CHANNELS-1:0]            dac_enable;
   wire [CHANNELS-1:0]            dac_valid;
@@ -134,7 +134,8 @@ module util_dac_unpack (
   reg [DATA_WIDTH*CHANNELS-1:0]  dac_data = 'h00;
   reg [DMA_WIDTH-1:0]            buffer = 'h00;
   reg                            dma_rd = 1'b0;
-  reg [$clog2(CHANNELS)-1:0]     counter = 'h00;
+  reg [$clog2(CHANNELS)-1:0]     rd_counter = 'h00;
+  reg [$clog2(CHANNELS)-1:0]     req_counter = 'h00;
   reg [CHANNELS-1:0]             dac_enable_d1 = 'h00;
 
   assign dac_enable[0] = dac_enable_00;
@@ -164,6 +165,11 @@ module util_dac_unpack (
       assign dac_data_05 = dac_data[DATA_WIDTH*6-1:DATA_WIDTH*5];
       assign dac_data_06 = dac_data[DATA_WIDTH*7-1:DATA_WIDTH*6];
       assign dac_data_07 = dac_data[DATA_WIDTH*8-1:DATA_WIDTH*7];
+    end else begin
+      assign dac_data_04 = 'h0;
+      assign dac_data_05 = 'h0;
+      assign dac_data_06 = 'h0;
+      assign dac_data_07 = 'h0;
     end
   endgenerate
 
@@ -182,18 +188,22 @@ module util_dac_unpack (
 
   always @(posedge clk) begin
     if (fifo_valid == 1'b1) begin
-        buffer <= dma_data;
+      buffer <= dma_data;
+      rd_counter <= 'h0;
+    end else if (dac_chan_valid == 1'b1) begin
+      rd_counter <= rd_counter + enable_reduce(CHANNELS);
     end
   end
 
   always @(posedge clk) begin
      dma_rd <= 1'b0;
      if (dac_enable != dac_enable_d1) begin
-       counter <= 'h00;
+       req_counter <= 'h00;
      end else if (dac_chan_valid == 1'b1) begin
-       counter <= counter + enable_reduce(CHANNELS);
-       if (counter == 'h00)
+       req_counter <= req_counter + enable_reduce(CHANNELS);
+       if (req_counter == 'h00) begin
          dma_rd <= 1'b1;
+       end
      end
      dac_enable_d1 <= dac_enable;
   end
@@ -208,12 +218,14 @@ module util_dac_unpack (
   generate
     genvar j;
     for (j = 0; j < CHANNELS; j = j + 1) begin : gen_dac_data
-      assign offset[j] = counter + enable_reduce(j);
+      assign offset[j] = rd_counter + enable_reduce(j);
       always @(posedge clk) begin
-        if (dac_enable[j])
-          dac_data[DATA_WIDTH+j*DATA_WIDTH-1:j*DATA_WIDTH] <= data_array[offset[j]];
-        else
-          dac_data[DATA_WIDTH+j*DATA_WIDTH-1:j*DATA_WIDTH] <= 'h0000;
+        if (dac_chan_valid) begin
+          if (dac_enable[j])
+            dac_data[DATA_WIDTH+j*DATA_WIDTH-1:j*DATA_WIDTH] <= data_array[offset[j]];
+          else
+            dac_data[DATA_WIDTH+j*DATA_WIDTH-1:j*DATA_WIDTH] <= 'h0000;
+        end
       end
     end
   endgenerate
