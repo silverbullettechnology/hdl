@@ -81,11 +81,26 @@ set_property  -dict {PACKAGE_PIN  K7 IOSTANDARD LVDS} [get_ports tx_data_out_1_p
 set_property  -dict {PACKAGE_PIN  K6 IOSTANDARD LVDS} [get_ports tx_data_out_1_n[5]]                  ; ##     
 
 
-set_property  -dict {PACKAGE_PIN  A2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi_miso]        ; ## PL_Bank35_SPI1_MISO          
-set_property  -dict {PACKAGE_PIN  B2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi_mosi]        ; ## PL_Bank35_SPI1_MOSI          
-set_property  -dict {PACKAGE_PIN  A1  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi_clk]         ; ## PL_Bank35_SPI1_CK          
-set_property  -dict {PACKAGE_PIN  B4  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi_csn0]        ; ## PL_Bank35_SPI1_AD1_CS         
-set_property  -dict {PACKAGE_PIN  A4  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi_csn1]        ; ## PL_Bank35_SPI1_AD2_CS         
+
+## SPI0 (MOVE OUT OF GPIO PORTS)
+set_property  -dict {PACKAGE_PIN  N17  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports spi0_miso] ; ## SPI0_ZYNQ_MISO      
+set_property  -dict {PACKAGE_PIN  P18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports spi0_mosi] ; ## SPI0_ZYNQ_MOSI     
+set_property  -dict {PACKAGE_PIN  N18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports spi0_clk] ;  ## SPI0_ZYNQ_SCK      
+#set_property  -dict {PACKAGE_PIN  T16  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports spi0_csn0] ; ## SPI0_ASFE_SPI_CS    
+#set_property  -dict {PACKAGE_PIN  P19  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports spi0_csn1] ; ## SPI0_TRSS_CS        
+#set_property  -dict {PACKAGE_PIN  U19  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports spi0_csn2] ; ## SPI0_ATMEL_SS        
+#set_property  -dict {PACKAGE_PIN  Y17  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports spi0_csn3] ; ## SPI0_LV595_SS        
+#set_property  -dict {PACKAGE_PIN  Y18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports spi0_csn4] ; ## SPI0_LMK04906_SS        
+
+## SPI1
+set_property  -dict {PACKAGE_PIN  A2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_miso]        ; ## PL_Bank35_SPI1_MISO          
+set_property  -dict {PACKAGE_PIN  B2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_mosi]        ; ## PL_Bank35_SPI1_MOSI          
+set_property  -dict {PACKAGE_PIN  A1  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_clk]         ; ## PL_Bank35_SPI1_CK          
+#set_property  -dict {PACKAGE_PIN  B4  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_csn0]        ; ## PL_Bank35_SPI1_AD1_CS         
+#set_property  -dict {PACKAGE_PIN  A4  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_csn1]        ; ## PL_Bank35_SPI1_AD2_CS         
+#C2 SPI1_ADF5355_1_SS
+#D1 SPI1_ADF5355_2_SS
+
 
 
 
@@ -114,88 +129,73 @@ set_property  -dict {PACKAGE_PIN  AB20 IOSTANDARD LVCMOS33} [get_ports ps7_gpio[
 set_property  -dict {PACKAGE_PIN  Y21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[15]]                  ; ## ASFE_Spare_3
 set_property  -dict {PACKAGE_PIN  AA21 IOSTANDARD LVCMOS33} [get_ports ps7_gpio[16]]                  ; ## ASFE_Spare_4
 
-## ADAPT signals
-set_property  -dict {PACKAGE_PIN  N21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[17]]                  ; ## IO60PPB1
-set_property  -dict {PACKAGE_PIN  N22  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[18]]                  ; ## IO60NPB1
-set_property  -dict {PACKAGE_PIN  R22  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[19]]                  ; ## IO63PPB1
-set_property  -dict {PACKAGE_PIN  T22  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[20]]                  ; ## IO63NPB1
-set_property  -dict {PACKAGE_PIN  T21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[21]]                  ; ## IO62PDB1
-set_property  -dict {PACKAGE_PIN  U22  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[22]]                  ; ## IO62NDB1
-set_property  -dict {PACKAGE_PIN  P21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[23]]                  ; ## IO64PDB1
-set_property  -dict {PACKAGE_PIN  R21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[24]]                  ; ## IO64NDB1
-set_property  -dict {PACKAGE_PIN  T20  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[25]]                  ; ## IO67PDB1
-set_property  -dict {PACKAGE_PIN  U20  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[26]]                  ; ## IO67NDB1
-set_property  -dict {PACKAGE_PIN  R19  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[27]]                  ; ## IO68PDB1
-set_property  -dict {PACKAGE_PIN  T19  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[28]]                  ; ## IO68NDB1
-set_property  -dict {PACKAGE_PIN  T17  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[29]]                  ; ## IO69PDB1
-set_property  -dict {PACKAGE_PIN  U17  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[30]]                  ; ## IO69NDB1
-set_property  -dict {PACKAGE_PIN  R17  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[31]]                  ; ## IO70PDB1
-set_property  -dict {PACKAGE_PIN  R18  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[32]]                  ; ## IO70NDB1
+set_property  -dict {PACKAGE_PIN  U22  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[17]]                  ; ## ETHERNET_PHY_RESET_B
+set_property  -dict {PACKAGE_PIN  P21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[18]]                  ; ## ADI_SYNC0
+set_property  -dict {PACKAGE_PIN  R21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[19]]                  ; ## ADI_SYNC1
+
+## SPI0
+set_property  -dict {PACKAGE_PIN  T16  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[20]] ; ## SPI0_ASFE_SPI_CS    
+set_property  -dict {PACKAGE_PIN  P19  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[21]] ; ## SPI0_TRSS_CS        
+set_property  -dict {PACKAGE_PIN  U19  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[22]] ; ## SPI0_ATMEL_SS        
+set_property  -dict {PACKAGE_PIN  Y17  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[23]] ; ## SPI0_LV595_SS        
+set_property  -dict {PACKAGE_PIN  Y18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[24]] ; ## SPI0_LMK04906_SS        
+
+## SPI1
+set_property  -dict {PACKAGE_PIN  B4  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports ps7_gpio[25]]        ; ## PL_Bank35_SPI1_AD1_CS         
+set_property  -dict {PACKAGE_PIN  A4  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports ps7_gpio[26]]        ; ## PL_Bank35_SPI1_AD2_CS         
+set_property  -dict {PACKAGE_PIN  C2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports ps7_gpio[27]]        ; #C2 SPI1_ADF5355_1_SS
+set_property  -dict {PACKAGE_PIN  D1  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports ps7_gpio[28]]        ; #D1 SPI1_ADF5355_2_SS
 
 ##USB reset
-set_property  -dict {PACKAGE_PIN  T15  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[33]]                  ; ## USBPHY_RESET_B
+set_property  -dict {PACKAGE_PIN  T15  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[29]]                  ; ## USBPHY_RESET_B
 ##EMMC reset
-set_property  -dict {PACKAGE_PIN  AA19 IOSTANDARD LVCMOS33} [get_ports ps7_gpio[34]]                  ; ## eMMC_RST_N
+set_property  -dict {PACKAGE_PIN  E3 IOSTANDARD LVCMOS18} [get_ports ps7_gpio[30]]                  ; ## eMMC_RST_N
 
-## SPI
-set_property  -dict {PACKAGE_PIN  N17  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[35]] ; ## PL_Bank13_SPI0_MISO      
-set_property  -dict {PACKAGE_PIN  P18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[36]] ; ## PL_Bank13_SPI0_MOSI     
-set_property  -dict {PACKAGE_PIN  N18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[37]] ; ## PL_Bank13_SPI0_CK      
-set_property  -dict {PACKAGE_PIN  T16  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[38]] ; ## PL_Bank13_SPI0_ASFE_SPI_CS    
-set_property  -dict {PACKAGE_PIN  P19  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[39]] ; ## PL_Bank13_SPI0_TRSS_CS        
+set_property  -dict {PACKAGE_PIN  W15  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[31]]                  ; ## AD1_EN_AGC
+set_property  -dict {PACKAGE_PIN  T12  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[32]]                  ; ## AD1_CTL_IN0
+set_property  -dict {PACKAGE_PIN  U12  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[33]]                  ; ## AD1_CTL_IN1
+set_property  -dict {PACKAGE_PIN  V16  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[34]]                  ; ## AD1_CTL_IN2
+set_property  -dict {PACKAGE_PIN  W16  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[35]]                  ; ## AD1_CTL_IN3
+set_property  -dict {PACKAGE_PIN  U13  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[36]]                  ; ## AD1_ENABLE
+set_property  -dict {PACKAGE_PIN  V11  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[37]]                  ; ## AD1_TXNRX
 
-set_property  -dict {PACKAGE_PIN  W15  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[40]]                  ; ## AD1_EN_AGC
-set_property  -dict {PACKAGE_PIN  T12  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[41]]                  ; ## AD1_CTL_IN0
-set_property  -dict {PACKAGE_PIN  U12  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[42]]                  ; ## AD1_CTL_IN1
-set_property  -dict {PACKAGE_PIN  V16  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[43]]                  ; ## AD1_CTL_IN2
-set_property  -dict {PACKAGE_PIN  W16  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[44]]                  ; ## AD1_CTL_IN3
-set_property  -dict {PACKAGE_PIN  U13  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[45]]                  ; ## AD1_ENABLE
-set_property  -dict {PACKAGE_PIN  V11  IOSTANDARD LVCMOS25} [get_ports ps7_gpio[46]]                  ; ## AD1_TXNRX
+set_property  -dict {PACKAGE_PIN  P3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[38]]                  ; ## AD2_EN_AGC
+set_property  -dict {PACKAGE_PIN  M3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[39]]                  ; ## AD2_CTL_IN0
+set_property  -dict {PACKAGE_PIN  M2   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[40]]                  ; ## AD2_CTL_IN1
+set_property  -dict {PACKAGE_PIN  K3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[41]]                  ; ## AD2_CTL_IN2
+set_property  -dict {PACKAGE_PIN  K2   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[42]]                  ; ## AD2_CTL_IN3
+set_property  -dict {PACKAGE_PIN  N3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[43]]                  ; ## AD2_ENABLE
+set_property  -dict {PACKAGE_PIN  D3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[44]]                  ; ## AD2_TXNRX
 
-set_property  -dict {PACKAGE_PIN  P3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[47]]                  ; ## AD2_EN_AGC
-set_property  -dict {PACKAGE_PIN  M3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[48]]                  ; ## AD2_CTL_IN0
-set_property  -dict {PACKAGE_PIN  M2   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[49]]                  ; ## AD2_CTL_IN1
-set_property  -dict {PACKAGE_PIN  K3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[50]]                  ; ## AD2_CTL_IN2
-set_property  -dict {PACKAGE_PIN  K2   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[51]]                  ; ## AD2_CTL_IN3
-set_property  -dict {PACKAGE_PIN  N3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[52]]                  ; ## AD2_ENABLE
-set_property  -dict {PACKAGE_PIN  D3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[53]]                  ; ## AD2_TXNRX
+## AXI GPIO
 
-##ADAPT Debug
-set_property  -dict {PACKAGE_PIN  U19  IOSTANDARD LVCMOS33} [get_ports axi_gpio[0]]   ; ## ADAPT_DebPin35
-set_property  -dict {PACKAGE_PIN  V20  IOSTANDARD LVCMOS33} [get_ports axi_gpio[1]]   ; ## ADAPT_DebPin81
-set_property  -dict {PACKAGE_PIN  Y17  IOSTANDARD LVCMOS33} [get_ports axi_gpio[2]]   ; ## ADAPT_DebPin83
-set_property  -dict {PACKAGE_PIN  Y18  IOSTANDARD LVCMOS33} [get_ports axi_gpio[3]]   ; ## ADAPT_DebPin84
-set_property  -dict {PACKAGE_PIN  V17  IOSTANDARD LVCMOS33} [get_ports axi_gpio[4]]   ; ## ADAPT_DebPin85
-set_property  -dict {PACKAGE_PIN  W18  IOSTANDARD LVCMOS33} [get_ports axi_gpio[5]]   ; ## ADAPT_DebPin87
-set_property  -dict {PACKAGE_PIN  AB18 IOSTANDARD LVCMOS33} [get_ports axi_gpio[6]]   ; ## ADAPT_DebPin89
+set_property  -dict {PACKAGE_PIN  W11  IOSTANDARD LVCMOS25} [get_ports axi_gpio[0]]   ; ## AD1_CTRL_OUT0
+set_property  -dict {PACKAGE_PIN  W10  IOSTANDARD LVCMOS25} [get_ports axi_gpio[1]]   ; ## AD1_CTRL_OUT1
+set_property  -dict {PACKAGE_PIN  Y14  IOSTANDARD LVCMOS25} [get_ports axi_gpio[2]]   ; ## AD1_CTRL_OUT2
+set_property  -dict {PACKAGE_PIN  Y13  IOSTANDARD LVCMOS25} [get_ports axi_gpio[3]]  ; ## AD1_CTRL_OUT3
+set_property  -dict {PACKAGE_PIN  U14  IOSTANDARD LVCMOS25} [get_ports axi_gpio[4]]  ; ## AD1_CTRL_OUT4
+set_property  -dict {PACKAGE_PIN  U15  IOSTANDARD LVCMOS25} [get_ports axi_gpio[5]]  ; ## AD1_CTRL_OUT5
+set_property  -dict {PACKAGE_PIN  V13  IOSTANDARD LVCMOS25} [get_ports axi_gpio[6]]  ; ## AD1_CTRL_OUT6
+set_property  -dict {PACKAGE_PIN  V12  IOSTANDARD LVCMOS25} [get_ports axi_gpio[7]]  ; ## AD1_CTRL_OUT7
 
-set_property  -dict {PACKAGE_PIN  W11  IOSTANDARD LVCMOS25} [get_ports axi_gpio[7]]   ; ## AD1_CTRL_OUT0
-set_property  -dict {PACKAGE_PIN  W10  IOSTANDARD LVCMOS25} [get_ports axi_gpio[8]]   ; ## AD1_CTRL_OUT1
-set_property  -dict {PACKAGE_PIN  Y14  IOSTANDARD LVCMOS25} [get_ports axi_gpio[9]]   ; ## AD1_CTRL_OUT2
-set_property  -dict {PACKAGE_PIN  Y13  IOSTANDARD LVCMOS25} [get_ports axi_gpio[10]]  ; ## AD1_CTRL_OUT3
-set_property  -dict {PACKAGE_PIN  U14  IOSTANDARD LVCMOS25} [get_ports axi_gpio[11]]  ; ## AD1_CTRL_OUT4
-set_property  -dict {PACKAGE_PIN  U15  IOSTANDARD LVCMOS25} [get_ports axi_gpio[12]]  ; ## AD1_CTRL_OUT5
-set_property  -dict {PACKAGE_PIN  V13  IOSTANDARD LVCMOS25} [get_ports axi_gpio[13]]  ; ## AD1_CTRL_OUT6
-set_property  -dict {PACKAGE_PIN  V12  IOSTANDARD LVCMOS25} [get_ports axi_gpio[14]]  ; ## AD1_CTRL_OUT7
+set_property  -dict {PACKAGE_PIN  T20   IOSTANDARD LVCMOS33} [get_ports axi_gpio[8]]  ; ## AD2_CTRL_OUT0
+set_property  -dict {PACKAGE_PIN  U20   IOSTANDARD LVCMOS33} [get_ports axi_gpio[9]]  ; ## AD2_CTRL_OUT1
+set_property  -dict {PACKAGE_PIN  R19   IOSTANDARD LVCMOS33} [get_ports axi_gpio[10]]  ; ## AD2_CTRL_OUT2
+set_property  -dict {PACKAGE_PIN  T19   IOSTANDARD LVCMOS33} [get_ports axi_gpio[11]]  ; ## AD2_CTRL_OUT3
+set_property  -dict {PACKAGE_PIN  T17   IOSTANDARD LVCMOS33} [get_ports axi_gpio[12]]  ; ## AD2_CTRL_OUT4
+set_property  -dict {PACKAGE_PIN  U17   IOSTANDARD LVCMOS33} [get_ports axi_gpio[13]]  ; ## AD2_CTRL_OUT5
+set_property  -dict {PACKAGE_PIN  R17   IOSTANDARD LVCMOS33} [get_ports axi_gpio[14]]  ; ## AD2_CTRL_OUT6
+set_property  -dict {PACKAGE_PIN  R18   IOSTANDARD LVCMOS33} [get_ports axi_gpio[15]]  ; ## AD2_CTRL_OUT7
 
-set_property  -dict {PACKAGE_PIN  J4   IOSTANDARD LVCMOS18} [get_ports axi_gpio[15]]  ; ## AD2_CTRL_OUT0
-set_property  -dict {PACKAGE_PIN  P4   IOSTANDARD LVCMOS18} [get_ports axi_gpio[16]]  ; ## AD2_CTRL_OUT1
-set_property  -dict {PACKAGE_PIN  F2   IOSTANDARD LVCMOS18} [get_ports axi_gpio[17]]  ; ## AD2_CTRL_OUT2
-set_property  -dict {PACKAGE_PIN  N2   IOSTANDARD LVCMOS18} [get_ports axi_gpio[18]]  ; ## AD2_CTRL_OUT3
-set_property  -dict {PACKAGE_PIN  P1   IOSTANDARD LVCMOS18} [get_ports axi_gpio[19]]  ; ## AD2_CTRL_OUT4
-set_property  -dict {PACKAGE_PIN  L1   IOSTANDARD LVCMOS18} [get_ports axi_gpio[20]]  ; ## AD2_CTRL_OUT5
-set_property  -dict {PACKAGE_PIN  L2   IOSTANDARD LVCMOS18} [get_ports axi_gpio[21]]  ; ## AD2_CTRL_OUT6
-set_property  -dict {PACKAGE_PIN  N1   IOSTANDARD LVCMOS18} [get_ports axi_gpio[22]]  ; ## AD2_CTRL_OUT7
-
-set_property  -dict {PACKAGE_PIN  W20  IOSTANDARD LVCMOS33} [get_ports axi_gpio[23]]  ; ## ZYNQ_Ext5vdet
+# TP702 set_property  -dict {PACKAGE_PIN  W20  IOSTANDARD LVCMOS33} [get_ports axi_gpio[23]]  ; ## ZYNQ_Ext5vdet
 
 
 
 # clocks
-create_clock -name rx_clk_0     -period  4 [get_ports rx_clk_in_0_p]
-create_clock -name rx_clk_1     -period  4 [get_ports rx_clk_in_1_p]
-create_clock -name ad9361_0_clk   -period  4 [get_pins i_system_wrapper/system_i/axi_ad9361_0/clk]
-create_clock -name ad9361_1_clk   -period  4 [get_pins i_system_wrapper/system_i/axi_ad9361_1/clk]
+create_clock -name rx_clk_0     -period  5 [get_ports rx_clk_in_0_p]
+create_clock -name rx_clk_1     -period  5 [get_ports rx_clk_in_1_p]
+create_clock -name ad9361_0_clk   -period  5 [get_pins i_system_wrapper/system_i/axi_ad9361_0/clk]
+create_clock -name ad9361_1_clk   -period  5 [get_pins i_system_wrapper/system_i/axi_ad9361_1/clk]
 create_clock -name fmc_dma_clk  -period  4.00 [get_pins i_system_wrapper/system_i/sys_ps7/FCLK_CLK2]
 
 set_clock_groups -asynchronous -group {ad9361_0_clk}

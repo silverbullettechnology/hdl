@@ -64,6 +64,12 @@ proc adi_project_create {project_name} {
     set project_board "not-applicable"
   }
 
+     if [regexp "_tdsdr$" $project_name] {
+    set xl_board "tdsdr"
+    set project_part "xc7z030fbg484-2" 
+    set project_board "not-applicable"
+  }
+
 
   # planahead - 6 and down
 
