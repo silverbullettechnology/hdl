@@ -79,18 +79,18 @@ module system_top (
   tx_data_out_0_p,
   tx_data_out_0_n,
 
-  rx_clk_in_1_p,
-  rx_clk_in_1_n,
-  rx_frame_in_1_p,
-  rx_frame_in_1_n,
-  rx_data_in_1_p,
-  rx_data_in_1_n,
-  tx_clk_out_1_p,
-  tx_clk_out_1_n,
-  tx_frame_out_1_p,
-  tx_frame_out_1_n,
-  tx_data_out_1_p,
-  tx_data_out_1_n,
+ rx_clk_in_1_p,
+ rx_clk_in_1_n,
+ rx_frame_in_1_p,
+ rx_frame_in_1_n,
+ rx_data_in_1_p,
+ rx_data_in_1_n,
+ tx_clk_out_1_p,
+ tx_clk_out_1_n,
+ tx_frame_out_1_p,
+ tx_frame_out_1_n,
+ tx_data_out_1_p,
+ tx_data_out_1_n,
 
   spi_csn0,
   spi_csn1,
@@ -138,18 +138,18 @@ module system_top (
   output  [ 5:0]  tx_data_out_0_p;
   output  [ 5:0]  tx_data_out_0_n;
 
-  input           rx_clk_in_1_p;
-  input           rx_clk_in_1_n;
-  input           rx_frame_in_1_p;
-  input           rx_frame_in_1_n;
-  input   [ 5:0]  rx_data_in_1_p;
-  input   [ 5:0]  rx_data_in_1_n;
-  output          tx_clk_out_1_p;
-  output          tx_clk_out_1_n;
-  output          tx_frame_out_1_p;
-  output          tx_frame_out_1_n;
-  output  [ 5:0]  tx_data_out_1_p;
-  output  [ 5:0]  tx_data_out_1_n;
+ input           rx_clk_in_1_p;
+ input           rx_clk_in_1_n;
+ input           rx_frame_in_1_p;
+ input           rx_frame_in_1_n;
+ input   [ 5:0]  rx_data_in_1_p;
+ input   [ 5:0]  rx_data_in_1_n;
+ output          tx_clk_out_1_p;
+ output          tx_clk_out_1_n;
+ output          tx_frame_out_1_p;
+ output          tx_frame_out_1_n;
+ output  [ 5:0]  tx_data_out_1_p;
+ output  [ 5:0]  tx_data_out_1_n;
   
   output          spi_csn0;
   output          spi_csn1;
@@ -209,12 +209,12 @@ module system_top (
     .rx_frame_in_0_n (rx_frame_in_0_n),
     .rx_frame_in_0_p (rx_frame_in_0_p),
 
-    .rx_clk_in_1_n (rx_clk_in_1_n),
-    .rx_clk_in_1_p (rx_clk_in_1_p),
-    .rx_data_in_1_n (rx_data_in_1_n),
-    .rx_data_in_1_p (rx_data_in_1_p),
-    .rx_frame_in_1_n (rx_frame_in_1_n),
-    .rx_frame_in_1_p (rx_frame_in_1_p),
+   .rx_clk_in_1_n (rx_clk_in_1_n),
+   .rx_clk_in_1_p (rx_clk_in_1_p),
+   .rx_data_in_1_n (rx_data_in_1_n),
+   .rx_data_in_1_p (rx_data_in_1_p),
+   .rx_frame_in_1_n (rx_frame_in_1_n),
+   .rx_frame_in_1_p (rx_frame_in_1_p),
     
     .spi_csn_0_i (1'b1),
     .spi_csn_0_o (spi_csn0),    
@@ -233,12 +233,12 @@ module system_top (
     .tx_frame_out_0_n (tx_frame_out_0_n),
     .tx_frame_out_0_p (tx_frame_out_0_p),
 
-    .tx_clk_out_1_n (tx_clk_out_1_n),
-    .tx_clk_out_1_p (tx_clk_out_1_p),
-    .tx_data_out_1_n (tx_data_out_1_n),
-    .tx_data_out_1_p (tx_data_out_1_p),
-    .tx_frame_out_1_n (tx_frame_out_1_n),
-    .tx_frame_out_1_p (tx_frame_out_1_p),
+   .tx_clk_out_1_n (tx_clk_out_1_n),
+   .tx_clk_out_1_p (tx_clk_out_1_p),
+   .tx_data_out_1_n (tx_data_out_1_n),
+   .tx_data_out_1_p (tx_data_out_1_p),
+   .tx_frame_out_1_n (tx_frame_out_1_n),
+   .tx_frame_out_1_p (tx_frame_out_1_p),
     
     .axi_gpio (axi_gpio)
     
