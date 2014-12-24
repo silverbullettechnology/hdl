@@ -19,7 +19,9 @@ module adi2axis_conv
   
   input wire [31:0] ctrl,
   input wire [31:0] num_bytes,
-  output wire [31:0] stat
+  output wire [31:0] stat,
+  
+  input wire trig
 );
 
 parameter integer C_M_AXIS_TDATA_NUM_BYTES = 8;
@@ -74,7 +76,7 @@ begin
 //	 tlast <= 0;
    end
    else begin
-     dma_capture_en <= (done)? 0 : dma_start;
+     dma_capture_en <= (done)? 0 : dma_start & trig;
 	 if (dma_capture_en)
 	 begin
 	   cnt   <= m_xfr? cnt + 8: cnt;

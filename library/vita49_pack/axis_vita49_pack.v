@@ -2,10 +2,8 @@
 `define C_S_AXI_DATA_WIDTH 32
 `define C_S_AXI_ADDR_WIDTH 5
 
-module adi2axis
-#(
-  parameter integer C_M_AXIS_TDATA_NUM_BYTES = 8
-) (
+module axis_vita49_pack
+ (
   ////////////////////////////////////////////////////////////////////////////
   // AXI-LITE
 
@@ -30,30 +28,33 @@ module adi2axis
   input  wire                          S_AXI_RREADY,
 
   /////////
-  // ADI FIFO
-  input wire [(C_M_AXIS_TDATA_NUM_BYTES*8)-1:0] ddata,
-  input wire dvalid,
-  input wire dsync,
-  output wire ovf,
-  
-  /////////
   //AXIS
   input wire AXIS_ACLK,
   input wire AXIS_ARESETN,
+
+  output wire S_AXIS_TREADY,
+  input wire [31:0] S_AXIS_TDATA,
+  input wire S_AXIS_TLAST,
+  input wire S_AXIS_TVALID,
+ 
   output wire M_AXIS_TVALID,
-  output wire [(C_M_AXIS_TDATA_NUM_BYTES*8)-1:0] M_AXIS_TDATA,
-  output wire [C_M_AXIS_TDATA_NUM_BYTES-1:0] M_AXIS_TSTRB,
+  output wire [31:0] M_AXIS_TDATA,
   output wire M_AXIS_TLAST,
   input wire M_AXIS_TREADY,
-  
-  input wire trig
+
+  ///////////
+  // timing control  
+  input wire [31:0] timestamp_sec,
+  input wire [63:0] timestamp_fsec
 );
 
 wire [31:0] ctrl;
-wire [31:0] stat;
-wire [31:0] num_bytes;
+wire [31:0] status;
+wire [31:0] streamID;
+wire [15:0] pkt_size;
+wire [31:0] words_to_pack;
 
-adi2axis_if adi2axis_if (
+vita49_pack_if vita49_pack_if (
   .S_AXI_ACLK    (S_AXI_ACLK),
   .S_AXI_ARESETN (S_AXI_ARESETN),
   .S_AXI_AWADDR  (S_AXI_AWADDR),
@@ -74,34 +75,33 @@ adi2axis_if adi2axis_if (
   .S_AXI_RVALID  (S_AXI_RVALID),
   .S_AXI_RREADY  (S_AXI_RREADY),
   .ctrl          (ctrl),
-  .stat          (stat),
-  .num_bytes     (num_bytes)
+  .status        (status),
+  .streamID      (streamID),
+  .pkt_size      (pkt_size),
+  .words_to_pack (words_to_pack)
 );
 
-adi2axis_conv
-#(
-  .C_M_AXIS_TDATA_NUM_BYTES (C_M_AXIS_TDATA_NUM_BYTES),
-) 
-adi2axis_conv(
-  .S_AXI_ACLK    (S_AXI_ACLK),
-  .AXIS_ACLK     (AXIS_ACLK),
-  .AXIS_ARESETN  (AXIS_ARESETN),
-  .M_AXIS_TVALID (M_AXIS_TVALID),
-  .M_AXIS_TDATA  (M_AXIS_TDATA),
-  .M_AXIS_TSTRB  (M_AXIS_TSTRB),
-  .M_AXIS_TLAST  (M_AXIS_TLAST),
-  .M_AXIS_TREADY (M_AXIS_TREADY),
+vita49_pack vita49_pack (
+	.AXIS_ACLK (AXIS_ACLK),
+	.AXIS_ARESETN (AXIS_ARESETN),
+	.S_AXIS_TREADY (S_AXIS_TREADY),
+	.S_AXIS_TDATA (S_AXIS_TDATA),
+	.S_AXIS_TVALID (S_AXIS_TVALID),
+	.M_AXIS_TVALID (M_AXIS_TVALID),
+	.M_AXIS_TDATA (M_AXIS_TDATA),
+	.M_AXIS_TLAST (M_AXIS_TLAST),
+	.M_AXIS_TREADY (M_AXIS_TREADY),
+	
+	.ctrl (ctrl),
+	.status (status),
+	.streamID (streamID),
+	.pkt_size (pkt_size),
+	.words_to_pack (words_to_pack),
+	
+	.timestamp_sec (timestamp_sec),
+	.timestamp_fsec (timestamp_fsec)
+	);
+	  
   
-  .ddata  (ddata),
-  .dvalid (dvalid),
-  .dsync  (dsync),
-  .ovf    (ovf),
-  
-  .ctrl          (ctrl),
-  .stat          (stat),
-  .num_bytes     (num_bytes),
-  
-  .trig (trig)
-  );
   
 endmodule

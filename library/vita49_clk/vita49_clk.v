@@ -2,10 +2,8 @@
 `define C_S_AXI_DATA_WIDTH 32
 `define C_S_AXI_ADDR_WIDTH 5
 
-module adi2axis
-#(
-  parameter integer C_M_AXIS_TDATA_NUM_BYTES = 8
-) (
+module vita49_clk
+(
   ////////////////////////////////////////////////////////////////////////////
   // AXI-LITE
 
@@ -29,31 +27,30 @@ module adi2axis
   output wire                          S_AXI_RVALID,
   input  wire                          S_AXI_RREADY,
 
-  /////////
-  // ADI FIFO
-  input wire [(C_M_AXIS_TDATA_NUM_BYTES*8)-1:0] ddata,
-  input wire dvalid,
-  input wire dsync,
-  output wire ovf,
+  // input clocks
+  input wire pps_clk,
+  input wire samp_clk_0,
+  input wire samp_clk_1,
   
-  /////////
-  //AXIS
-  input wire AXIS_ACLK,
-  input wire AXIS_ARESETN,
-  output wire M_AXIS_TVALID,
-  output wire [(C_M_AXIS_TDATA_NUM_BYTES*8)-1:0] M_AXIS_TDATA,
-  output wire [C_M_AXIS_TDATA_NUM_BYTES-1:0] M_AXIS_TSTRB,
-  output wire M_AXIS_TLAST,
-  input wire M_AXIS_TREADY,
-  
-  input wire trig
-);
+  //  output counters
+  output wire [31:0] tsi_0,
+  output wire [31:0] tsi_1,
+  output wire [63:0] tsf_0,
+  output wire [63:0] tsf_1
+ );
 
 wire [31:0] ctrl;
-wire [31:0] stat;
-wire [31:0] num_bytes;
-
-adi2axis_if adi2axis_if (
+wire [31:0] status;
+wire [31:0] tsi_prog;
+  
+wire [31:0] tsi_0_up;
+wire [31:0] tsf_0_hi_up;
+wire [31:0] tsf_0_lo_up;
+wire [31:0] tsi_1_up;
+wire [31:0] tsf_1_hi_up;
+wire [31:0] tsf_1_lo_up;
+  
+vita49_clk_if vita49_clk_if (
   .S_AXI_ACLK    (S_AXI_ACLK),
   .S_AXI_ARESETN (S_AXI_ARESETN),
   .S_AXI_AWADDR  (S_AXI_AWADDR),
@@ -74,34 +71,40 @@ adi2axis_if adi2axis_if (
   .S_AXI_RVALID  (S_AXI_RVALID),
   .S_AXI_RREADY  (S_AXI_RREADY),
   .ctrl          (ctrl),
-  .stat          (stat),
-  .num_bytes     (num_bytes)
+  .status        (status),
+  .tsi_prog      (tsi_prog),
+  .tsi_0_up      (tsi_0_up),
+  .tsf_0_hi_up   (tsf_0_hi_up),
+  .tsf_0_lo_up   (tsf_0_lo_up),
+  .tsi_1_up      (tsi_1_up),
+  .tsf_1_hi_up   (tsf_1_hi_up),
+  .tsf_1_lo_up   (tsf_1_lo_up)
 );
-
-adi2axis_conv
-#(
-  .C_M_AXIS_TDATA_NUM_BYTES (C_M_AXIS_TDATA_NUM_BYTES),
-) 
-adi2axis_conv(
-  .S_AXI_ACLK    (S_AXI_ACLK),
-  .AXIS_ACLK     (AXIS_ACLK),
-  .AXIS_ARESETN  (AXIS_ARESETN),
-  .M_AXIS_TVALID (M_AXIS_TVALID),
-  .M_AXIS_TDATA  (M_AXIS_TDATA),
-  .M_AXIS_TSTRB  (M_AXIS_TSTRB),
-  .M_AXIS_TLAST  (M_AXIS_TLAST),
-  .M_AXIS_TREADY (M_AXIS_TREADY),
   
-  .ddata  (ddata),
-  .dvalid (dvalid),
-  .dsync  (dsync),
-  .ovf    (ovf),
-  
+vita49_clk_logic  vita49_clk_logic
+(
+  .ARESETN (S_AXI_ARESETN),
+  .pps_clk(pps_clk),
+  .samp_clk_0(samp_clk_0),
+  .samp_clk_1(samp_clk_1),
+ 
+  // from procesor 
   .ctrl          (ctrl),
-  .stat          (stat),
-  .num_bytes     (num_bytes),
+  .status        (status),
+  .tsi_prog      (tsi_prog),
+  .tsi_0_up      (tsi_0_up),
+  .tsf_0_hi_up   (tsf_0_hi_up),
+  .tsf_0_lo_up   (tsf_0_lo_up),
+  .tsi_1_up      (tsi_1_up),
+  .tsf_1_hi_up   (tsf_1_hi_up),
+  .tsf_1_lo_up   (tsf_1_lo_up),
   
-  .trig (trig)
-  );
+  // from timing unit
+  .tsi_0(tsi_0),
+  .tsi_1(tsi_1),
+  .tsf_0(tsf_0),
+  .tsf_1(tsf_1)
+ );
+
   
 endmodule
