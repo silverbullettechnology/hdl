@@ -93,9 +93,9 @@ set_property  -dict {PACKAGE_PIN  N18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [ge
 #set_property  -dict {PACKAGE_PIN  Y18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports spi0_csn4] ; ## SPI0_LMK04906_SS        
 
 ## SPI1
-set_property  -dict {PACKAGE_PIN  A2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_miso]        ; ## PL_Bank35_SPI1_MISO          
-set_property  -dict {PACKAGE_PIN  B2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_mosi]        ; ## PL_Bank35_SPI1_MOSI          
-set_property  -dict {PACKAGE_PIN  A1  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_clk]         ; ## PL_Bank35_SPI1_CK          
+set_property  -dict {PACKAGE_PIN  A2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_miso]        ; ## PL_Bank35_SPI1_MISO
+set_property  -dict {PACKAGE_PIN  B2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_mosi]        ; ## PL_Bank35_SPI1_MOSI 
+set_property  -dict {PACKAGE_PIN  A1  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_clk]         ; ## PL_Bank35_SPI1_CK 
 #set_property  -dict {PACKAGE_PIN  B4  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_csn0]        ; ## PL_Bank35_SPI1_AD1_CS         
 #set_property  -dict {PACKAGE_PIN  A4  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports spi1_csn1]        ; ## PL_Bank35_SPI1_AD2_CS         
 #C2 SPI1_ADF5355_1_SS
@@ -129,7 +129,7 @@ set_property  -dict {PACKAGE_PIN  AB20 IOSTANDARD LVCMOS33} [get_ports ps7_gpio[
 set_property  -dict {PACKAGE_PIN  Y21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[15]]                  ; ## ASFE_Spare_3
 set_property  -dict {PACKAGE_PIN  AA21 IOSTANDARD LVCMOS33} [get_ports ps7_gpio[16]]                  ; ## ASFE_Spare_4
 
-set_property  -dict {PACKAGE_PIN  U22  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[17]]                  ; ## ETHERNET_PHY_RESET_B
+set_property  -dict {PACKAGE_PIN  C1   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[17]]                  ; ## ETHERNET_PHY_RESET_B 
 set_property  -dict {PACKAGE_PIN  P21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[18]]                  ; ## ADI_SYNC0
 set_property  -dict {PACKAGE_PIN  R21  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[19]]                  ; ## ADI_SYNC1
 
