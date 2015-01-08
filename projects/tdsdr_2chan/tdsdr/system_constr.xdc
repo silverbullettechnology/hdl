@@ -167,6 +167,8 @@ set_property  -dict {PACKAGE_PIN  K2   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[
 set_property  -dict {PACKAGE_PIN  N3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[43]]                  ; ## AD2_ENABLE
 set_property  -dict {PACKAGE_PIN  D3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[44]]                  ; ## AD2_TXNRX
 
+set_property  -dict {PACKAGE_PIN  AB19   IOSTANDARD LVCMOS33} [get_ports ps7_gpio[45]]                ; ## DC1_Switch_CTRL
+
 ## AXI GPIO
 
 set_property  -dict {PACKAGE_PIN  W11  IOSTANDARD LVCMOS25} [get_ports axi_gpio[0]]   ; ## AD1_CTRL_OUT0

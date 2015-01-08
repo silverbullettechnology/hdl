@@ -124,7 +124,7 @@ module system_top (
   inout           FIXED_IO_ps_porb;
   inout           FIXED_IO_ps_srstb;
 
-  inout   [44:0]  ps7_gpio;
+  inout   [45:0]  ps7_gpio;
 
   input           rx_clk_in_0_p;
   input           rx_clk_in_0_n;
