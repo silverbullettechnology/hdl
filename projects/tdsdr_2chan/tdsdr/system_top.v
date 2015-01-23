@@ -92,12 +92,12 @@ module system_top (
   tx_data_out_1_p,
   tx_data_out_1_n,
 
-  spi0_clk,
-  spi0_mosi,
-  spi0_miso,
-  spi1_clk,
-  spi1_mosi,
-  spi1_miso,
+//  spi0_clk,
+//  spi0_mosi,
+//  spi0_miso,
+//  spi1_clk,
+//  spi1_mosi,
+//  spi1_miso,
   
   axi_gpio);
 
@@ -124,7 +124,7 @@ module system_top (
   inout           FIXED_IO_ps_porb;
   inout           FIXED_IO_ps_srstb;
 
-  inout   [44:0]  ps7_gpio;
+  inout   [52:0]  ps7_gpio;
 
   input           rx_clk_in_0_p;
   input           rx_clk_in_0_n;
@@ -152,24 +152,24 @@ module system_top (
   output  [ 5:0]  tx_data_out_1_p;
   output  [ 5:0]  tx_data_out_1_n;
 
-  output          spi0_clk;
-  output          spi0_mosi;
-  input           spi0_miso;
-  output          spi1_clk;
-  output          spi1_mosi;
-  input           spi1_miso;
+//  output          spi0_clk;
+//  output          spi0_mosi;
+//  input           spi0_miso;
+//  output          spi1_clk;
+//  output          spi1_mosi;
+//  input           spi1_miso;
   
   input [15:0] axi_gpio;
 
   // internal signals
 
-  wire    [45:0]  gpio_i;
-  wire    [45:0]  gpio_o;
-  wire    [45:0]  gpio_t;
+  wire    [52:0]  gpio_i;
+  wire    [52:0]  gpio_o;
+  wire    [52:0]  gpio_t;
   
   genvar n;
   generate
-  for (n = 0; n <= 45; n = n + 1) begin: g_iobuf_gpio_bd
+  for (n = 0; n <= 52; n = n + 1) begin: g_iobuf_gpio_bd
   IOBUF i_iobuf_gpio_bd (
     .I (gpio_o[n]),
     .O (gpio_i[n]),
@@ -218,19 +218,19 @@ module system_top (
     .rx_frame_in_1_n (rx_frame_in_1_n),
     .rx_frame_in_1_p (rx_frame_in_1_p),
     
-    .spi0_csn_i (1'b1),
-    .spi0_miso_i (spi0_miso),
-    .spi0_mosi_i (1'b0),
-    .spi0_mosi_o (spi0_mosi),
-    .spi0_sclk_i (1'b0),
-    .spi0_sclk_o (spi0_clk),
+//    .spi0_csn_i (1'b1),
+//    .spi0_miso_i (spi0_miso),
+//    .spi0_mosi_i (1'b0),
+//    .spi0_mosi_o (spi0_mosi),
+//    .spi0_sclk_i (1'b0),
+//    .spi0_sclk_o (spi0_clk),
 
-    .spi1_csn_i (1'b1),
-    .spi1_miso_i (spi1_miso),
-    .spi1_mosi_i (1'b0),
-    .spi1_mosi_o (spi1_mosi),
-    .spi1_sclk_i (1'b0),
-    .spi1_sclk_o (spi1_clk),
+//    .spi1_csn_i (1'b1),
+//    .spi1_miso_i (spi1_miso),
+//    .spi1_mosi_i (1'b0),
+//    .spi1_mosi_o (spi1_mosi),
+//    .spi1_sclk_i (1'b0),
+//    .spi1_sclk_o (spi1_clk),
     
     .tx_clk_out_0_n (tx_clk_out_0_n),
     .tx_clk_out_0_p (tx_clk_out_0_p),

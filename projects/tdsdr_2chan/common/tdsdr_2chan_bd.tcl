@@ -67,7 +67,7 @@
     set axi_ad9361_0_dac_dma [create_bd_cell -type ip -vlnv analog.com:user:axi_dmac:1.0 axi_ad9361_0_dac_dma]
     set_property -dict [list CONFIG.C_DMA_TYPE_SRC {0}] $axi_ad9361_0_dac_dma
     set_property -dict [list CONFIG.C_DMA_TYPE_DEST {2}] $axi_ad9361_0_dac_dma
-    set_property -dict [list CONFIG.C_CYCLIC {1}] $axi_ad9361_0_dac_dma
+    set_property -dict [list CONFIG.C_CYCLIC {0}] $axi_ad9361_0_dac_dma
     set_property -dict [list CONFIG.C_SYNC_TRANSFER_START {0}] $axi_ad9361_0_dac_dma
     set_property -dict [list CONFIG.C_AXI_SLICE_SRC {0}] $axi_ad9361_0_dac_dma
     set_property -dict [list CONFIG.C_AXI_SLICE_DEST {1}] $axi_ad9361_0_dac_dma
@@ -108,7 +108,7 @@
     set axi_ad9361_1_dac_dma [create_bd_cell -type ip -vlnv analog.com:user:axi_dmac:1.0 axi_ad9361_1_dac_dma]
     set_property -dict [list CONFIG.C_DMA_TYPE_SRC {0}] $axi_ad9361_1_dac_dma
     set_property -dict [list CONFIG.C_DMA_TYPE_DEST {2}] $axi_ad9361_1_dac_dma
-    set_property -dict [list CONFIG.C_CYCLIC {1}] $axi_ad9361_1_dac_dma
+    set_property -dict [list CONFIG.C_CYCLIC {0}] $axi_ad9361_1_dac_dma
     set_property -dict [list CONFIG.C_SYNC_TRANSFER_START {0}] $axi_ad9361_1_dac_dma
     set_property -dict [list CONFIG.C_AXI_SLICE_SRC {0}] $axi_ad9361_1_dac_dma
     set_property -dict [list CONFIG.C_AXI_SLICE_DEST {1}] $axi_ad9361_1_dac_dma
@@ -168,11 +168,11 @@
     set_property -dict [list CONFIG.PCW_EN_CLK2_PORT {1}] $sys_ps7
     set_property -dict [list CONFIG.PCW_EN_RST2_PORT {1}] $sys_ps7
     set_property -dict [list CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {250}] $sys_ps7
-    set_property -dict [list CONFIG.PCW_GPIO_EMIO_GPIO_IO {45}]      $sys_ps7
+    set_property -dict [list CONFIG.PCW_GPIO_EMIO_GPIO_IO {53}]      $sys_ps7
 
-    set_property LEFT 44 [get_bd_ports GPIO_I]
-    set_property LEFT 44 [get_bd_ports GPIO_O]
-    set_property LEFT 44 [get_bd_ports GPIO_T]
+    set_property LEFT 52 [get_bd_ports GPIO_I]
+    set_property LEFT 52 [get_bd_ports GPIO_O]
+    set_property LEFT 52 [get_bd_ports GPIO_T]
 
 
 
