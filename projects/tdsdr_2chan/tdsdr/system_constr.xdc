@@ -175,24 +175,7 @@ set_property  -dict {PACKAGE_PIN  K2   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[
 set_property  -dict {PACKAGE_PIN  N3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[43]]                  ; ## AD2_ENABLE
 set_property  -dict {PACKAGE_PIN  D3   IOSTANDARD LVCMOS18} [get_ports ps7_gpio[44]]                  ; ## AD2_TXNRX
 
-set_property  -dict {PACKAGE_PIN  AB19 IOSTANDARD LVCMOS33} [get_ports ps7_gpio[45]]                  ; ## DC1_Switch_CTRL
-
-## SPI0 
-set_property  -dict {PACKAGE_PIN  N17  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[46]] ; ## SPI0_ZYNQ_MISO      
-set_property  -dict {PACKAGE_PIN  P18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[47]] ; ## SPI0_ZYNQ_MOSI     
-set_property  -dict {PACKAGE_PIN  N18  IOSTANDARD LVCMOS33  PULLTYPE PULLUP} [get_ports ps7_gpio[48]] ;  ## SPI0_ZYNQ_SCK      
-
-## SPI1
-set_property  -dict {PACKAGE_PIN  A2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports ps7_gpio[49]]        ; ## PL_Bank35_SPI1_MISO
-set_property  -dict {PACKAGE_PIN  B2  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports ps7_gpio[50]]        ; ## PL_Bank35_SPI1_MOSI 
-set_property  -dict {PACKAGE_PIN  A1  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get_ports ps7_gpio[51]]         ; ## PL_Bank35_SPI1_CK 
-
-## Debug LED
-set_property  -dict {PACKAGE_PIN  W19  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[52]] ;  ## debug LED      
-set_property  -dict {PACKAGE_PIN  N21  IOSTANDARD LVCMOS33 PULLTYPE PULLUP} [get_ports ps7_gpio[53]] ;  ## SRIO_PCIE_SEL      
-set_property  -dict {PACKAGE_PIN  N22  IOSTANDARD LVCMOS33 PULLTYPE PULLUP} [get_ports ps7_gpio[54]] ;  ## SGMII_SEL      
-
-
+set_property  -dict {PACKAGE_PIN  AB19   IOSTANDARD LVCMOS33} [get_ports ps7_gpio[45]]                ; ## DC1_Switch_CTRL
 
 ## AXI GPIO
 
