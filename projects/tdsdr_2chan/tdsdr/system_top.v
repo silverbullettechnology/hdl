@@ -92,6 +92,13 @@ module system_top (
   tx_data_out_1_p,
   tx_data_out_1_n,
 
+    sgmii_refclk125_n,
+    sgmii_refclk125_p,
+    sgmii_rxn,
+    sgmii_rxp,
+    sgmii_txn,
+    sgmii_txp,
+ 
 //  spi0_clk,
 //  spi0_mosi,
 //  spi0_miso,
@@ -124,7 +131,7 @@ module system_top (
   inout           FIXED_IO_ps_porb;
   inout           FIXED_IO_ps_srstb;
 
-  inout   [52:0]  ps7_gpio;
+  inout   [54:0]  ps7_gpio;
 
   input           rx_clk_in_0_p;
   input           rx_clk_in_0_n;
@@ -159,17 +166,24 @@ module system_top (
 //  output          spi1_mosi;
 //  input           spi1_miso;
   
+  input sgmii_refclk125_n;
+  input sgmii_refclk125_p;
+  input sgmii_rxn;
+  input sgmii_rxp;
+  output sgmii_txn;
+  output sgmii_txp;
+  
   input [15:0] axi_gpio;
 
   // internal signals
 
-  wire    [52:0]  gpio_i;
-  wire    [52:0]  gpio_o;
-  wire    [52:0]  gpio_t;
+  wire    [54:0]  gpio_i;
+  wire    [54:0]  gpio_o;
+  wire    [54:0]  gpio_t;
   
   genvar n;
   generate
-  for (n = 0; n <= 52; n = n + 1) begin: g_iobuf_gpio_bd
+  for (n = 0; n <= 54; n = n + 1) begin: g_iobuf_gpio_bd
   IOBUF i_iobuf_gpio_bd (
     .I (gpio_o[n]),
     .O (gpio_i[n]),
@@ -245,6 +259,13 @@ module system_top (
     .tx_data_out_1_p (tx_data_out_1_p),
     .tx_frame_out_1_n (tx_frame_out_1_n),
     .tx_frame_out_1_p (tx_frame_out_1_p),
+
+    .sgmii_refclk125_n (sgmii_refclk125_n),
+    .sgmii_refclk125_p (sgmii_refclk125_p),
+    .sgmii_rxn (sgmii_rxn),
+    .sgmii_rxp (sgmii_rxp),
+    .sgmii_txn (sgmii_txn),
+    .sgmii_txp (sgmii_txp),
     
     .axi_gpio (axi_gpio)
     

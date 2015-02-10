@@ -101,7 +101,15 @@ set_property  -dict {PACKAGE_PIN  K6 IOSTANDARD LVDS} [get_ports tx_data_out_1_n
 #C2 SPI1_ADF5355_1_SS
 #D1 SPI1_ADF5355_2_SS
 
+# SGMII
+set_property  -dict {PACKAGE_PIN  J5 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_refclk125_p]                  ; ##     
+set_property  -dict {PACKAGE_PIN  J4 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_refclk125_n]                  ; ##     
 
+set_property  -dict {PACKAGE_PIN  L2 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_txp]                  ; ##     
+set_property  -dict {PACKAGE_PIN  L1 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_txn]                  ; ##     
+
+set_property  -dict {PACKAGE_PIN  P1 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_rxp]                  ; ##     
+set_property  -dict {PACKAGE_PIN  N1 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_rxn]                  ; ##     
 
 
 
@@ -181,6 +189,8 @@ set_property  -dict {PACKAGE_PIN  A1  IOSTANDARD LVCMOS18  PULLTYPE PULLUP} [get
 
 ## Debug LED
 set_property  -dict {PACKAGE_PIN  W19  IOSTANDARD LVCMOS33} [get_ports ps7_gpio[52]] ;  ## debug LED      
+set_property  -dict {PACKAGE_PIN  N21  IOSTANDARD LVCMOS33 PULLTYPE PULLUP} [get_ports ps7_gpio[53]] ;  ## SRIO_PCIE_SEL      
+set_property  -dict {PACKAGE_PIN  N22  IOSTANDARD LVCMOS33 PULLTYPE PULLUP} [get_ports ps7_gpio[54]] ;  ## SGMII_SEL      
 
 
 
