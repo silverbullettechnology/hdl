@@ -54,7 +54,8 @@ reg strm_id_err;
 reg tlast_err;
 reg trailer_err; 
 
-assign status = {20'h00000,
+assign status = {start_cmd, reset_cmd, passthrough, AXIS_ARESETN,
+    16'h0000,
     pkt_size_err, pkt_type_err, pkt_order_err, pkt_cnt_err,
 	ts_order_err, ts_past_err, tsi_err, tsf_err,
 	strm_id_err, tlast_err, trailer_err, done
@@ -276,11 +277,11 @@ begin
 			begin
 				Mstate <= M_CHK_TSF_0; // default next state
 				tsi_eq <=  (tdata_reg == timestamp_sec_r)? 1:0;
-				if (tdata_reg < timestamp_sec_r) begin
-					ts_past_err <= 1;
-					tsi_err <= 1;
-					Mstate <= M_ERROR;
-				end
+//				if (tdata_reg < timestamp_sec_r) begin
+//					ts_past_err <= 1;
+//					tsi_err <= 1;
+//					Mstate <= M_ERROR;
+//				end
 				if (tdata_reg < tsi_last) begin
 					ts_order_err <= 1;
 					tsi_err <= 1;
@@ -300,12 +301,12 @@ begin
 			if (d_xfr)
 			begin
 				Mstate <= M_SEND_PAYLOAD; // default next state
-				if (({tsf_pkt_msb, tdata_reg} < timestamp_fsec_r) & tsi_eq) begin
-					ts_past_err <= 1;
-					tsf_err <= 1;
-					Mstate <= M_ERROR;
-				end
-				if ({tsf_pkt_msb, tdata_reg} < tsf_last) begin
+//				if (({tsf_pkt_msb, tdata_reg} < timestamp_fsec_r) & tsi_eq) begin
+//					ts_past_err <= 1;
+//					tsf_err <= 1;
+//					Mstate <= M_ERROR;
+//				end
+				if (tsi_eq && ({tsf_pkt_msb, tdata_reg} < tsf_last)) begin
 					ts_order_err <= 1;
 					tsf_err <= 1;
 					Mstate <= M_ERROR;

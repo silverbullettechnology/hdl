@@ -1,3 +1,4 @@
+// Assumes TLAST signal occurs only on even number of 32-bit words
 
 module axis_32to64
 (
@@ -36,7 +37,7 @@ localparam
 assign M_AXIS_TUSER  = tuser_reg;
 assign M_AXIS_TDATA  = {S_AXIS_TDATA, tdata_reg};
 assign M_AXIS_TLAST  = S_AXIS_TLAST;
-assign S_AXIS_TREADY = M_AXIS_TREADY;
+assign S_AXIS_TREADY = (state==S0 | state==S2)? 1 : M_AXIS_TREADY;
 assign M_AXIS_TVALID = (state==S1 | state==S3)? S_AXIS_TVALID: 0;
 
 always @ (posedge AXIS_ACLK)
