@@ -106,7 +106,12 @@ module system_top (
 //  spi1_mosi,
 //  spi1_miso,
   
-  axi_gpio);
+  axi_gpio,
+  
+  mdio_mdc,
+  mdio_i,
+  mdio_o 
+  );
 
   inout   [14:0]  DDR_addr;
   inout   [ 2:0]  DDR_ba;
@@ -131,7 +136,7 @@ module system_top (
   inout           FIXED_IO_ps_porb;
   inout           FIXED_IO_ps_srstb;
 
-  inout   [45:0]  ps7_gpio;
+  inout   [54:0]  ps7_gpio;
 
   input           rx_clk_in_0_p;
   input           rx_clk_in_0_n;
@@ -175,6 +180,11 @@ module system_top (
   
   input [15:0] axi_gpio;
 
+  // SGMII debug signals
+  output mdio_mdc;
+  output mdio_i;
+  output mdio_o;
+  
   // internal signals
 
   wire    [54:0]  gpio_i;
@@ -267,7 +277,11 @@ module system_top (
     .sgmii_txn (sgmii_txn),
     .sgmii_txp (sgmii_txp),
     
-    .axi_gpio (axi_gpio)
+    .axi_gpio (axi_gpio),
+    
+    .mdio_mdc (mdio_mdc),
+    .mdio_i (mdio_i),
+    .mdio_o (mdio_o)
     
     );
 

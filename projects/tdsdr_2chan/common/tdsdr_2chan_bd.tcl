@@ -168,11 +168,11 @@
     set_property -dict [list CONFIG.PCW_EN_CLK2_PORT {1}] $sys_ps7
     set_property -dict [list CONFIG.PCW_EN_RST2_PORT {1}] $sys_ps7
     set_property -dict [list CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {250}] $sys_ps7
-    set_property -dict [list CONFIG.PCW_GPIO_EMIO_GPIO_IO {46}]      $sys_ps7
+    set_property -dict [list CONFIG.PCW_GPIO_EMIO_GPIO_IO {53}]      $sys_ps7
 
-    set_property LEFT 45 [get_bd_ports GPIO_I]
-    set_property LEFT 45 [get_bd_ports GPIO_O]
-    set_property LEFT 45 [get_bd_ports GPIO_T]
+    set_property LEFT 52 [get_bd_ports GPIO_I]
+    set_property LEFT 52 [get_bd_ports GPIO_O]
+    set_property LEFT 52 [get_bd_ports GPIO_T]
 
 
 
