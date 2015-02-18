@@ -108,5 +108,6 @@ begin
   assign M_AXIS_TDEST = tdest_reg;
   assign M_AXIS_TVALID = dval;
   assign drdy =	M_AXIS_TREADY;
-
+  assign M_AXIS_TUSER = tuser_reg;
+  
 endmodule
