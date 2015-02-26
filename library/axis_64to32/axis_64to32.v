@@ -34,7 +34,7 @@ localparam
   S2 = 2'b10;
 
 assign M_AXIS_TDATA  = (state==S0 | state==S1)? S_AXIS_TDATA[31:0] : tdata_reg[63:32];
-assign M_AXIS_TLAST  = tlast_reg;
+assign M_AXIS_TLAST  = (state==S0 | state==S1)? 0: tlast_reg;
 assign S_AXIS_TREADY = (state==S0 | state==S1)? M_AXIS_TREADY : 0;
 assign M_AXIS_TVALID = (state==S0 | state==S1)? S_AXIS_TVALID : 1;
 
