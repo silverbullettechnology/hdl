@@ -30,6 +30,7 @@ end
   wire [31:0] SRC_TDATA;
   wire SRC_TVALID;
   wire SRC_TREADY;
+  wire SRC_TLAST;
 
 // axi streaming
 //  wire [63:0] CONV_TDATA;
@@ -53,7 +54,7 @@ end
   wire [31:0] vita_status;
   reg [31:0] vita_streamID;
   reg [15:0] vita_pkt_size;
-  reg [31:0] vita_words_to_pack;
+  reg [31:0] trailer;
   
 // clock generator
 clk_gen clk_gen (
@@ -73,6 +74,7 @@ axis_dsrc_rep axis_dsrc_rep (
 	.M_AXIS_TVALID (SRC_TVALID),
 	.M_AXIS_TDATA (SRC_TDATA),
 	.M_AXIS_TREADY (SRC_TREADY),
+	.M_AXIS_TLAST  (SRC_TLAST),
 	.cmd(dsrc_cmd),
 	.num_bytes(dsrc_num_bytes),
 	.data_type (dsrc_data_type),
@@ -99,6 +101,7 @@ vita49_pack vita49_pack (
 	.S_AXIS_TREADY (SRC_TREADY),
 	.S_AXIS_TDATA (SRC_TDATA),
 	.S_AXIS_TVALID (SRC_TVALID),
+	.S_AXIS_TLAST (SRC_TLAST),
 	.M_AXIS_TVALID (VITA_TVALID),
 	.M_AXIS_TDATA (VITA_TDATA),
 	.M_AXIS_TLAST (VITA_TLAST),
@@ -108,7 +111,7 @@ vita49_pack vita49_pack (
 	.status (vita_status),
 	.streamID (vita_streamID),
 	.pkt_size (vita_pkt_size),
-	.words_to_pack (vita_words_to_pack),
+	.trailer (trailer),
 	
 	.timestamp_sec (tsi),
 	.timestamp_fsec (tsf)
@@ -126,7 +129,7 @@ initial begin
     vita_ctrl = 0;
     vita_streamID = 0;
     vita_pkt_size = 0;
-    vita_words_to_pack = 0;
+    trailer = 0;
 
 #11000
     vita_ctrl = 'h2; // reset
@@ -144,13 +147,14 @@ initial begin
     
     vita_streamID = 'hdeadbeef;
     vita_pkt_size = 'h20;
-    vita_words_to_pack = 'h40;
+    trailer = 'h40;
     
  #50
     dsrc_cmd = 'h1;
     dsrc_new_cmd = 1;  
     //vita_ctrl = 'h4; // passthrough
-    vita_ctrl = 'h1; // start
+    //vita_ctrl = 'h1; // start
+    vita_ctrl = 'h9; // start / trailer enabled
        
 #50
     dsrc_new_cmd = 0;

@@ -97,7 +97,7 @@ module vita49_pack_if
   output wire [31:0] ctrl,
   output wire [31:0] streamID,
   output wire [15:0] pkt_size,
-  output wire [31:0] words_to_pack,
+  output wire [31:0] trailer,
   input  wire [31:0] status
 
 );
@@ -551,6 +551,6 @@ assign S_AXI_RRESP  = axi_rresp;
 assign ctrl           = slv_reg0;
 assign streamID       = slv_reg2;
 assign pkt_size       = slv_reg3;
-assign words_to_pack  = slv_reg4;
+assign trailer        = slv_reg4;
 
 endmodule

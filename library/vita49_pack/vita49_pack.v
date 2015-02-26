@@ -19,24 +19,31 @@ module vita49_pack
   output wire [31:0] status,
   input wire [31:0] streamID,
   input wire [15:0] pkt_size,
-  input wire [31:0] words_to_pack,
+  input wire [31:0] trailer,
   
   // from timing unit
   input wire [31:0] timestamp_sec,
-  input wire [63:0] timestamp_fsec
+  input wire [63:0] timestamp_fsec,
+  
+  output wire [3:0] mstate_dbg,
+  output wire [15:0] payload_cnt_dbg,
+  output wire tlast_reg_dbg
  );
 
 // control signals
 wire passthrough;
 wire reset_cmd;
 wire start_cmd;
+wire trailer_en;
 // status signals
 reg done;
 
-assign start_cmd = ctrl[0];
-assign reset_cmd = ctrl[1]; 
+assign start_cmd   = ctrl[0];
+assign reset_cmd   = ctrl[1]; 
 assign passthrough = ctrl[2];
-assign status = {31'h0, done};
+assign trailer_en  = ctrl[3];
+
+assign status = {'h0, payload_cnt, Mstate};
  
 wire m_xfr;    // master data transferred
 wire s_xfr;    // slave data transferred
@@ -104,21 +111,27 @@ localparam
   M_SEND_TSF_0   = 4'h4,
   M_SEND_TSF_1   = 4'h5,
   M_SEND_PAYLOAD = 4'h6,
-  M_SEND_DONE    = 4'h7;
+  M_SEND_DONE    = 4'h7,
+  M_SEND_ZERO    = 4'h8,
+  M_SEND_TRAIL   = 4'h9;
 
 reg [3:0]  Mstate;
 reg [15:0] payload_cnt;
 reg [31:0] word_cnt;
 reg [3:0]  pkt_cnt;
+reg last_trail;
 
 localparam
   PKT_TYPE = 4'b0001,      // IF Data packet with stream identifier
   C        = 1'b0,         // No class identifier
-  T        = 1'b0,         // No trailer
+//  T        = 1'b0,         // No trailer
   RR       = 2'b00,        // reserved
   TSI      = 2'b11,        // Integer Timestamp (other)
   TSF      = 2'b01;        // Fractional Timestamp (sample count)
-  
+
+wire T; 
+assign T = trailer_en;  
+
 wire [31:0] header;
 assign header = {PKT_TYPE, C, T, RR, TSI, TSF, pkt_cnt, pkt_size};
 
@@ -126,7 +139,9 @@ assign ts_en = (Mstate == M_SEND_STRM_ID) ? 1 : 0;
 
 assign M_AXIS_TLAST = 	
     (passthrough)              ? tlast_reg:
-    ((Mstate == M_SEND_PAYLOAD) & (payload_cnt+1 == pkt_size))? 1:0;
+    ((Mstate == M_SEND_PAYLOAD) & (payload_cnt+1 == pkt_size))? 1:
+    ((Mstate == M_SEND_ZERO)    & (payload_cnt+1 == pkt_size))? 1:
+    (Mstate == M_SEND_TRAIL)?  1:0;
 
 assign M_AXIS_TDATA =
 	(passthrough)              ? tdata_reg:
@@ -135,7 +150,9 @@ assign M_AXIS_TDATA =
 	(Mstate == M_SEND_TSI)     ? timestamp_sec_r:
 	(Mstate == M_SEND_TSF_0)   ? timestamp_fsec_r[63:32]:
 	(Mstate == M_SEND_TSF_1)   ? timestamp_fsec_r[31:0]:
-	(Mstate == M_SEND_PAYLOAD) ? tdata_reg : 0;
+	(Mstate == M_SEND_PAYLOAD) ? tdata_reg : 
+	(Mstate == M_SEND_ZERO)    ? 0 :
+    (Mstate == M_SEND_TRAIL)   ? trailer : 0;
 
 assign M_AXIS_TVALID =
 	(passthrough)              ? dval :
@@ -144,11 +161,15 @@ assign M_AXIS_TVALID =
 	(Mstate == M_SEND_TSI)     ? dval:
 	(Mstate == M_SEND_TSF_0)   ? 1:
 	(Mstate == M_SEND_TSF_1)   ? 1:
-	(Mstate == M_SEND_PAYLOAD) ? dval : 0;
+	(Mstate == M_SEND_PAYLOAD) ? dval :
+	(Mstate == M_SEND_ZERO)    ? 1 :
+	(Mstate == M_SEND_TRAIL)   ? 1 : 0;
 
 assign drdy =
 	(passthrough)              ? M_AXIS_TREADY:
-	(Mstate == M_SEND_PAYLOAD) ? m_xfr : 0;
+	(Mstate == M_SEND_PAYLOAD) ? m_xfr :
+	(Mstate == M_SEND_ZERO)  ? 0 :
+	(Mstate == M_SEND_TRAIL) ? 0 : 0;
 
 
 always @ (posedge AXIS_ACLK)
@@ -157,7 +178,7 @@ begin
 	begin
 		Mstate      <= M_INIT;
 		payload_cnt <= 16'h0;
-		word_cnt    <= 32'h0;
+//		word_cnt    <= 32'h0;
 		pkt_cnt     <= 4'h0;
 		done        <= 0;
 	end
@@ -166,10 +187,11 @@ begin
  	  case(Mstate)
  	    M_INIT: begin
 			payload_cnt <= 16'h0;
-			word_cnt    <= 32'h0;
-    		pkt_cnt     <= 4'h0;		
+//			word_cnt    <= 32'h0;
+    		pkt_cnt     <= 4'h0;
+            last_trail  <= 0;			
 			done        <= 0;
-			Mstate      <= (start_cmd)? M_SEND_HDR : Mstate;
+			Mstate      <= (start_cmd & dval)? M_SEND_HDR : Mstate;
  		end
 	    M_SEND_HDR: begin
 			payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
@@ -192,23 +214,53 @@ begin
 			Mstate    <= (m_xfr)? M_SEND_PAYLOAD : Mstate;	    
   		end
  	    M_SEND_PAYLOAD: begin
-			if (payload_cnt+1 == pkt_size) 
+			if (trailer_en & (payload_cnt+2 == pkt_size)) 
+			begin
+				payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
+				last_trail  <= (m_xfr)? tlast_reg: last_trail;
+				Mstate      <= (m_xfr)? M_SEND_TRAIL: Mstate;	   
+			end
+			else if (payload_cnt+1 == pkt_size) 
 			begin
 				payload_cnt <= (m_xfr)? 0 : payload_cnt;
-				word_cnt <= (m_xfr)? word_cnt+1:word_cnt;
-				pkt_cnt  <= (m_xfr)? pkt_cnt+1:pkt_cnt;
-				if (m_xfr)
-					Mstate <= (word_cnt+1 >= words_to_pack)? M_SEND_DONE : M_SEND_HDR;
-				else
-					Mstate <= M_SEND_PAYLOAD;
+				pkt_cnt     <= (m_xfr)? pkt_cnt+1:pkt_cnt;
+				Mstate      <= (m_xfr)? ((tlast_reg)? M_INIT: M_SEND_HDR) : Mstate;	   
+			end
+			else if (tlast_reg)
+			begin
+				payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
+				Mstate      <= (m_xfr)? M_SEND_ZERO : Mstate;	   				
 			end
 			else
 			begin
 				payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
-				word_cnt    <= (m_xfr)? word_cnt+1:word_cnt;
 				Mstate      <= (m_xfr)? M_SEND_PAYLOAD : Mstate;	   
 			end
  		end
+		M_SEND_ZERO: begin
+			if (trailer_en & (payload_cnt+2 == pkt_size)) 
+			begin
+				payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
+				last_trail  <= (m_xfr)? 1: last_trail;
+				Mstate      <= (m_xfr)? M_SEND_TRAIL: Mstate;	   
+			end		
+			else if (payload_cnt+1 == pkt_size) 
+			begin
+				payload_cnt <= (m_xfr)? 0 : payload_cnt;
+				pkt_cnt     <= (m_xfr)? pkt_cnt+1:pkt_cnt;
+				Mstate      <= (m_xfr)? M_INIT : Mstate;	   
+			end
+			else
+			begin			
+				payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
+				Mstate      <= (m_xfr)? M_SEND_ZERO : Mstate;	   
+			end
+		end
+		M_SEND_TRAIL: begin
+			payload_cnt <= (m_xfr)? 0 : payload_cnt;
+			pkt_cnt     <= (m_xfr)? pkt_cnt+1:pkt_cnt;
+			Mstate      <= (m_xfr)? ((last_trail)? M_INIT: M_SEND_HDR) : Mstate;	   
+		end
 	    M_SEND_DONE: begin
 			done <= 1;
   		end
@@ -216,4 +268,7 @@ begin
 	end
 end
 
+assign payload_cnt_dbg = payload_cnt;
+assign mstate_dbg = Mstate;
+assign tlast_reg_dbg = tlast_reg;
 endmodule

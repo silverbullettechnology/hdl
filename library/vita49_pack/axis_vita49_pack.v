@@ -45,14 +45,18 @@ module axis_vita49_pack
   ///////////
   // timing control  
   input wire [31:0] timestamp_sec,
-  input wire [63:0] timestamp_fsec
-);
+  input wire [63:0] timestamp_fsec,
+  
+  output wire [3:0] mstate_dbg,
+  output wire [15:0] payload_cnt_dbg,
+  output wire tlast_reg_dbg
+  );
 
 wire [31:0] ctrl;
 wire [31:0] status;
 wire [31:0] streamID;
 wire [15:0] pkt_size;
-wire [31:0] words_to_pack;
+wire [31:0] trailer;
 
 vita49_pack_if vita49_pack_if (
   .S_AXI_ACLK    (S_AXI_ACLK),
@@ -78,7 +82,7 @@ vita49_pack_if vita49_pack_if (
   .status        (status),
   .streamID      (streamID),
   .pkt_size      (pkt_size),
-  .words_to_pack (words_to_pack)
+  .trailer (trailer)
 );
 
 vita49_pack vita49_pack (
@@ -87,6 +91,8 @@ vita49_pack vita49_pack (
 	.S_AXIS_TREADY (S_AXIS_TREADY),
 	.S_AXIS_TDATA (S_AXIS_TDATA),
 	.S_AXIS_TVALID (S_AXIS_TVALID),
+	.S_AXIS_TLAST (S_AXIS_TLAST),
+	
 	.M_AXIS_TVALID (M_AXIS_TVALID),
 	.M_AXIS_TDATA (M_AXIS_TDATA),
 	.M_AXIS_TLAST (M_AXIS_TLAST),
@@ -96,10 +102,13 @@ vita49_pack vita49_pack (
 	.status (status),
 	.streamID (streamID),
 	.pkt_size (pkt_size),
-	.words_to_pack (words_to_pack),
+	.trailer (trailer),
 	
 	.timestamp_sec (timestamp_sec),
-	.timestamp_fsec (timestamp_fsec)
+	.timestamp_fsec (timestamp_fsec),
+	.mstate_dbg(mstate_dbg),
+	.payload_cnt_dbg(payload_cnt_dbg),
+	.tlast_reg_dbg(tlast_reg_dbg)	
 	);
 	  
   
