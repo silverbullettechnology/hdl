@@ -28,7 +28,8 @@ parameter integer C_M_AXIS_TDATA_NUM_BYTES = 8;
 
 reg cntr_rst;
 reg rx_enable;
-reg dma_start;
+reg dma_start_legacy;
+reg dma_start_trig;
 reg [31:0] cnt;
 
 always @ (posedge S_AXI_ACLK)
@@ -38,15 +39,19 @@ begin
    begin
      cntr_rst   <= 1;
      rx_enable  <= 0;
+	 dma_start_trig <= 0;
    end
    else begin
        case (ctrl)
+	   'h2:
+	     dma_start_trig <= 1;
        'h1: //
-         dma_start <= 1;
+         dma_start_legacy <= 1;
        'h0: //reset
          begin
           cntr_rst   <= 1;
-          dma_start  <= 0;
+          dma_start_legacy  <= 0;
+		  dma_start_trig <= 0;
          end        
       endcase;
 	end
@@ -54,17 +59,35 @@ end
 
 reg dma_capture_en;
 reg done;
+reg trig_reg;
+reg trig_reg1;
 //reg tlast;
 
 assign stat  = { 30'h0, done, dma_capture_en};
 wire   m_xfr = M_AXIS_TREADY & M_AXIS_TVALID;
 
-assign M_AXIS_TVALID = (dma_capture_en)? (dvalid & dsync) : 0;
-assign M_AXIS_TLAST  = (cnt>=num_bytes-8)? M_AXIS_TVALID : 0; //done & dma_capture_en;
+assign M_AXIS_TLAST  = 
+	(dma_start_legacy) ? ((cnt>=num_bytes-8)? M_AXIS_TVALID : 0)  :
+	(dma_start_trig)   ? ((~trig_reg & trig_reg1)? M_AXIS_TVALID : 0)  : 0;
+
+assign M_AXIS_TVALID = (dma_capture_en)? (dvalid & dsync) : 0;	
 assign M_AXIS_TDATA  = ddata;
 assign M_AXIS_TSTRB = 'hff;
 
 assign ovf = (dvalid & dsync) & (!M_AXIS_TREADY);   
+
+//always @ (posedge AXIS_ACLK)
+always @ (posedge (dvalid & dsync))
+begin
+   if (cntr_rst) begin
+     trig_reg <= 0;
+	 trig_reg1 <= 0;
+   end
+   else begin
+     trig_reg <= trig;
+	 trig_reg1 <= trig_reg;
+   end
+end
 
 always @ (posedge AXIS_ACLK)
 begin
@@ -73,18 +96,21 @@ begin
      cnt     <= 0; 
 	 dma_capture_en <= 0;
 	 done <= 0;
-//	 tlast <= 0;
    end
-   else begin
-     dma_capture_en <= (done)? 0 : dma_start & trig;
+
+   else if (dma_start_legacy) begin
+     dma_capture_en <= (done)? 0 : dma_start_legacy & trig;
 	 if (dma_capture_en)
 	 begin
 	   cnt   <= m_xfr? cnt + 8: cnt;
 	   done  <= m_xfr? (cnt==num_bytes-8) : done;
-//	   tlast <= m_xfr? (cnt==num_bytes-8) : done;
 	 end
    end
- end
+
+   else if (dma_start_trig) begin
+     dma_capture_en <= dma_start_trig & ((trig & trig_reg) | (trig_reg & trig_reg1));
+   end
+  end
 
     
 endmodule
