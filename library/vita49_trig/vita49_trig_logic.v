@@ -40,38 +40,61 @@ wire reset_cmd;
 
 assign en_cmd = ctrl[0];
 assign reset_cmd = ctrl[1]; 
-assign set_trig_cmd = ctrl[2];
-assign passthrough_cmd = ctrl[3];
+assign set_trig_on_cmd = ctrl[2];
+assign set_trig_off_cmd = ctrl[3];
+assign passthrough_cmd = ctrl[4];
  
-//reg trig;
-reg [31:0] tsi_trig;
-reg [63:0] tsf_trig; 
+reg [31:0] tsi_reg;
+reg [63:0] tsf_reg; 
+always @ (posedge AXIS_ACLK)
+begin
+	tsi_reg <= tsi;
+	tsf_reg <= tsf;
+end
 
-wire tsi_match = (tsi >= tsi_trig)? 1:0;
-wire tsf_match = (tsf >= tsf_trig)? 1:0;
+reg [31:0] tsi_trig_on;
+reg [63:0] tsf_trig_on; 
+reg [31:0] tsi_trig_off;
+reg [63:0] tsf_trig_off; 
+
+
+wire match_on = 
+	(tsi_reg > tsi_trig_on) |
+	((tsi_reg == tsi_trig_on) &  (tsf_reg >= tsf_trig_on));
+
+wire match_off =
+	(tsi_reg > tsi_trig_off) |
+	((tsi_reg == tsi_trig_off) &  (tsf_reg >= tsf_trig_off));
 
 assign M_AXIS_TDATA  = S_AXIS_TDATA;
 assign M_AXIS_TSTRB  = S_AXIS_TSTRB;
 assign M_AXIS_TLAST  = S_AXIS_TLAST;
-assign M_AXIS_TVALID = (trig)? S_AXIS_TVALID : 0;
-assign S_AXIS_TREADY = (trig)? M_AXIS_TREADY: 0; 
+assign M_AXIS_TVALID = S_AXIS_TVALID;//(trig)? S_AXIS_TVALID : 0;
+assign S_AXIS_TREADY = M_AXIS_TREADY;//(trig)? M_AXIS_TREADY: 0; 
 
 always @ (posedge AXIS_ACLK)
 begin
    if (reset_cmd | (AXIS_ARESETN == 1'b0))
    begin  
      trig <= 0;
-	 tsi_trig <= 31'hffffffff;
-	 tsf_trig <= 64'h0; 	 
+	 tsi_trig_on <= 31'hffffffff;
+	 tsf_trig_on <= 64'h0; 	 
+	 tsi_trig_off <= 31'hffffffff;
+	 tsf_trig_off <= 64'h0; 	 
+   end
+   if (set_trig_on_cmd) begin
+	 tsi_trig_on <= tsi_trig_up;
+	 tsf_trig_on <= {tsf_hi_trig_up, tsf_lo_trig_up}; 
+   end
+   if (set_trig_off_cmd) begin
+	 tsi_trig_off <= tsi_trig_up;
+	 tsf_trig_off <= {tsf_hi_trig_up, tsf_lo_trig_up}; 
    end
    if (passthrough_cmd) trig <= 1;
    else begin
      if (en_cmd) begin
-		trig <= (tsi_match & tsf_match);
-	 end
-	 if (set_trig_cmd) begin
-		tsi_trig <= tsi_trig_up;
-		tsf_trig <= {tsf_hi_trig_up, tsf_lo_trig_up}; 
+		trig <= (match_off)? 0 : 
+		        (match_on) ? 1 : 0;
 	 end
    end
 end
