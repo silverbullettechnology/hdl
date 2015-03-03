@@ -26,7 +26,7 @@ parameter integer C_M_AXIS_TDATA_NUM_BYTES = 4;
 parameter  C_REP_CONTINUOUS = 1;
 
 
-reg [31:0] mem [255:0];
+reg [32:0] mem [255:0];
 
 initial
 $readmemh ("mem_data_hex.txt", mem);
@@ -76,9 +76,16 @@ reg  [1:0] state;
 wire m_xfr;
 
 assign m_xfr      = M_AXIS_TREADY & M_AXIS_TVALID;
-assign next_tdata = (data_type=='h2)? mem[idx_cnt]:
+
+wire [32:0] mem_data = mem[idx_cnt];
+wire [31:0] mem_tdata = mem_data[31:0];
+wire mem_tlast = mem_data[32];
+
+assign next_tdata = (data_type=='h2)? mem_tdata:
 					(data_type=='h1)? m_axis_tdata - 1 : m_axis_tdata +1;
 
+assign next_tlast = (data_type=='h2)? mem_tlast: 0;
+					
 localparam [1:0]  IDLE      = 2'b00,
                   SEND      = 2'b01,
 				  NXT_REP   = 2'b10;
@@ -104,7 +111,7 @@ begin
          rx_cnt        <= rx_active? C_M_AXIS_TDATA_NUM_BYTES : rx_cnt;
          state         <= rx_active? SEND : IDLE;
          m_axis_tlast  <= (m_xfr)? 0 : m_axis_tlast;
-         m_axis_tvalid <= (m_xfr)? 0 : m_axis_tvalid;
+         m_axis_tvalid <= (m_xfr)? next_tlast : m_axis_tvalid;
          m_axis_tdata  <=  next_tdata;
        end
        SEND: begin
@@ -123,6 +130,7 @@ begin
 		   else begin
              rx_cnt        <= rx_cnt + C_M_AXIS_TDATA_NUM_BYTES;
 			 idx_cnt       <= idx_cnt +1;
+			 m_axis_tlast  <= next_tlast;
 		   end
          end
 	   end
@@ -130,7 +138,7 @@ begin
          idx_cnt        <= (m_xfr)? 0 : idx_cnt;
          rx_cnt        <= (m_xfr)? C_M_AXIS_TDATA_NUM_BYTES : rx_cnt;
          state         <= (m_xfr)? SEND : NXT_REP;
-         m_axis_tlast  <= (m_xfr)? 0 : m_axis_tlast;
+         m_axis_tlast  <= (m_xfr)? next_tlast : m_axis_tlast;
          m_axis_tvalid <= C_REP_CONTINUOUS;
          m_axis_tdata  <= (m_xfr)? next_tdata : m_axis_tdata;
        end	     

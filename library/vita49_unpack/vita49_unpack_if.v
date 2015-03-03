@@ -1,7 +1,11 @@
 //define C_S_AXI_DATA_WIDTH 32
-//define C_S_AXI_ADDR_WIDTH 5
+//define C_S_AXI_ADDR_WIDTH 6
 
 module vita49_unpack_if
+#(  
+parameter integer C_S_AXI_DATA_WIDTH = 32,
+parameter integer C_S_AXI_ADDR_WIDTH = 5
+)
 (
   ////////////////////////////////////////////////////////////////////////////
   // System Signals
@@ -96,13 +100,22 @@ module vita49_unpack_if
   
   output wire [31:0] ctrl,
   output wire [31:0] streamID,
-  output wire [31:0] words_to_unpack,
-  input  wire [31:0] status
-
+  input  wire [31:0] status,
+  
+  // stat counters 
+  input  wire [31:0] pkt_recv,
+  input  wire [31:0] pkt_dropped,
+  // error counters
+  input  wire [31:0] pkt_size_err,
+  input  wire [31:0] pkt_type_err,
+  input  wire [31:0] pkt_order_err,
+  input  wire [31:0] ts_order_err,
+  input  wire [31:0] strm_id_err,
+  input  wire [31:0] trailer_err
 );
 
-  parameter integer C_S_AXI_DATA_WIDTH = 32;
-  parameter integer C_S_AXI_ADDR_WIDTH = 5;
+//  parameter integer C_S_AXI_DATA_WIDTH = 32;
+//  parameter integer C_S_AXI_ADDR_WIDTH = 5;
 
 
 
@@ -505,7 +518,7 @@ assign S_AXI_RRESP  = axi_rresp;
 // and the slave is ready to accept the read address.
   assign slv_reg_rden = axi_arready & S_AXI_ARVALID & ~axi_rvalid;
 
-  always @( slv_reg0, slv_reg1, slv_reg2, slv_reg3, S_AXI_ARESETN, slv_reg_rden, axi_araddr)
+  always @( slv_reg0, slv_reg1, slv_reg2, slv_reg3, S_AXI_ARESETN, slv_reg_rden, axi_araddr,status, pkt_recv, pkt_dropped, pkt_size_err, pkt_type_err, pkt_order_err, ts_order_err, strm_id_err, trailer_err)
   begin
     if ( S_AXI_ARESETN == 1'b0 )
       begin
@@ -515,13 +528,17 @@ assign S_AXI_RRESP  = axi_rresp;
       begin
         // Read address mux
         case ( axi_araddr[ADDR_MSB-1:ADDR_LSB] )
-          3'h0   : reg_data_out <= slv_reg0;
-          3'h1   : reg_data_out <= status;//slv_reg1;
-          3'h2   : reg_data_out <= slv_reg2;
-          3'h3   : reg_data_out <= slv_reg3;
-          3'h4   : reg_data_out <= slv_reg4;
-          3'h5   : reg_data_out <= slv_reg5;
-          3'h6   : reg_data_out <= slv_reg6;
+          4'd0   : reg_data_out <= slv_reg0;
+          4'd1   : reg_data_out <= status;//slv_reg1;
+          4'd2   : reg_data_out <= slv_reg2;
+          4'd3   : reg_data_out <= pkt_recv;
+          4'd4   : reg_data_out <= pkt_dropped;
+          4'd5   : reg_data_out <= pkt_size_err;
+          4'd6   : reg_data_out <= pkt_type_err;
+          4'd7   : reg_data_out <= pkt_order_err;
+          4'd8   : reg_data_out <= ts_order_err;
+          4'd9   : reg_data_out <= strm_id_err;
+          4'd10  : reg_data_out <= trailer_err;          
           default : reg_data_out <= {C_S_AXI_DATA_WIDTH{1'b0}};
         endcase
         //end
@@ -549,6 +566,5 @@ assign S_AXI_RRESP  = axi_rresp;
 
 assign ctrl             = slv_reg0;
 assign streamID         = slv_reg2;
-assign words_to_unpack  = slv_reg3;
 
 endmodule

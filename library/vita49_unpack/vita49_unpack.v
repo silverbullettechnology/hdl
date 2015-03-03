@@ -13,13 +13,25 @@ module vita49_unpack
   output wire [31:0] M_AXIS_TDATA,
   output wire M_AXIS_TLAST,
   input wire M_AXIS_TREADY,
+  
+  input wire trig,
 
   // from procesor 
   input wire [31:0] ctrl,
   output wire [31:0] status,
   input wire [31:0] streamID,
-  input wire [31:0] words_to_unpack,
   
+  // stat counters 
+  output reg [31:0] pkt_recv,
+  output reg [31:0] pkt_dropped,
+  // error counters
+  output reg [31:0] pkt_size_err,
+  output reg [31:0] pkt_type_err,
+  output reg [31:0] pkt_order_err,
+  output reg [31:0] ts_order_err,
+  output reg [31:0] strm_id_err,
+  output reg [31:0] trailer_err,   
+
   // from timing unit
   input wire [31:0] timestamp_sec,
   input wire [63:0] timestamp_fsec,
@@ -27,8 +39,7 @@ module vita49_unpack
   // debug
   output wire [3:0] Mstate_dbg,
   output wire tlast_reg_dbg,
-  output wire [15:0] payload_cnt_dbg,
-  output wire [31:0] word_cnt_dbg
+  output wire [15:0] payload_cnt_dbg
  );
 
 // control signals
@@ -40,25 +51,12 @@ assign start_cmd = ctrl[0];
 assign reset_cmd = ctrl[1]; 
 assign passthrough = ctrl[2];
  
-// status signals
-reg done;
-reg pkt_size_err;
-reg pkt_type_err;
-reg pkt_order_err;
-reg pkt_cnt_err;
-reg ts_order_err;
-reg ts_past_err;
-reg tsi_err;
-reg tsf_err;
-reg strm_id_err;
-reg tlast_err;
-reg trailer_err; 
 
-assign status = {start_cmd, reset_cmd, passthrough, AXIS_ARESETN,
+assign status = {
+    start_cmd, reset_cmd,     passthrough,   AXIS_ARESETN,
     16'h0000,
-    pkt_size_err, pkt_type_err, pkt_order_err, pkt_cnt_err,
-	ts_order_err, ts_past_err, tsi_err, tsf_err,
-	strm_id_err, tlast_err, trailer_err, done
+    1'b0,     |pkt_size_err, |pkt_type_err, |pkt_order_err, 
+	1'b0,	  |ts_order_err, |strm_id_err,  |trailer_err
 	};
 
 wire m_xfr;    // master data transferred
@@ -69,14 +67,14 @@ assign s_xfr = S_AXIS_TREADY & S_AXIS_TVALID;
 assign d_xfr = dval & drdy;
 
 // TIMESTAMP
-reg [31:0] timestamp_sec_r;
-reg [63:0] timestamp_fsec_r;
-wire ts_en = 1;
-always @ (posedge AXIS_ACLK)
-begin
-	timestamp_sec_r  <= ts_en ? timestamp_sec  :timestamp_sec_r;
-	timestamp_fsec_r <= ts_en ? timestamp_fsec :timestamp_fsec_r;
-end
+// reg [31:0] timestamp_sec_r;
+// reg [63:0] timestamp_fsec_r;
+// wire ts_en = 1;
+// always @ (posedge AXIS_ACLK)
+// begin
+	// timestamp_sec_r  <= ts_en ? timestamp_sec  :timestamp_sec_r;
+	// timestamp_fsec_r <= ts_en ? timestamp_fsec :timestamp_fsec_r;
+// end
 
 
 // SLAVE SIDE STATE MACHINE
@@ -93,7 +91,7 @@ assign S_AXIS_TREADY = (Sstate == S_S0)? 1 : d_xfr;
 
 always @ (posedge AXIS_ACLK)
 begin
-	if ( AXIS_ARESETN == 1'b0)
+	if (( AXIS_ARESETN == 1'b0))
 	begin
 		Sstate <= S_S0;
 		tdata_reg <= 64'h0;
@@ -121,21 +119,20 @@ begin
 
 // MASTER SIDE STATE MACHINE
 localparam
-  M_INIT           = 4'h0,
-  M_CHK_HDR        = 4'h1,
-  M_CHK_STRM_ID    = 4'h2,
-  M_CHK_CLASS_ID_0 = 4'h3,
-  M_CHK_CLASS_ID_1 = 4'h4,
-  M_CHK_TSI        = 4'h5,
-  M_CHK_TSF_0      = 4'h6,
-  M_CHK_TSF_1      = 4'h7,
-  M_SEND_PAYLOAD   = 4'h8,
-  M_ERROR          = 4'h9,
-  M_DONE           = 4'hA;
+  M_INIT             = 4'h0,
+  M_CHK_HDR          = 4'h1,
+  M_CHK_STRM_ID      = 4'h2,
+  M_CHK_CLASS_ID_0   = 4'h3,
+  M_CHK_CLASS_ID_1   = 4'h4,
+  M_CHK_TSI          = 4'h5,
+  M_CHK_TSF_0        = 4'h6,
+  M_CHK_TSF_1        = 4'h7,
+  M_SEND_PAYLOAD     = 4'h8,
+  M_SEND_PAYLOAD_ERR = 4'h9,
+  M_DROP             = 4'hA;
 
 reg [3:0]  Mstate;
 reg [15:0] payload_cnt;
-reg [31:0] word_cnt;
 
 reg [31:0] tsf_pkt_msb;
 reg [31:0] tsi_last;
@@ -154,50 +151,49 @@ wire [15:0] pkt_size = tdata_reg[15:0];  reg [15:0] pkt_size_reg;
 wire [3:0] pkt_cnt_reg_plusone = pkt_cnt_reg + 1;
 
 assign M_AXIS_TLAST = (passthrough) ? tlast_reg:
-	((Mstate == M_SEND_PAYLOAD) & (payload_cnt+1 == pkt_size_reg))? 1:0;
+	((Mstate == M_SEND_PAYLOAD) )? tlast_reg:
+	(Mstate == M_SEND_PAYLOAD_ERR)? tlast_reg:0;
+	
 
 assign M_AXIS_TDATA = tdata_reg;
 
-assign M_AXIS_TVALID = (passthrough)? dval :
-	(Mstate == M_SEND_PAYLOAD) ? dval : 0;
+assign M_AXIS_TVALID = 
+    (passthrough)                  ? dval :
+	(Mstate == M_SEND_PAYLOAD)     ? dval :
+	(Mstate == M_SEND_PAYLOAD_ERR) ? dval : 0;
 
 assign drdy =
-	(passthrough)                ? M_AXIS_TREADY:
-	(Mstate == M_INIT)           ? 0 :
-	(Mstate == M_CHK_HDR)        ? dval :
-	(Mstate == M_CHK_STRM_ID)    ? dval :
-	(Mstate == M_CHK_CLASS_ID_0) ? dval :
-	(Mstate == M_CHK_CLASS_ID_1) ? dval :
-	(Mstate == M_CHK_TSI)        ? dval :
-	(Mstate == M_CHK_TSF_0)      ? dval :
-	(Mstate == M_CHK_TSF_1)      ? dval :
-	(Mstate == M_SEND_PAYLOAD)   ? m_xfr :
-	(Mstate == M_ERROR)          ? 0 :
-	(Mstate == M_DONE)           ? 0 : 0;
+	(passthrough)                  ? M_AXIS_TREADY:
+	(Mstate == M_INIT)             ? 0 :
+	(Mstate == M_CHK_HDR)          ? dval :
+	(Mstate == M_CHK_STRM_ID)      ? dval :
+	(Mstate == M_CHK_CLASS_ID_0)   ? dval :
+	(Mstate == M_CHK_CLASS_ID_1)   ? dval :
+	(Mstate == M_CHK_TSI)          ? dval :
+	(Mstate == M_CHK_TSF_0)        ? dval :
+	(Mstate == M_CHK_TSF_1)        ? dval :
+	(Mstate == M_SEND_PAYLOAD)     ? m_xfr :
+	(Mstate == M_SEND_PAYLOAD_ERR) ? m_xfr :
+	(Mstate == M_DROP)             ? dval : 0;
 
 always @ (posedge AXIS_ACLK)
 begin
 	if ( AXIS_ARESETN == 1'b0)
 	begin
-		Mstate      <= M_INIT;
+		Mstate        <= M_INIT;
 		pkt_size_err  <= 0;
 		pkt_type_err  <= 0;
 		pkt_order_err <= 0;
-		pkt_cnt_err   <= 0;
 		ts_order_err  <= 0;
-		ts_past_err   <= 0;
-		tsi_err       <= 0;
-		tsf_err       <= 0;
 		strm_id_err   <= 0;
-		tlast_err     <= 0;
-		trailer_err   <= 0; 		
+		trailer_err   <= 0;
+		pkt_recv      <= 0;
+		pkt_dropped   <= 0; 		
 		payload_cnt <= 16'h0;
-		word_cnt    <= 32'h0;
 		pkt_cnt_reg <= 4'b1111;
 		tsf_pkt_msb <= 0;
 		tsi_last <= 0;
 		tsf_last <= 0;
-		done        <= 0;
 	end
 	else begin   
 	  if (reset_cmd) Mstate <= M_INIT;
@@ -206,22 +202,17 @@ begin
 			pkt_size_err  <= 0;
 			pkt_type_err  <= 0;
 			pkt_order_err <= 0;
-			pkt_cnt_err   <= 0;
 			ts_order_err  <= 0;
-			ts_past_err   <= 0;
-			tsi_err       <= 0;
-			tsf_err       <= 0;
 			strm_id_err   <= 0;
-			tlast_err     <= 0;
-			trailer_err   <= 0; 		
+			trailer_err   <= 0; 
+			pkt_recv      <= 0;
+			pkt_dropped   <= 0; 					
 			payload_cnt <= 16'h0;
-			word_cnt    <= 32'h0;
 			pkt_cnt_reg <= 4'b1111;
 			tsf_pkt_msb <= 0;
 			tsi_last <= 0;
 			tsf_last <= 0;
-			done        <= 0;
-			Mstate      <= (start_cmd)? M_CHK_HDR : Mstate;
+			Mstate      <= (start_cmd & trig)? M_CHK_HDR : Mstate;
  		end
 	    M_CHK_HDR: begin
 			payload_cnt  <= (d_xfr)? payload_cnt+1 : payload_cnt;
@@ -229,21 +220,22 @@ begin
 			tsi_reg      <= (d_xfr)? tsi : tsi_reg;
 			tsf_reg      <= (d_xfr)? tsf : tsf_reg;
 			pkt_cnt_reg  <= (d_xfr)? pkt_cnt : pkt_cnt_reg;
-			pkt_size_reg <= (d_xfr)? pkt_size : pkt_size_reg;			
+			pkt_size_reg <= (d_xfr)? pkt_size : pkt_size_reg;
+			pkt_recv     <= (d_xfr)? pkt_recv+1 : pkt_recv;
 			if (d_xfr)
 			begin
 				Mstate <= M_CHK_STRM_ID; // default next state
 				if (pkt_type != 4'b0001) begin
-					pkt_type_err <= 1;
-					Mstate <= M_ERROR;
+					pkt_type_err <= pkt_type_err + 1;
+					pkt_dropped  <= pkt_dropped + 1;	
+			        pkt_cnt_reg  <= pkt_cnt_reg;	
+					Mstate <= M_DROP;
 				end
 				if (pkt_cnt != pkt_cnt_reg_plusone) begin
-					pkt_cnt_err <= 1;
-					Mstate <= M_ERROR;
+					pkt_order_err <= pkt_order_err + 1;
 				end
 				if (t) begin
-					trailer_err <= 1;
-					Mstate <= M_ERROR;
+					trailer_err <= trailer_err + 1;
 				end
 			end
   		end
@@ -255,8 +247,10 @@ begin
 				          (tsi_reg)?  M_CHK_TSI :
 						  (tsf_reg)?  M_CHK_TSF_0 :M_SEND_PAYLOAD;
 				if (streamID != tdata_reg) begin
-					strm_id_err <= 1;
-					Mstate <= M_ERROR;
+					strm_id_err <= strm_id_err + 1;
+					pkt_dropped <= pkt_dropped + 1;
+			        pkt_cnt_reg  <= pkt_cnt_reg-1;						
+					Mstate <= M_DROP;
 				end
 			end
  		end
@@ -276,16 +270,10 @@ begin
 			if (d_xfr)
 			begin
 				Mstate <= M_CHK_TSF_0; // default next state
-				tsi_eq <=  (tdata_reg == timestamp_sec_r)? 1:0;
-//				if (tdata_reg < timestamp_sec_r) begin
-//					ts_past_err <= 1;
-//					tsi_err <= 1;
-//					Mstate <= M_ERROR;
-//				end
+				tsi_eq <=  (tdata_reg == tsi_last)? 1:0;
+
 				if (tdata_reg < tsi_last) begin
-					ts_order_err <= 1;
-					tsi_err <= 1;
-					Mstate <= M_ERROR;
+					ts_order_err <= ts_order_err + 1;
 				end
 			end
   		end
@@ -301,15 +289,8 @@ begin
 			if (d_xfr)
 			begin
 				Mstate <= M_SEND_PAYLOAD; // default next state
-//				if (({tsf_pkt_msb, tdata_reg} < timestamp_fsec_r) & tsi_eq) begin
-//					ts_past_err <= 1;
-//					tsf_err <= 1;
-//					Mstate <= M_ERROR;
-//				end
 				if (tsi_eq && ({tsf_pkt_msb, tdata_reg} < tsf_last)) begin
-					ts_order_err <= 1;
-					tsf_err <= 1;
-					Mstate <= M_ERROR;
+					ts_order_err <= ts_order_err+1;
 				end
 			end
  		end		
@@ -317,28 +298,40 @@ begin
  	    M_SEND_PAYLOAD: begin
 			if (payload_cnt+1 != pkt_size_reg) 
 			begin
-				payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
-				word_cnt    <= (m_xfr)? word_cnt+1:word_cnt;	
-				Mstate      <= (m_xfr)? M_SEND_PAYLOAD : Mstate;				
+				if (tlast_reg) begin
+					pkt_size_err <= (m_xfr)? pkt_size_err +1 : pkt_size_err;
+					payload_cnt <= (m_xfr)? 0 : payload_cnt;
+					Mstate      <= (m_xfr)? M_CHK_HDR : Mstate;
+				end
+				else begin				
+					payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
+					Mstate      <= (m_xfr)? M_SEND_PAYLOAD : Mstate;				
+				end
 			end
 			else begin
 				payload_cnt <= (m_xfr)? 0 : payload_cnt;
-				word_cnt    <= (m_xfr)? word_cnt+1:word_cnt;
-				//pkt_cnt_reg <= (m_xfr)? pkt_cnt_reg_plusone:pkt_cnt_reg;
-				if (m_xfr)
-				begin
-					Mstate <= (word_cnt+1 >= words_to_unpack)? M_DONE : M_CHK_HDR;
-					if (tlast_reg != 1'b1) begin
-						tlast_err <= 1;
-						pkt_size_err <= 1;
-						Mstate <= M_ERROR;
-					end
+				Mstate      <= (m_xfr)? M_CHK_HDR : Mstate;
+				if (tlast_reg != 1'b1) begin
+					pkt_size_err <= (m_xfr)? pkt_size_err +1 : pkt_size_err;
+					Mstate       <= (m_xfr)? M_SEND_PAYLOAD_ERR : Mstate;
 				end
 			end
  		end
-	    M_ERROR: begin
-  		end
-	    M_DONE: begin
+		
+ 	    M_SEND_PAYLOAD_ERR: begin
+			if (tlast_reg != 1'b1) begin
+				payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
+				Mstate      <= (m_xfr)? M_SEND_PAYLOAD_ERR : Mstate;				
+			end
+			else begin
+				payload_cnt <= (m_xfr)? 0 : payload_cnt;
+				Mstate      <= (m_xfr)? M_CHK_HDR : Mstate;
+			end
+ 		end
+	    M_DROP: begin
+			payload_cnt <= 0 ;		
+			if (tlast_reg)
+				Mstate <= (d_xfr)? M_CHK_HDR : Mstate;
   		end		
  	  endcase
 	end
@@ -349,7 +342,6 @@ end
   assign Mstate_dbg = Mstate;
   assign tlast_reg_dbg = tlast_reg;
   assign payload_cnt_dbg = payload_cnt;
-  assign word_cnt_dbg = word_cnt;
 
 
 endmodule

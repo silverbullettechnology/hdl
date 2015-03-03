@@ -39,17 +39,6 @@ end
   reg [31:0] dsrc_data_type;
   reg [31:0] dsrc_num_pkts;
   reg        dsrc_new_cmd;
-  
-// vita 49 pack
-  wire [31:0] VITA_TDATA;
-  wire VITA_TVALID;
-  wire VITA_TLAST;
-  wire VITA_TREADY;
-  reg [31:0] vita_pack_ctrl;
-  wire [31:0] vita_pack_status;
-  reg [31:0] vita_pack_streamID;
-  reg [15:0] vita_pack_pkt_size;
-  reg [31:0] vita_pack_words_to_pack;
 
 // vita 49 unpack
   wire [31:0] OUT_TDATA;
@@ -59,8 +48,7 @@ end
   reg [31:0] vita_unpack_ctrl;
   wire [31:0] vita_unpack_status;
   reg [31:0] vita_unpack_streamID;
-  reg [31:0] vita_unpack_words_to_unpack;
-  
+  reg trig;
   
 // clock generator
 clk_gen clk_gen (
@@ -89,44 +77,23 @@ axis_dsrc_pkt axis_dsrc_pkt (
 	);
 
 
-vita49_pack vita49_pack (
+	
+vita49_unpack vita49_unpack (
 	.AXIS_ACLK (axis_clk),
 	.AXIS_ARESETN (axis_aresetn),
 	.S_AXIS_TREADY (SRC_TREADY),
 	.S_AXIS_TDATA (SRC_TDATA),
 	.S_AXIS_TVALID (SRC_TVALID),
 	.S_AXIS_TLAST (SRC_TLAST),
-	.M_AXIS_TVALID (VITA_TVALID),
-	.M_AXIS_TDATA (VITA_TDATA),
-	.M_AXIS_TLAST (VITA_TLAST),
-	.M_AXIS_TREADY (VITA_TREADY),
-	
-	.ctrl (vita_pack_ctrl),
-	.status (vita_pack_status),
-	.streamID (vita_pack_streamID),
-	.pkt_size (vita_pack_pkt_size),
-	.words_to_pack (vita_pack_words_to_pack),
-	
-	.timestamp_sec (tsi),
-	.timestamp_fsec (tsf)
-	);
-	
-vita49_unpack vita49_unpack (
-	.AXIS_ACLK (axis_clk),
-	.AXIS_ARESETN (axis_aresetn),
-	.S_AXIS_TREADY (VITA_TREADY),
-	.S_AXIS_TDATA (VITA_TDATA),
-	.S_AXIS_TVALID (VITA_TVALID),
-	.S_AXIS_TLAST (VITA_TLAST),
 	.M_AXIS_TVALID (OUT_TVALID),
 	.M_AXIS_TDATA (OUT_TDATA),
 	.M_AXIS_TLAST (OUT_TLAST),
 	.M_AXIS_TREADY (OUT_TREADY),
-
+	
+    .trig (trig),
 	.ctrl (vita_unpack_ctrl),
 	.status (vita_unpack_status),
 	.streamID (vita_unpack_streamID),
-	.words_to_unpack (vita_unpack_words_to_unpack),
 
 	.timestamp_sec (tsi_min),
 	.timestamp_fsec (tsf)
@@ -139,53 +106,41 @@ initial begin
     dsrc_num_pkts = 0;
     dsrc_new_cmd = 0;
     
-    vita_pack_ctrl = 0;
-    vita_pack_streamID = 0;
-    vita_pack_pkt_size = 0;
-    vita_pack_words_to_pack = 0;
-
 	vita_unpack_ctrl = 0;
 	vita_unpack_streamID = 0;
-	vita_unpack_words_to_unpack = 0;
-	OUT_TREADY = 1;
+	trig = 0;
+	OUT_TREADY = 0;
 	
 #11000
-    vita_pack_ctrl = 'h2; // reset
     vita_unpack_ctrl = 'h2; // reset
     dsrc_cmd = 'h2;
     dsrc_new_cmd = 1;
 
 #50
-    vita_pack_ctrl = 'h0; 
     vita_unpack_ctrl = 'h0; 
     dsrc_cmd = 'h0;
     dsrc_new_cmd = 0;
     
-    dsrc_num_bytes = 32;//'h400;
+    dsrc_num_bytes = 140*4;//'h400;
     dsrc_data_type = 2;     //canned data
     dsrc_num_pkts = 1;
     
-    vita_pack_streamID = 'hdeadbeef;
-    vita_pack_pkt_size = 'h20;
-    vita_pack_words_to_pack = 'h40;
-
-    vita_unpack_streamID = 'hdeadbeef;
     vita_unpack_streamID = 'hbeef0000;
-    vita_unpack_words_to_unpack = 'h6;//'h40;
+    vita_unpack_streamID = 'hfacebeef;
 
  #50
     dsrc_cmd = 'h1;
     dsrc_new_cmd = 1;
-      
-    vita_pack_ctrl = 'h4; // passthrough
-    //vita_pack_ctrl = 'h1; // start
 
     //vita_unpack_ctrl = 'h4; // passthrough
     vita_unpack_ctrl = 'h1; // start
        
 #50
     dsrc_new_cmd = 0;
+	OUT_TREADY = 1;
      
+#10000
+	trig = 1;
 
 end	
 	

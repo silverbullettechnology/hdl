@@ -1,6 +1,6 @@
 
 `define C_S_AXI_DATA_WIDTH 32
-`define C_S_AXI_ADDR_WIDTH 5
+`define C_S_AXI_ADDR_WIDTH 6
 
 module axis_vita49_unpack
  (
@@ -42,6 +42,7 @@ module axis_vita49_unpack
   output wire M_AXIS_TLAST,
   input wire M_AXIS_TREADY,
 
+  input wire trig,
   ///////////
   // timing control  
   input wire [31:0] timestamp_sec,
@@ -52,19 +53,26 @@ module axis_vita49_unpack
   output wire irq,
   output wire [3:0] Mstate_dbg,
   output wire tlast_reg_dbg,
-  output wire [15:0] payload_cnt_dbg,
-  output wire [31:0] word_cnt_dbg,
-  output wire [31:0] words_to_unpack_dbg
+  output wire [15:0] payload_cnt_dbg
 );
 
 wire [31:0] ctrl;
 wire [31:0] status;
 wire [31:0] streamID;
-wire [31:0] words_to_unpack;
+  
+// stat counters 
+wire [31:0] pkt_recv;
+wire [31:0] pkt_dropped;
+// error counters
+wire [31:0] pkt_size_err;
+wire [31:0] pkt_type_err;
+wire [31:0] pkt_order_err;
+wire [31:0] ts_order_err;
+wire [31:0] strm_id_err;
+wire [31:0] trailer_err;
 
-assign words_to_unpack_dbg = words_to_unpack;
-
-vita49_unpack_if vita49_unpack_if (
+vita49_unpack_if #(.C_S_AXI_ADDR_WIDTH(`C_S_AXI_ADDR_WIDTH)) vita49_unpack_if (
+//vita49_unpack_if vita49_unpack_if (
   .S_AXI_ACLK    (S_AXI_ACLK),
   .S_AXI_ARESETN (S_AXI_ARESETN),
   .S_AXI_AWADDR  (S_AXI_AWADDR),
@@ -87,7 +95,14 @@ vita49_unpack_if vita49_unpack_if (
   .ctrl          (ctrl),
   .status        (status),
   .streamID      (streamID),
-  .words_to_unpack (words_to_unpack)
+  .pkt_recv      (pkt_recv),
+  .pkt_dropped   (pkt_dropped),
+  .pkt_size_err  (pkt_size_err),
+  .pkt_type_err  (pkt_type_err),
+  .pkt_order_err (pkt_order_err),
+  .ts_order_err  (ts_order_err),
+  .strm_id_err   (strm_id_err),
+  .trailer_err   (trailer_err)
 );
 
 vita49_unpack vita49_unpack (
@@ -101,22 +116,29 @@ vita49_unpack vita49_unpack (
 	.M_AXIS_TDATA (M_AXIS_TDATA),
 	.M_AXIS_TLAST (M_AXIS_TLAST),
 	.M_AXIS_TREADY (M_AXIS_TREADY),
+	.trig (trig),
 	
 	.ctrl (ctrl),
 	.status (status),
 	.streamID (streamID),
-	.words_to_unpack (words_to_unpack),
-	
+    .pkt_recv      (pkt_recv),
+    .pkt_dropped   (pkt_dropped),
+    .pkt_size_err  (pkt_size_err),
+    .pkt_type_err  (pkt_type_err),
+    .pkt_order_err (pkt_order_err),
+    .ts_order_err  (ts_order_err),
+    .strm_id_err   (strm_id_err),
+    .trailer_err   (trailer_err),
+    	
 	.timestamp_sec (timestamp_sec),
 	.timestamp_fsec (timestamp_fsec),
 
     .Mstate_dbg(Mstate_dbg),
     .tlast_reg_dbg(tlast_reg_dbg),
-    .payload_cnt_dbg(payload_cnt_dbg),
-    .word_cnt_dbg(word_cnt_dbg)
+    .payload_cnt_dbg(payload_cnt_dbg)
 	);
 	  
 assign ext_stat = status;
-assign irq = |status;  
+assign irq = |status[7:0];  
   
 endmodule
