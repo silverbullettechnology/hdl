@@ -69,8 +69,8 @@ wire match_off =
 assign M_AXIS_TDATA  = S_AXIS_TDATA;
 assign M_AXIS_TSTRB  = S_AXIS_TSTRB;
 assign M_AXIS_TLAST  = S_AXIS_TLAST;
-assign M_AXIS_TVALID = S_AXIS_TVALID;//(trig)? S_AXIS_TVALID : 0;
-assign S_AXIS_TREADY = M_AXIS_TREADY;//(trig)? M_AXIS_TREADY: 0; 
+assign M_AXIS_TVALID = (passthrough_cmd | match_on)? S_AXIS_TVALID : 0;
+assign S_AXIS_TREADY = (passthrough_cmd | match_on)? M_AXIS_TREADY: 0; 
 
 always @ (posedge AXIS_ACLK)
 begin
