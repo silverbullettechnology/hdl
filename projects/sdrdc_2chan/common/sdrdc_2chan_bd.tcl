@@ -376,6 +376,7 @@ if {$sys_zynq == 1} {
 	# connect_bd_net -net axis_32to64_dac_0_S_AXIS_TREADY [get_bd_pins axis_32to64_dac_0/S_AXIS_TREADY] [get_bd_pins ila_4/probe5] [get_bd_pins vita49_trig_dac_0/M_AXIS_TREADY]
   
 	connect_bd_intf_net -intf_net vita49_trig_dac_0_M_AXIS [get_bd_intf_pins axis_32to64_dac_0/S_AXIS] [get_bd_intf_pins vita49_trig_dac_0/M_AXIS]
+	connect_bd_net -net [get_bd_nets vita49_trig_dac_0_trig] [get_bd_pins axis_vita49_unpack_0/trig] [get_bd_pins vita49_trig_dac_0/trig]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins vita49_trig_dac_0/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins vita49_trig_dac_0/AXIS_ARESETN]	
 
@@ -525,6 +526,7 @@ if {$sys_zynq == 1} {
 	# connect_bd_net -net axis_32to64_dac_1_S_AXIS_TREADY [get_bd_pins axis_32to64_dac_1/S_AXIS_TREADY] [get_bd_pins ila_4/probe5] [get_bd_pins vita49_trig_dac_1/M_AXIS_TREADY]
   
 	connect_bd_intf_net -intf_net vita49_trig_dac_1_M_AXIS [get_bd_intf_pins axis_32to64_dac_1/S_AXIS] [get_bd_intf_pins vita49_trig_dac_1/M_AXIS]
+	connect_bd_net -net [get_bd_nets vita49_trig_dac_1_trig] [get_bd_pins axis_vita49_unpack_1/trig] [get_bd_pins vita49_trig_dac_1/trig]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins vita49_trig_dac_1/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins vita49_trig_dac_1/AXIS_ARESETN]	
 
