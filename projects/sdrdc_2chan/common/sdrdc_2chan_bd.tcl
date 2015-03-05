@@ -45,9 +45,9 @@
 
 ## INSTANTIATIONS
 
-    # constant 0
-    set constant_0 [create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant_0]
-    set_property -dict [list CONFIG.CONST_VAL {0}] $constant_0
+    # Create instance: constant_1, and set properties
+    set constant_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 constant_1 ]
+    set_property -dict [ list CONFIG.CONST_VAL {255} CONFIG.CONST_WIDTH {8}  ] $constant_1
 
     # axi_gpio
     set axi_gpio [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio]
@@ -109,14 +109,14 @@
 
 	# DAC DMA INTERCONNECT
     set axi_ad9361_0_dac_dma_interconnect [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_ad9361_0_dac_dma_interconnect]
-    set_property -dict [list CONFIG.NUM_MI {1}] $axi_ad9361_0_dac_dma_interconnect
+    set_property -dict [ list CONFIG.NUM_MI {1} CONFIG.S00_HAS_REGSLICE {4}  ] $axi_ad9361_0_dac_dma_interconnect
 
 	# ADC DMA INTERCONNECT
     set axi_ad9361_0_adc_dma_interconnect [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_ad9361_0_adc_dma_interconnect]
     set_property -dict [list CONFIG.NUM_MI {1}] $axi_ad9361_0_adc_dma_interconnect
 
 	# Create instance: axis_64to32_adc_0, and set properties
-	set axis_64to32_adc_0 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32:1.0 axis_64to32_adc_0 ]
+    set axis_64to32_adc_0 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32:1.0 axis_64to32_adc_0 ]
 	# Create instance: vita49_trig_adc_0, and set properties
 	set vita49_trig_adc_0 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:vita49_trig:1.0 vita49_trig_adc_0 ]
 	# Create instance: axis_vita49_pack_0, and set properties
@@ -125,9 +125,15 @@
 	set axis_32to64_adc_0 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_32to64:1.0 axis_32to64_adc_0 ]
 
 	# Create instance: axis_64to32_dac_0, and set properties
-	set axis_64to32_dac_0 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32:1.0 axis_64to32_dac_0 ]
+    set axis_64to32_dac_0 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32:1.0 axis_64to32_dac_0 ]
+  # Create instance: vita_unpack_dac_reg_0, and set properties
+  set vita_unpack_dac_reg_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 vita_unpack_dac_reg_0 ]
+
 	# Create instance: axis_vita49_unpack_0, and set properties
 	set axis_vita49_unpack_0 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_vita49_unpack:1.0 axis_vita49_unpack_0 ]
+  # Create instance: vita_trig_dac_reg_0, and set properties
+  set vita_trig_dac_reg_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 vita_trig_dac_reg_0 ]
+
 	# Create instance: vita49_trig_dac_0, and set properties
 	set vita49_trig_dac_0 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:vita49_trig:1.0 vita49_trig_dac_0 ]
 	# Create instance: axis_32to64_dac_0, and set properties
@@ -157,6 +163,7 @@
 	set axis_dac_interconnect_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_interconnect:2.1 axis_dac_interconnect_1 ]
 	set_property -dict [ list CONFIG.NUM_MI {1}  ] $axis_dac_interconnect_1
 
+
 	# AXI_DMA_1
 	set axi_dma_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 axi_dma_1 ]
 	set_property -dict [ list CONFIG.c_include_s2mm {1} ] $axi_dma_1
@@ -168,14 +175,14 @@
 	
 	# DAC DMA INTERCONNECT
     set axi_ad9361_1_dac_dma_interconnect [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_ad9361_1_dac_dma_interconnect]
-    set_property -dict [list CONFIG.NUM_MI {1}] $axi_ad9361_1_dac_dma_interconnect
+    set_property -dict [ list CONFIG.NUM_MI {1} CONFIG.S00_HAS_REGSLICE {4}  ] $axi_ad9361_1_dac_dma_interconnect
 
 	# ADC DMA INTERCONNECT
     set axi_ad9361_1_adc_dma_interconnect [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_ad9361_1_adc_dma_interconnect]
     set_property -dict [list CONFIG.NUM_MI {1}] $axi_ad9361_1_adc_dma_interconnect
 
 	# Create instance: axis_64to32_adc_1, and set properties
-	set axis_64to32_adc_1 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32:1.0 axis_64to32_adc_1 ]
+    set axis_64to32_adc_1 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32:1.0 axis_64to32_adc_1 ]
 	# Create instance: vita49_trig_adc_1, and set properties
 	set vita49_trig_adc_1 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:vita49_trig:1.0 vita49_trig_adc_1 ]
 	# Create instance: axis_vita49_pack_1, and set properties
@@ -184,9 +191,15 @@
 	set axis_32to64_adc_1 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_32to64:1.0 axis_32to64_adc_1 ]
 
 	# Create instance: axis_64to32_dac_1, and set properties
-	set axis_64to32_dac_1 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32:1.0 axis_64to32_dac_1 ]
+    set axis_64to32_dac_1 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32:1.0 axis_64to32_dac_1 ]
+  # Create instance: vita_unpack_dac_reg_1, and set properties
+  set vita_unpack_dac_reg_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 vita_unpack_dac_reg_1 ]
+
 	# Create instance: axis_vita49_unpack_1, and set properties
 	set axis_vita49_unpack_1 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_vita49_unpack:1.0 axis_vita49_unpack_1 ]
+  # Create instance: vita_trig_dac_reg_1, and set properties
+  set vita_trig_dac_reg_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 vita_trig_dac_reg_1 ]
+
 	# Create instance: vita49_trig_dac_1, and set properties
 	set vita49_trig_dac_1 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:vita49_trig:1.0 vita49_trig_dac_1 ]
 	# Create instance: axis_32to64_dac_1, and set properties
@@ -250,7 +263,6 @@ if {$sys_zynq == 1} {
 	connect_bd_net -net vita49_clk_tsf_1 [get_bd_pins vita49_clk/tsf_1] [get_bd_pins axis_vita49_pack_1/timestamp_fsec] [get_bd_pins axis_vita49_unpack_1/timestamp_fsec]  [get_bd_pins vita49_trig_adc_1/tsf] [get_bd_pins vita49_trig_dac_1/tsf]
 	connect_bd_net -net vita49_clk_tsi_1 [get_bd_pins vita49_clk/tsi_1] [get_bd_pins axis_vita49_pack_1/timestamp_sec] [get_bd_pins axis_vita49_unpack_1/timestamp_sec] [get_bd_pins vita49_trig_adc_1/tsi] [get_bd_pins vita49_trig_dac_1/tsi]
 
-
     # connections (ad9361_0)
 
     connect_bd_net -net sys_200m_clk [get_bd_pins axi_ad9361_0/delay_clk]
@@ -296,16 +308,13 @@ if {$sys_zynq == 1} {
     connect_bd_net -net [get_bd_nets sys_100m_resetn]				[get_bd_pins axis_adc_interconnect_0/M00_AXIS_ARESETN]
     connect_bd_net -net [get_bd_nets sys_100m_resetn]				[get_bd_pins axis_adc_interconnect_0/S00_AXIS_ARESETN]
 	connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axis_adc_interconnect_0/S00_AXIS] [get_bd_intf_pins adi2axis_0/M_AXIS]
-#	connect_bd_intf_net -intf_net axis_adc_interconnect_0_M00_AXIS [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM] [get_bd_intf_pins axis_adc_interconnect_0/M00_AXIS]
+
 	connect_bd_intf_net -intf_net axis_adc_interconnect_0_M00_AXIS [get_bd_intf_pins axis_64to32_adc_0/S_AXIS] [get_bd_intf_pins axis_adc_interconnect_0/M00_AXIS]
 
 	# VITA ADC
 	connect_bd_intf_net -intf_net axis_64to32_adc_0_M_AXIS [get_bd_intf_pins axis_64to32_adc_0/M_AXIS] [get_bd_intf_pins vita49_trig_adc_0/S_AXIS]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_64to32_adc_0/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_64to32_adc_0/AXIS_ARESETN]
-	# connect_bd_net -net axis_64to32_adc_0_M_AXIS_TDATA [get_bd_pins axis_64to32_adc_0/M_AXIS_TDATA] [get_bd_pins ila_adc_trig/probe0] [get_bd_pins vita49_trig_adc_0/S_AXIS_TDATA]
-	# connect_bd_net -net axis_64to32_adc_0_M_AXIS_TLAST [get_bd_pins axis_64to32_adc_0/M_AXIS_TLAST] [get_bd_pins ila_adc_trig/probe1] [get_bd_pins vita49_trig_adc_0/S_AXIS_TLAST]
-	# connect_bd_net -net axis_64to32_adc_0_M_AXIS_TVALID [get_bd_pins axis_64to32_adc_0/M_AXIS_TVALID] [get_bd_pins ila_adc_trig/probe2] [get_bd_pins vita49_trig_adc_0/S_AXIS_TVALID]
 
 	connect_bd_intf_net -intf_net vita49_trig_adc_0_M_AXIS [get_bd_intf_pins axis_vita49_pack_0/S_AXIS] [get_bd_intf_pins vita49_trig_adc_0/M_AXIS]
 	connect_bd_net -net vita49_trig_adc_0_trig [get_bd_pins adi2axis_0/trig] [get_bd_pins vita49_trig_adc_0/trig]
@@ -324,14 +333,10 @@ if {$sys_zynq == 1} {
 	connect_bd_net [get_bd_pins axis_vita49_pack_0/M_AXIS_TVALID] [get_bd_pins axis_32to64_adc_0/S_AXIS_TVALID]
 	connect_bd_net [get_bd_pins axis_vita49_pack_0/M_AXIS_TREADY] [get_bd_pins axis_32to64_adc_0/S_AXIS_TREADY]
 
-
 	connect_bd_intf_net -intf_net axis_32to64_0_M_AXIS [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM] [get_bd_intf_pins axis_32to64_adc_0/M_AXIS]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_32to64_adc_0/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_32to64_adc_0/AXIS_ARESETN]	
-	# connect_bd_net -net axis_32to64_adc_0_M_AXIS_TDATA [get_bd_pins axi_dma_0/s_axis_s2mm_tdata] [get_bd_pins axis_32to64_adc_0/M_AXIS_TDATA] [get_bd_pins ila_1/probe0]
-	# connect_bd_net -net axis_32to64_adc_0_M_AXIS_TLAST [get_bd_pins axi_dma_0/s_axis_s2mm_tlast] [get_bd_pins axis_32to64_adc_0/M_AXIS_TLAST] [get_bd_pins ila_1/probe1]
-	# connect_bd_net -net axis_32to64_adc_0_M_AXIS_TVALID [get_bd_pins axi_dma_0/s_axis_s2mm_tvalid] [get_bd_pins axis_32to64_adc_0/M_AXIS_TVALID] [get_bd_pins ila_1/probe2]
-	# connect_bd_net -net axis_32to64_adc_0_S_AXIS_TREADY [get_bd_pins axis_32to64_adc_0/S_AXIS_TREADY] [get_bd_pins axis_vita49_pack_0/M_AXIS_TREADY] [get_bd_pins ila_vitapack/probe3]
+
 
 	# DAC
     connect_bd_net -net axi_ad9361_0_clk              [get_bd_pins util_dac_unpack_0/clk]
@@ -367,42 +372,39 @@ if {$sys_zynq == 1} {
 	connect_bd_net -net axis2adi_0_M_AXIS_TVALID    [get_bd_pins axis2adi_0/S_AXIS_TVALID] [get_bd_pins axis_dac_interconnect_0/M00_AXIS_tvalid]
 	connect_bd_net -net [get_bd_nets sys_100m_resetn] [get_bd_pins axis2adi_0/AXIS_ARESETN] [get_bd_pins sys_rstgen/peripheral_aresetn]
 	connect_bd_intf_net -intf_net axis_dac_interconnect_0_M00_AXIS 	[get_bd_intf_pins axis2adi_0/S_AXIS] [get_bd_intf_pins axis_dac_interconnect_0/M00_AXIS]
-#	connect_bd_intf_net -intf_net axi_dma_0_M_AXIS_MM2S 			[get_bd_intf_pins axi_dma_0/M_AXIS_MM2S] [get_bd_intf_pins axis_dac_interconnect_0/S00_AXIS]
 
 	# VITA DAC
 	connect_bd_intf_net -intf_net axis_32to64_dac_0_M_AXIS [get_bd_intf_pins axis_32to64_dac_0/M_AXIS] [get_bd_intf_pins axis_dac_interconnect_0/S00_AXIS]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_32to64_dac_0/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_32to64_dac_0/AXIS_ARESETN]	
-	# connect_bd_net -net axis_32to64_dac_0_S_AXIS_TREADY [get_bd_pins axis_32to64_dac_0/S_AXIS_TREADY] [get_bd_pins ila_4/probe5] [get_bd_pins vita49_trig_dac_0/M_AXIS_TREADY]
   
 	connect_bd_intf_net -intf_net vita49_trig_dac_0_M_AXIS [get_bd_intf_pins axis_32to64_dac_0/S_AXIS] [get_bd_intf_pins vita49_trig_dac_0/M_AXIS]
 	connect_bd_net -net [get_bd_nets vita49_trig_dac_0_trig] [get_bd_pins axis_vita49_unpack_0/trig] [get_bd_pins vita49_trig_dac_0/trig]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins vita49_trig_dac_0/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins vita49_trig_dac_0/AXIS_ARESETN]	
 
-	connect_bd_intf_net -intf_net axis_vita49_unpack_0_M_AXIS [get_bd_intf_pins axis_vita49_unpack_0/M_AXIS] [get_bd_intf_pins vita49_trig_dac_0/S_AXIS]
+	connect_bd_intf_net -intf_net vita_trig_dac_reg_0_M_AXIS [get_bd_intf_pins vita49_trig_dac_0/S_AXIS] [get_bd_intf_pins vita_trig_dac_reg_0/M_AXIS]
+	connect_bd_net -net sys_100m_resetn  [get_bd_pins vita_trig_dac_reg_0/aresetn] 
+	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins vita_trig_dac_reg_0/aclk]
+ 
+	connect_bd_intf_net -intf_net axis_vita49_unpack_0_M_AXIS [get_bd_intf_pins axis_vita49_unpack_0/M_AXIS] [get_bd_intf_pins vita_trig_dac_reg_0/S_AXIS]
 	connect_bd_net [get_bd_pins axis_vita49_unpack_0/irq] [get_bd_pins sys_concat_intc/In5]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_vita49_unpack_0/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_vita49_unpack_0/AXIS_ARESETN]	
-	connect_bd_net [get_bd_pins axis_vita49_unpack_0/M_AXIS_TDATA] [get_bd_pins vita49_trig_dac_0/S_AXIS_TDATA]
-	connect_bd_net [get_bd_pins axis_vita49_unpack_0/M_AXIS_TLAST] [get_bd_pins vita49_trig_dac_0/S_AXIS_TLAST]
-	connect_bd_net [get_bd_pins axis_vita49_unpack_0/M_AXIS_TVALID] [get_bd_pins vita49_trig_dac_0/S_AXIS_TVALID]
-	connect_bd_net [get_bd_pins axis_vita49_unpack_0/M_AXIS_TREADY] [get_bd_pins vita49_trig_dac_0/S_AXIS_TREADY]
 
-	connect_bd_intf_net -intf_net axis_64to32_dac_0_M_AXIS [get_bd_intf_pins axis_64to32_dac_0/M_AXIS] [get_bd_intf_pins axis_vita49_unpack_0/S_AXIS]
+	connect_bd_intf_net -intf_net vita_unpack_dac_reg_0_M_AXIS [get_bd_intf_pins axis_vita49_unpack_0/S_AXIS] [get_bd_intf_pins vita_unpack_dac_reg_0/M_AXIS]
+	connect_bd_net -net sys_100m_resetn  [get_bd_pins vita_unpack_dac_reg_0/aresetn] 
+	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins vita_unpack_dac_reg_0/aclk]
+	
+    connect_bd_intf_net -intf_net axis_64to32_dac_0_M_AXIS [get_bd_intf_pins axis_64to32_dac_0/M_AXIS] [get_bd_intf_pins vita_unpack_dac_reg_0/S_AXIS]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_64to32_dac_0/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_64to32_dac_0/AXIS_ARESETN]	
 	connect_bd_intf_net -intf_net axi_dma_0_M_AXIS_MM2S [get_bd_intf_pins axi_dma_0/M_AXIS_MM2S] [get_bd_intf_pins axis_64to32_dac_0/S_AXIS]
-	connect_bd_net [get_bd_pins axis_64to32_dac_0/M_AXIS_TDATA] [get_bd_pins axis_vita49_unpack_0/S_AXIS_TDATA]
-	connect_bd_net [get_bd_pins axis_64to32_dac_0/M_AXIS_TLAST] [get_bd_pins axis_vita49_unpack_0/S_AXIS_TLAST]
-	connect_bd_net [get_bd_pins axis_64to32_dac_0/M_AXIS_TVALID] [get_bd_pins axis_vita49_unpack_0/S_AXIS_TVALID]
-	connect_bd_net [get_bd_pins axis_64to32_dac_0/M_AXIS_TREADY] [get_bd_pins axis_vita49_unpack_0/S_AXIS_TREADY]
-
  
  	connect_bd_net -net axi_dma_0_mm2s_introut [get_bd_pins axi_dma_0/mm2s_introut] [get_bd_pins sys_concat_intc/In0]
 	connect_bd_net -net axi_dma_0_s2mm_introut [get_bd_pins axi_dma_0/s2mm_introut] [get_bd_pins sys_concat_intc/In1]
-
 	
+		
     # connections (ad9361_1)
 
     connect_bd_net -net sys_200m_clk [get_bd_pins axi_ad9361_1/delay_clk]
@@ -448,16 +450,12 @@ if {$sys_zynq == 1} {
     connect_bd_net -net [get_bd_nets sys_100m_resetn]				[get_bd_pins axis_adc_interconnect_1/M00_AXIS_ARESETN]
     connect_bd_net -net [get_bd_nets sys_100m_resetn]				[get_bd_pins axis_adc_interconnect_1/S00_AXIS_ARESETN]
 	connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axis_adc_interconnect_1/S00_AXIS] [get_bd_intf_pins adi2axis_1/M_AXIS]
- 	#connect_bd_intf_net -intf_net axis_adc_interconnect_1_M00_AXIS [get_bd_intf_pins axi_dma_1/S_AXIS_S2MM] [get_bd_intf_pins axis_adc_interconnect_1/M00_AXIS]
- 	connect_bd_intf_net -intf_net axis_adc_interconnect_1_M00_AXIS [get_bd_intf_pins axis_64to32_adc_1/S_AXIS] [get_bd_intf_pins axis_adc_interconnect_1/M00_AXIS]
+  	connect_bd_intf_net -intf_net axis_adc_interconnect_1_M00_AXIS [get_bd_intf_pins axis_64to32_adc_1/S_AXIS] [get_bd_intf_pins axis_adc_interconnect_1/M00_AXIS]
 
 	# VITA ADC
 	connect_bd_intf_net -intf_net axis_64to32_adc_1_M_AXIS [get_bd_intf_pins axis_64to32_adc_1/M_AXIS] [get_bd_intf_pins vita49_trig_adc_1/S_AXIS]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_64to32_adc_1/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_64to32_adc_1/AXIS_ARESETN]
-	# connect_bd_net -net axis_64to32_adc_1_M_AXIS_TDATA [get_bd_pins axis_64to32_adc_1/M_AXIS_TDATA] [get_bd_pins ila_adc_trig/probe0] [get_bd_pins vita49_trig_adc_1/S_AXIS_TDATA]
-	# connect_bd_net -net axis_64to32_adc_1_M_AXIS_TLAST [get_bd_pins axis_64to32_adc_1/M_AXIS_TLAST] [get_bd_pins ila_adc_trig/probe1] [get_bd_pins vita49_trig_adc_1/S_AXIS_TLAST]
-	# connect_bd_net -net axis_64to32_adc_1_M_AXIS_TVALID [get_bd_pins axis_64to32_adc_1/M_AXIS_TVALID] [get_bd_pins ila_adc_trig/probe2] [get_bd_pins vita49_trig_adc_1/S_AXIS_TVALID]
 
 	connect_bd_intf_net -intf_net vita49_trig_adc_1_M_AXIS [get_bd_intf_pins axis_vita49_pack_1/S_AXIS] [get_bd_intf_pins vita49_trig_adc_1/M_AXIS]
 	connect_bd_net -net vita49_trig_adc_1_trig [get_bd_pins adi2axis_1/trig] [get_bd_pins vita49_trig_adc_1/trig]
@@ -479,10 +477,6 @@ if {$sys_zynq == 1} {
 	connect_bd_intf_net -intf_net axis_32to64_1_M_AXIS [get_bd_intf_pins axi_dma_1/S_AXIS_S2MM] [get_bd_intf_pins axis_32to64_adc_1/M_AXIS]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_32to64_adc_1/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_32to64_adc_1/AXIS_ARESETN]	
-	# connect_bd_net -net axis_32to64_adc_1_M_AXIS_TDATA [get_bd_pins axi_dma_1/s_axis_s2mm_tdata] [get_bd_pins axis_32to64_adc_1/M_AXIS_TDATA] [get_bd_pins ila_1/probe0]
-	# connect_bd_net -net axis_32to64_adc_1_M_AXIS_TLAST [get_bd_pins axi_dma_1/s_axis_s2mm_tlast] [get_bd_pins axis_32to64_adc_1/M_AXIS_TLAST] [get_bd_pins ila_1/probe1]
-	# connect_bd_net -net axis_32to64_adc_1_M_AXIS_TVALID [get_bd_pins axi_dma_1/s_axis_s2mm_tvalid] [get_bd_pins axis_32to64_adc_1/M_AXIS_TVALID] [get_bd_pins ila_1/probe2]
-	# connect_bd_net -net axis_32to64_adc_1_S_AXIS_TREADY [get_bd_pins axis_32to64_adc_1/S_AXIS_TREADY] [get_bd_pins axis_vita49_pack_1/M_AXIS_TREADY] [get_bd_pins ila_vitapack/probe3]
 
 	# DAC
     connect_bd_net -net axi_ad9361_1_clk              [get_bd_pins util_dac_unpack_1/clk]
@@ -517,38 +511,34 @@ if {$sys_zynq == 1} {
 	connect_bd_net -net axis2adi_1_M_AXIS_TVALID    [get_bd_pins axis2adi_1/S_AXIS_TVALID] [get_bd_pins axis_dac_interconnect_1/M00_AXIS_tvalid]
 	connect_bd_net -net [get_bd_nets sys_100m_resetn] [get_bd_pins axis2adi_1/AXIS_ARESETN] [get_bd_pins sys_rstgen/peripheral_aresetn]
 	connect_bd_intf_net -intf_net axis_dac_interconnect_1_M00_AXIS 	[get_bd_intf_pins axis2adi_1/S_AXIS] [get_bd_intf_pins axis_dac_interconnect_1/M00_AXIS]
-#	connect_bd_intf_net -intf_net axi_dma_1_M_AXIS_MM2S 			[get_bd_intf_pins axi_dma_1/M_AXIS_MM2S] [get_bd_intf_pins axis_dac_interconnect_1/S00_AXIS]
 
 	# VITA DAC
 	connect_bd_intf_net -intf_net axis_32to64_dac_1_M_AXIS [get_bd_intf_pins axis_32to64_dac_1/M_AXIS] [get_bd_intf_pins axis_dac_interconnect_1/S00_AXIS]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_32to64_dac_1/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_32to64_dac_1/AXIS_ARESETN]	
-	# connect_bd_net -net axis_32to64_dac_1_S_AXIS_TREADY [get_bd_pins axis_32to64_dac_1/S_AXIS_TREADY] [get_bd_pins ila_4/probe5] [get_bd_pins vita49_trig_dac_1/M_AXIS_TREADY]
   
 	connect_bd_intf_net -intf_net vita49_trig_dac_1_M_AXIS [get_bd_intf_pins axis_32to64_dac_1/S_AXIS] [get_bd_intf_pins vita49_trig_dac_1/M_AXIS]
 	connect_bd_net -net [get_bd_nets vita49_trig_dac_1_trig] [get_bd_pins axis_vita49_unpack_1/trig] [get_bd_pins vita49_trig_dac_1/trig]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins vita49_trig_dac_1/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins vita49_trig_dac_1/AXIS_ARESETN]	
 
-	connect_bd_intf_net -intf_net axis_vita49_unpack_1_M_AXIS [get_bd_intf_pins axis_vita49_unpack_1/M_AXIS] [get_bd_intf_pins vita49_trig_dac_1/S_AXIS]
+    connect_bd_intf_net -intf_net vita_trig_dac_reg_1_M_AXIS [get_bd_intf_pins vita49_trig_dac_1/S_AXIS] [get_bd_intf_pins vita_trig_dac_reg_1/M_AXIS]
+ 	connect_bd_net -net sys_100m_resetn  [get_bd_pins vita_trig_dac_reg_1/aresetn] 
+	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins vita_trig_dac_reg_1/aclk]
+	
+	connect_bd_intf_net -intf_net axis_vita49_unpack_1_M_AXIS [get_bd_intf_pins axis_vita49_unpack_1/M_AXIS] [get_bd_intf_pins vita_trig_dac_reg_1/S_AXIS]
 	connect_bd_net [get_bd_pins axis_vita49_unpack_1/irq] [get_bd_pins sys_concat_intc/In6]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_vita49_unpack_1/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_vita49_unpack_1/AXIS_ARESETN]	
-	connect_bd_net [get_bd_pins axis_vita49_unpack_1/M_AXIS_TDATA] [get_bd_pins vita49_trig_dac_1/S_AXIS_TDATA]
-	connect_bd_net [get_bd_pins axis_vita49_unpack_1/M_AXIS_TLAST] [get_bd_pins vita49_trig_dac_1/S_AXIS_TLAST]
-	connect_bd_net [get_bd_pins axis_vita49_unpack_1/M_AXIS_TVALID] [get_bd_pins vita49_trig_dac_1/S_AXIS_TVALID]
-	connect_bd_net [get_bd_pins axis_vita49_unpack_1/M_AXIS_TREADY] [get_bd_pins vita49_trig_dac_1/S_AXIS_TREADY]
-
  
-	connect_bd_intf_net -intf_net axis_64to32_dac_1_M_AXIS [get_bd_intf_pins axis_64to32_dac_1/M_AXIS] [get_bd_intf_pins axis_vita49_unpack_1/S_AXIS]
+    connect_bd_intf_net -intf_net vita_unpack_dac_reg_1_M_AXIS [get_bd_intf_pins axis_vita49_unpack_1/S_AXIS] [get_bd_intf_pins vita_unpack_dac_reg_1/M_AXIS]
+	connect_bd_net -net sys_100m_resetn  [get_bd_pins vita_unpack_dac_reg_1/aresetn] 
+	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins vita_unpack_dac_reg_1/aclk]
+ 	
+	connect_bd_intf_net -intf_net axis_64to32_dac_1_M_AXIS [get_bd_intf_pins axis_64to32_dac_1/M_AXIS] [get_bd_intf_pins vita_unpack_dac_reg_1/S_AXIS]
 	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axis_64to32_dac_1/AXIS_ACLK]
 	connect_bd_net -net sys_100m_resetn [get_bd_pins axis_64to32_dac_1/AXIS_ARESETN]	
 	connect_bd_intf_net -intf_net axi_dma_1_M_AXIS_MM2S [get_bd_intf_pins axi_dma_1/M_AXIS_MM2S] [get_bd_intf_pins axis_64to32_dac_1/S_AXIS]
-	connect_bd_net [get_bd_pins axis_64to32_dac_1/M_AXIS_TDATA] [get_bd_pins axis_vita49_unpack_1/S_AXIS_TDATA]
-	connect_bd_net [get_bd_pins axis_64to32_dac_1/M_AXIS_TLAST] [get_bd_pins axis_vita49_unpack_1/S_AXIS_TLAST]
-	connect_bd_net [get_bd_pins axis_64to32_dac_1/M_AXIS_TVALID] [get_bd_pins axis_vita49_unpack_1/S_AXIS_TVALID]
-	connect_bd_net [get_bd_pins axis_64to32_dac_1/M_AXIS_TREADY] [get_bd_pins axis_vita49_unpack_1/S_AXIS_TREADY]
-
 
 	connect_bd_net -net axi_dma_1_mm2s_introut [get_bd_pins axi_dma_1/mm2s_introut] [get_bd_pins sys_concat_intc/In2]
 	connect_bd_net -net axi_dma_1_s2mm_introut [get_bd_pins axi_dma_1/s2mm_introut] [get_bd_pins sys_concat_intc/In3]
@@ -703,6 +693,8 @@ if {$sys_zynq == 1} {
     connect_bd_net -net sys_100m_resetn [get_bd_pins axi_ad9361_1_adc_dma_interconnect/M00_ARESETN] $sys_100m_resetn_source
     connect_bd_net -net sys_100m_resetn [get_bd_pins axi_ad9361_1_adc_dma_interconnect/S00_ARESETN] $sys_100m_resetn_source
 
+	validate_bd_design
+	
 # CHIPSCOPE DEBUG
 	
 	#ila_vitapack_0
@@ -723,6 +715,7 @@ if {$sys_zynq == 1} {
 	connect_bd_net -net [get_bd_nets vita49_clk_tsi_0] [get_bd_pins ila_vitapack_0/probe9] [get_bd_pins vita49_clk/tsi_0]
 	connect_bd_net -net [get_bd_nets vita49_trig_adc_0_trig] [get_bd_pins ila_vitapack_0/probe10] [get_bd_pins vita49_trig_adc_0/trig]
 
+	
 	#ila_vitapack_1
 	create_bd_cell -type ip -vlnv xilinx.com:ip:ila:4.0 ila_vitapack_1
 	set_property -dict [list CONFIG.C_PROBE9_WIDTH {32} CONFIG.C_PROBE8_WIDTH {64} CONFIG.C_PROBE4_WIDTH {32} CONFIG.C_PROBE0_WIDTH {32} CONFIG.C_NUM_OF_PROBES {11} CONFIG.C_MONITOR_TYPE {Native}] [get_bd_cells ila_vitapack_1]
@@ -744,41 +737,42 @@ if {$sys_zynq == 1} {
 	#ila_vitaunpack_0
 	create_bd_cell -type ip -vlnv xilinx.com:ip:ila:4.0 ila_vitaunpack_0
 	set_property -dict [list CONFIG.C_PROBE10_WIDTH {32} CONFIG.C_PROBE9_WIDTH {32} CONFIG.C_PROBE8_WIDTH {64} CONFIG.C_PROBE4_WIDTH {32} CONFIG.C_PROBE0_WIDTH {32} CONFIG.C_NUM_OF_PROBES {12} CONFIG.C_MONITOR_TYPE {Native}] [get_bd_cells ila_vitaunpack_0]
-
 	connect_bd_net -net [get_bd_nets sys_fmc_dma_clk] [get_bd_pins ila_vitaunpack_0/clk] [get_bd_pins sys_ps7/FCLK_CLK2]
-	connect_bd_net -net [get_bd_nets axis_64to32_dac_0_M_AXIS_TDATA] [get_bd_pins ila_vitaunpack_0/probe0] [get_bd_pins axis_64to32_dac_0/M_AXIS_TDATA]
-	connect_bd_net -net [get_bd_nets axis_64to32_dac_0_M_AXIS_TLAST] [get_bd_pins ila_vitaunpack_0/probe1] [get_bd_pins axis_64to32_dac_0/M_AXIS_TLAST]
-	connect_bd_net -net [get_bd_nets axis_64to32_dac_0_M_AXIS_TVALID] [get_bd_pins ila_vitaunpack_0/probe2] [get_bd_pins axis_64to32_dac_0/M_AXIS_TVALID]
-	connect_bd_net -net [get_bd_nets axis_vita49_unpack_0_S_AXIS_TREADY] [get_bd_pins ila_vitaunpack_0/probe3] [get_bd_pins axis_vita49_unpack_0/S_AXIS_TREADY]
-	connect_bd_net -net [get_bd_nets axis_vita49_unpack_0_M_AXIS_TDATA] [get_bd_pins ila_vitaunpack_0/probe4] [get_bd_pins axis_vita49_unpack_0/M_AXIS_TDATA]
-	connect_bd_net -net [get_bd_nets axis_vita49_unpack_0_M_AXIS_TLAST] [get_bd_pins ila_vitaunpack_0/probe5] [get_bd_pins axis_vita49_unpack_0/M_AXIS_TLAST]
-	connect_bd_net -net [get_bd_nets axis_vita49_unpack_0_M_AXIS_TVALID] [get_bd_pins ila_vitaunpack_0/probe6] [get_bd_pins axis_vita49_unpack_0/M_AXIS_TVALID]
-	connect_bd_net -net [get_bd_nets vita49_trig_dac_0_S_AXIS_TREADY] [get_bd_pins ila_vitaunpack_0/probe7] [get_bd_pins vita49_trig_dac_0/S_AXIS_TREADY]
+	
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_0/S_AXIS_TDATA] [get_bd_pins ila_vitaunpack_0/probe0] [get_bd_pins vita_unpack_dac_reg_0/m_axis_tdata]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_0/S_AXIS_TLAST] [get_bd_pins ila_vitaunpack_0/probe1] [get_bd_pins vita_unpack_dac_reg_0/m_axis_tlast]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_0/S_AXIS_TVALID] [get_bd_pins ila_vitaunpack_0/probe2] [get_bd_pins vita_unpack_dac_reg_0/m_axis_tvalid]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_0/S_AXIS_TREADY] [get_bd_pins ila_vitaunpack_0/probe3] [get_bd_pins vita_unpack_dac_reg_0/m_axis_tready]	
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_0/M_AXIS_TDATA] [get_bd_pins ila_vitaunpack_0/probe4] [get_bd_pins vita_trig_dac_reg_0/s_axis_tdata]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_0/M_AXIS_TLAST] [get_bd_pins ila_vitaunpack_0/probe5] [get_bd_pins vita_trig_dac_reg_0/s_axis_tlast]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_0/M_AXIS_TVALID] [get_bd_pins ila_vitaunpack_0/probe6] [get_bd_pins vita_trig_dac_reg_0/s_axis_tvalid]
+    connect_bd_net  [get_bd_pins axis_vita49_unpack_0/M_AXIS_TREADY] [get_bd_pins ila_vitaunpack_0/probe7] [get_bd_pins vita_trig_dac_reg_0/s_axis_tready]
 	connect_bd_net -net [get_bd_nets vita49_clk_tsf_0] [get_bd_pins ila_vitaunpack_0/probe8] [get_bd_pins vita49_clk/tsf_0]
 	connect_bd_net -net [get_bd_nets vita49_clk_tsi_0] [get_bd_pins ila_vitaunpack_0/probe9] [get_bd_pins vita49_clk/tsi_0]
 	connect_bd_net [get_bd_pins ila_vitaunpack_0/probe10] [get_bd_pins axis_vita49_unpack_0/ext_stat]
 	connect_bd_net [get_bd_pins ila_vitaunpack_0/probe11] [get_bd_pins vita49_trig_dac_0/trig]
 
+
+	
 	#ila_vitaunpack_1
 	create_bd_cell -type ip -vlnv xilinx.com:ip:ila:4.0 ila_vitaunpack_1
 	set_property -dict [list CONFIG.C_PROBE10_WIDTH {32} CONFIG.C_PROBE9_WIDTH {32} CONFIG.C_PROBE8_WIDTH {64} CONFIG.C_PROBE4_WIDTH {32} CONFIG.C_PROBE0_WIDTH {32} CONFIG.C_NUM_OF_PROBES {12} CONFIG.C_MONITOR_TYPE {Native}] [get_bd_cells ila_vitaunpack_1]
+ 	connect_bd_net -net [get_bd_nets sys_fmc_dma_clk] [get_bd_pins ila_vitaunpack_1/clk] [get_bd_pins sys_ps7/FCLK_CLK2]
 
-	connect_bd_net -net [get_bd_nets sys_fmc_dma_clk] [get_bd_pins ila_vitaunpack_1/clk] [get_bd_pins sys_ps7/FCLK_CLK2]
-	connect_bd_net -net [get_bd_nets axis_64to32_dac_1_M_AXIS_TDATA] [get_bd_pins ila_vitaunpack_1/probe0] [get_bd_pins axis_64to32_dac_1/M_AXIS_TDATA]
-	connect_bd_net -net [get_bd_nets axis_64to32_dac_1_M_AXIS_TLAST] [get_bd_pins ila_vitaunpack_1/probe1] [get_bd_pins axis_64to32_dac_1/M_AXIS_TLAST]
-	connect_bd_net -net [get_bd_nets axis_64to32_dac_1_M_AXIS_TVALID] [get_bd_pins ila_vitaunpack_1/probe2] [get_bd_pins axis_64to32_dac_1/M_AXIS_TVALID]
-	connect_bd_net -net [get_bd_nets axis_vita49_unpack_1_S_AXIS_TREADY] [get_bd_pins ila_vitaunpack_1/probe3] [get_bd_pins axis_vita49_unpack_1/S_AXIS_TREADY]
-	connect_bd_net -net [get_bd_nets axis_vita49_unpack_1_M_AXIS_TDATA] [get_bd_pins ila_vitaunpack_1/probe4] [get_bd_pins axis_vita49_unpack_1/M_AXIS_TDATA]
-	connect_bd_net -net [get_bd_nets axis_vita49_unpack_1_M_AXIS_TLAST] [get_bd_pins ila_vitaunpack_1/probe5] [get_bd_pins axis_vita49_unpack_1/M_AXIS_TLAST]
-	connect_bd_net -net [get_bd_nets axis_vita49_unpack_1_M_AXIS_TVALID] [get_bd_pins ila_vitaunpack_1/probe6] [get_bd_pins axis_vita49_unpack_1/M_AXIS_TVALID]
-	connect_bd_net -net [get_bd_nets vita49_trig_dac_1_S_AXIS_TREADY] [get_bd_pins ila_vitaunpack_1/probe7] [get_bd_pins vita49_trig_dac_1/S_AXIS_TREADY]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_1/S_AXIS_TDATA] [get_bd_pins ila_vitaunpack_1/probe0] [get_bd_pins vita_unpack_dac_reg_1/m_axis_tdata]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_1/S_AXIS_TLAST] [get_bd_pins ila_vitaunpack_1/probe1] [get_bd_pins vita_unpack_dac_reg_1/m_axis_tlast]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_1/S_AXIS_TVALID] [get_bd_pins ila_vitaunpack_1/probe2] [get_bd_pins vita_unpack_dac_reg_1/m_axis_tvalid]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_1/S_AXIS_TREADY] [get_bd_pins ila_vitaunpack_1/probe3] [get_bd_pins vita_unpack_dac_reg_1/m_axis_tready]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_1/M_AXIS_TDATA] [get_bd_pins ila_vitaunpack_1/probe4] [get_bd_pins vita_trig_dac_reg_1/s_axis_tdata]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_1/M_AXIS_TLAST] [get_bd_pins ila_vitaunpack_1/probe5] [get_bd_pins vita_trig_dac_reg_1/s_axis_tlast]
+	connect_bd_net  [get_bd_pins axis_vita49_unpack_1/M_AXIS_TVALID] [get_bd_pins ila_vitaunpack_1/probe6] [get_bd_pins vita_trig_dac_reg_1/s_axis_tvalid]
+    connect_bd_net  [get_bd_pins axis_vita49_unpack_1/M_AXIS_TREADY] [get_bd_pins ila_vitaunpack_1/probe7] [get_bd_pins vita_trig_dac_reg_1/s_axis_tready]
 	connect_bd_net -net [get_bd_nets vita49_clk_tsf_1] [get_bd_pins ila_vitaunpack_1/probe8] [get_bd_pins vita49_clk/tsf_1]
 	connect_bd_net -net [get_bd_nets vita49_clk_tsi_1] [get_bd_pins ila_vitaunpack_1/probe9] [get_bd_pins vita49_clk/tsi_1]
 	connect_bd_net [get_bd_pins ila_vitaunpack_1/probe10] [get_bd_pins axis_vita49_unpack_1/ext_stat]
 	connect_bd_net [get_bd_pins ila_vitaunpack_1/probe11] [get_bd_pins vita49_trig_dac_1/trig]
 
-		
-	
+
     # # ila (adc0)
 
     # set ila_adc [create_bd_cell -type ip -vlnv xilinx.com:ip:ila:4.0 ila_adc]
