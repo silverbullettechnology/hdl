@@ -66,11 +66,14 @@ wire match_off =
 	(tsi_reg > tsi_trig_off) |
 	((tsi_reg == tsi_trig_off) &  (tsf_reg >= tsf_trig_off));
 
+reg match_on_reg;
+reg match_off_reg;
+
 assign M_AXIS_TDATA  = S_AXIS_TDATA;
 assign M_AXIS_TSTRB  = S_AXIS_TSTRB;
 assign M_AXIS_TLAST  = S_AXIS_TLAST;
-assign M_AXIS_TVALID = (passthrough_cmd | match_on)? S_AXIS_TVALID : 0;
-assign S_AXIS_TREADY = (passthrough_cmd | match_on)? M_AXIS_TREADY: 0; 
+assign M_AXIS_TVALID = (passthrough_cmd | match_on_reg)? S_AXIS_TVALID : 0;
+assign S_AXIS_TREADY = (passthrough_cmd | match_on_reg)? M_AXIS_TREADY: 0; 
 
 always @ (posedge AXIS_ACLK)
 begin
@@ -80,8 +83,15 @@ begin
 	 tsi_trig_on <= 31'hffffffff;
 	 tsf_trig_on <= 64'h0; 	 
 	 tsi_trig_off <= 31'hffffffff;
-	 tsf_trig_off <= 64'h0; 	 
+	 tsf_trig_off <= 64'h0;
+	 match_on_reg <= 0;
+	 match_off_reg <= 0; 	 
    end
+   else begin
+     match_on_reg <= match_on;
+     match_off_reg <= match_off;
+   end
+   
    if (set_trig_on_cmd) begin
 	 tsi_trig_on <= tsi_trig_up;
 	 tsf_trig_on <= {tsf_hi_trig_up, tsf_lo_trig_up}; 
@@ -93,8 +103,8 @@ begin
    if (passthrough_cmd) trig <= 1;
    else begin
      if (en_cmd) begin
-		trig <= (match_off)? 0 : 
-		        (match_on) ? 1 : 0;
+		trig <= (match_off_reg)? 0 : 
+		        (match_on_reg) ? 1 : 0;
 	 end
    end
 end
