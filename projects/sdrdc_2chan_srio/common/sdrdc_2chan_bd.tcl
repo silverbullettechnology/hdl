@@ -289,13 +289,13 @@
     set axi_srio_target_fifo [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_fifo_mm_s:4.0 axi_srio_target_fifo ]
     set_property -dict [ list CONFIG.C_DATA_INTERFACE_TYPE {1} CONFIG.C_HAS_AXIS_TDEST {true} CONFIG.C_HAS_AXIS_TUSER {false} CONFIG.C_RX_FIFO_DEPTH {512} CONFIG.C_S_AXI4_DATA_WIDTH {32} CONFIG.C_TX_FIFO_DEPTH {512} CONFIG.C_USE_RX_CUT_THROUGH {true} CONFIG.C_USE_TX_CTRL {0} CONFIG.C_USE_TX_CUT_THROUGH {1}  ] $axi_srio_target_fifo
     # Create instance: axis_32to64_srio_init, and set properties
-    set axis_32to64_srio_init [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_32to64_strb:1.0 axis_32to64_srio_init ]
+    set axis_32to64_srio_init [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_32to64_strb_tuser:1.0 axis_32to64_srio_init ]
     # Create instance: axis_32to64_srio_target, and set properties
-    set axis_32to64_srio_target [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_32to64_strb:1.0 axis_32to64_srio_target ]
+    set axis_32to64_srio_target [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_32to64_strb_tuser:1.0 axis_32to64_srio_target ]
     # Create instance: axis_64to32_srio_init, and set properties
-    set axis_64to32_srio_init [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32_strb:1.0 axis_64to32_srio_init ]
+    set axis_64to32_srio_init [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32_strb_tuser:1.0 axis_64to32_srio_init ]
     # Create instance: axis_64to32_srio_target, and set properties
-    set axis_64to32_srio_target [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32_strb:1.0 axis_64to32_srio_target ]
+    set axis_64to32_srio_target [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:axis_64to32_strb_tuser:1.0 axis_64to32_srio_target ]
     # Create instance: srio_target_reg, and set properties
     set srio_target_reg [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 srio_target_reg ]
 
@@ -377,8 +377,6 @@ if {$sys_zynq == 1} {
 	connect_bd_net -net vita49_clk_tsi_1 [get_bd_pins vita49_clk/tsi_1] [get_bd_pins axis_vita49_pack_1/timestamp_sec] [get_bd_pins axis_vita49_unpack_1/timestamp_sec] [get_bd_pins vita49_trig_adc_1/tsi] [get_bd_pins vita49_trig_dac_1/tsi]
 
 	#sys_reg_0
-    connect_bd_net -net sys_reg_0_srio_srcdest_ireq [get_bd_pins axis_32to64_srio_init/SRCDEST] [get_bd_pins sys_reg_0/srio_srcdest_ireq]
-    connect_bd_net -net sys_reg_0_srio_srcdest_tresp [get_bd_pins axis_32to64_srio_target/SRCDEST] [get_bd_pins sys_reg_0/srio_srcdest_tresp]
     connect_bd_net -net sys_reg_0_swrite_bypass [get_bd_pins hello_router_0/swrite_bypass] [get_bd_pins sys_reg_0/swrite_bypass]
     connect_bd_net -net sys_reg_0_adc_sw_dest0 [get_bd_pins adc_ddr_sw_0/s_axis_tdest] [get_bd_pins sys_reg_0/adc_sw_dest0]
     connect_bd_net -net sys_reg_0_adc_sw_dest1 [get_bd_pins adc_ddr_sw_1/s_axis_tdest] [get_bd_pins sys_reg_0/adc_sw_dest1]
@@ -790,7 +788,7 @@ if {$sys_zynq == 1} {
     connect_bd_intf_net -intf_net axis_32to64_strb_0_M_AXIS [get_bd_intf_pins axis_32to64_srio_init/M_AXIS] [get_bd_intf_pins srio_ireq_sw/S00_AXIS]
     connect_bd_intf_net -intf_net axis_64to32_strb_0_M_AXIS [get_bd_intf_pins axi_srio_initiator_fifo/AXI_STR_RXD] [get_bd_intf_pins axis_64to32_srio_init/M_AXIS]
 	connect_bd_intf_net -intf_net srio_iresp_intc_M00_AXIS [get_bd_intf_pins axis_64to32_srio_init/S_AXIS] [get_bd_intf_pins srio_iresp_intc/M00_AXIS]
-    connect_bd_net -net axis_64to32_strb_0_SRCDEST [get_bd_pins axis_64to32_srio_init/SRCDEST] [get_bd_pins sys_reg_0/srio_srcdest_iresp]
+	connect_bd_net -net const_1_dout [get_bd_pins axis_64to32_srio_init/S_AXIS_TSTRB] [get_bd_pins const_1/dout]
     connect_bd_net -net axi_srio_initiator_fifo_interrupt [get_bd_pins axi_srio_initiator_fifo/interrupt] [get_bd_pins sys_concat_intc/In7]
     #target
     connect_bd_intf_net -intf_net axi_srio_target_fifo_AXI_STR_TXD [get_bd_intf_pins axi_srio_target_fifo/AXI_STR_TXD] [get_bd_intf_pins axis_32to64_srio_target/S_AXIS]
@@ -798,7 +796,6 @@ if {$sys_zynq == 1} {
     connect_bd_net -net const_1_dout [get_bd_pins axis_64to32_srio_target/S_AXIS_TSTRB] [get_bd_pins const_1/dout]
     connect_bd_intf_net -intf_net axis_32to64_strb_0_M_AXIS1 [get_bd_intf_pins axis_32to64_srio_target/M_AXIS] [get_bd_intf_pins srio_tresp_intc/S00_AXIS]
     connect_bd_intf_net -intf_net srio_target_reg_M_AXIS [get_bd_intf_pins axis_64to32_srio_target/S_AXIS] [get_bd_intf_pins srio_target_reg/M_AXIS]
-    connect_bd_net -net axis_64to32_strb_0_SRCDEST1 [get_bd_pins axis_64to32_srio_target/SRCDEST] [get_bd_pins sys_reg_0/srio_srcdest_treq]
 	connect_bd_net -net axi_srio_target_fifo_interrupt [get_bd_pins axi_srio_target_fifo/interrupt] [get_bd_pins sys_concat_intc/In8]
     connect_bd_net -net sys_100m_resetn  [get_bd_pins axi_srio_initiator_fifo/s_axi_aresetn] [get_bd_pins axi_srio_target_fifo/s_axi_aresetn] [get_bd_pins axis_32to64_srio_init/AXIS_ARESETN] [get_bd_pins axis_32to64_srio_target/AXIS_ARESETN] [get_bd_pins axis_64to32_srio_init/AXIS_ARESETN] [get_bd_pins axis_64to32_srio_target/AXIS_ARESETN] [get_bd_pins srio_target_reg/aresetn] 
     connect_bd_net -net sys_fmc_dma_clk   [get_bd_pins axi_srio_initiator_fifo/s_axi_aclk] [get_bd_pins axi_srio_target_fifo/s_axi_aclk] [get_bd_pins axis_32to64_srio_init/AXIS_ACLK] [get_bd_pins axis_32to64_srio_target/AXIS_ACLK] [get_bd_pins axis_64to32_srio_init/AXIS_ACLK] [get_bd_pins axis_64to32_srio_target/AXIS_ACLK] [get_bd_pins srio_target_reg/aclk] 
