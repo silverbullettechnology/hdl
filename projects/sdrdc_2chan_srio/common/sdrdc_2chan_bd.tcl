@@ -174,6 +174,9 @@
 	# DAC DMA INTERCONNECT
     set axi_ad9361_0_dac_dma_interconnect [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_ad9361_0_dac_dma_interconnect]
     set_property -dict [list CONFIG.NUM_MI {1}] $axi_ad9361_0_dac_dma_interconnect
+    set_property -dict [list CONFIG.NUM_SI {2}] $axi_ad9361_0_dac_dma_interconnect
+    set_property -dict [ list CONFIG.M00_HAS_REGSLICE {4} CONFIG.S00_HAS_REGSLICE {4} CONFIG.S01_HAS_REGSLICE {4}  ] $axi_ad9361_0_dac_dma_interconnect
+	
 	# ADC DMA INTERCONNECT
     set axi_ad9361_0_adc_dma_interconnect [create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_ad9361_0_adc_dma_interconnect]
     set_property -dict [list CONFIG.NUM_MI {1}] $axi_ad9361_0_adc_dma_interconnect
@@ -313,7 +316,11 @@
 	# Create instance: vita_dac_sw, and set properties
 	set vita_dac_sw [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_switch:1.1 vita_dac_sw ]
 	set_property -dict [ list CONFIG.NUM_SI {1}  ] $vita_dac_sw
-	
+
+	# DDR FIFO
+	create_bd_cell -type ip -vlnv xilinx.com:ip:axi_vfifo_ctrl:2.0 ddr_fifo
+	set_property -dict [list CONFIG.enable_interrupt {true} CONFIG.number_of_channel {2} CONFIG.number_of_page_ch0 {1024} CONFIG.number_of_page_ch1 {1024} CONFIG.dram_base_addr {10000000}] [get_bd_cells ddr_fifo]
+	set_property -dict [list CONFIG.axis_tdata_width {64}] [get_bd_cells ddr_fifo]
 	
     # additions to default configuration
 	set_property -dict [list CONFIG.NUM_PORTS {9}] [get_bd_cells sys_concat_intc]
@@ -828,11 +835,16 @@ if {$sys_zynq == 1} {
     connect_bd_net -net sys_100m_resetn  [get_bd_pins srio_treq_sw/aresetn]
     connect_bd_net -net sys_fmc_dma_clk [get_bd_pins srio_treq_sw/aclk]
     #SWRITE UNPACK
-    connect_bd_intf_net -intf_net srio_swrite_unpack_0_M_AXIS [get_bd_intf_pins srio_swrite_unpack_0/M_AXIS] [get_bd_intf_pins vita_dac_sw/S00_AXIS]	
+#    connect_bd_intf_net -intf_net srio_swrite_unpack_0_M_AXIS [get_bd_intf_pins srio_swrite_unpack_0/M_AXIS] [get_bd_intf_pins vita_dac_sw/S00_AXIS]	
+	connect_bd_intf_net [get_bd_intf_pins ddr_fifo/S_AXIS] [get_bd_intf_pins srio_swrite_unpack_0/M_AXIS]
     connect_bd_net -net sys_100m_clk   [get_bd_pins srio_swrite_unpack_0/S_AXI_ACLK] 
     connect_bd_net -net sys_100m_resetn  [get_bd_pins srio_swrite_unpack_0/S_AXI_ARESETN]
     connect_bd_net -net sys_100m_resetn  [get_bd_pins srio_swrite_unpack_0/AXIS_ARESETN] 
     connect_bd_net -net sys_fmc_dma_clk   [get_bd_pins srio_swrite_unpack_0/AXIS_ACLK]
+	#DDR FIFO
+	connect_bd_intf_net [get_bd_intf_pins ddr_fifo/M_AXIS] [get_bd_intf_pins vita_dac_sw/S00_AXIS]
+	connect_bd_net -net sys_fmc_dma_clk [get_bd_pins ddr_fifo/aclk] 
+	connect_bd_net -net sys_100m_resetn [get_bd_pins ddr_fifo/aresetn] 
     #VITA DAC SWITCH
     connect_bd_intf_net -intf_net vita_dac_sw_M00_AXIS [get_bd_intf_pins vita49_assem_0/S_AXIS] [get_bd_intf_pins vita_dac_sw/M00_AXIS]
     connect_bd_intf_net -intf_net vita_dac_sw_M01_AXIS [get_bd_intf_pins vita49_assem_1/S_AXIS] [get_bd_intf_pins vita_dac_sw/M01_AXIS]
@@ -971,14 +983,17 @@ if {$sys_zynq == 1} {
 	connect_bd_net -net sys_fmc_dma_clk  [get_bd_pins axi_dma_0/m_axi_mm2s_aclk]
 	connect_bd_net -net sys_fmc_dma_clk  [get_bd_pins axi_dma_0/m_axi_s2mm_aclk] 
 	
+	connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_ad9361_0_dac_dma_interconnect/S01_AXI] [get_bd_intf_pins ddr_fifo/M_AXI]
     connect_bd_intf_net -intf_net axi_ad9361_0_dac_dma_interconnect_m00_axi [get_bd_intf_pins axi_ad9361_0_dac_dma_interconnect/M00_AXI] [get_bd_intf_pins sys_ps7/S_AXI_HP0]
     connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axi_ad9361_0_dac_dma_interconnect/ACLK] $sys_fmc_dma_clk_source
     connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axi_ad9361_0_dac_dma_interconnect/M00_ACLK] $sys_fmc_dma_clk_source
     connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axi_ad9361_0_dac_dma_interconnect/S00_ACLK] $sys_fmc_dma_clk_source
+    connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axi_ad9361_0_dac_dma_interconnect/S01_ACLK] $sys_fmc_dma_clk_source
     connect_bd_net -net sys_fmc_dma_clk [get_bd_pins sys_ps7/S_AXI_HP0_ACLK]
     connect_bd_net -net sys_100m_resetn [get_bd_pins axi_ad9361_0_dac_dma_interconnect/ARESETN] $sys_100m_resetn_source
     connect_bd_net -net sys_100m_resetn [get_bd_pins axi_ad9361_0_dac_dma_interconnect/M00_ARESETN] $sys_100m_resetn_source
     connect_bd_net -net sys_100m_resetn [get_bd_pins axi_ad9361_0_dac_dma_interconnect/S00_ARESETN] $sys_100m_resetn_source
+    connect_bd_net -net sys_100m_resetn [get_bd_pins axi_ad9361_0_dac_dma_interconnect/S01_ARESETN] $sys_100m_resetn_source
 
     connect_bd_intf_net -intf_net axi_ad9361_0_adc_dma_interconnect_m00_axi [get_bd_intf_pins axi_ad9361_0_adc_dma_interconnect/M00_AXI] [get_bd_intf_pins sys_ps7/S_AXI_HP1]
     connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axi_ad9361_0_adc_dma_interconnect/ACLK] $sys_fmc_dma_clk_source
@@ -1150,7 +1165,7 @@ validate_bd_design
   create_bd_addr_seg -range 0x10000 -offset 0x84C40000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_target_fifo/S_AXI_FULL/Mem1] SEG_axi_srio_target_fifo_Mem1
 
 
-
+  create_bd_addr_seg -range 0x40000000 -offset 0x0 [get_bd_addr_spaces ddr_fifo/Data_S2MM] [get_bd_addr_segs sys_ps7/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_sys_ps7_HP0_DDR_LOWOCM
 
 
 
