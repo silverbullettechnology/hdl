@@ -97,12 +97,11 @@ module sys_reg
   // SRIO CONTROL
   output wire srio_reset,
   output wire swrite_bypass,
-  
-  // SRIO SRC/DEST routing
-  output wire [31:0] srio_srcdest_tresp,
-  output wire [31:0] srio_srcdest_ireq,
-  input  wire [31:0] srio_srcdest_treq,
-  input  wire [31:0] srio_srcdest_iresp,
+  output wire [11:0] srio_loopback,
+  output wire [3:0] gt_diffctrl,
+  output wire [19:0] gt_txprecursor,
+  output wire [19:0] gt_txpostcursor,
+  output wire [3:0] gt_rxlpmen,  
   
   // ADI DATA SINK DESTINATION (DDR or SRIO)
   output wire adc_sw_dest0,
@@ -112,14 +111,22 @@ module sys_reg
   input wire srio_mode_1x,
   input wire srio_clk_out_lock,
   input wire srio_port_initialized,
-  input wire srio_link_initialized
+  input wire srio_link_initialized,
+  input wire gtrx_disperr_or,
+  input wire gtrx_notintable_or,
+  input wire port_error,
+  input wire [15:0] device_id
 );
 
   parameter integer C_S_AXI_DATA_WIDTH = 32;
   parameter integer C_S_AXI_ADDR_WIDTH = 5;
 
   wire [31:0] srio_stat;
-  assign srio_stat = {'h0, srio_mode_1x, srio_clk_out_lock, srio_port_initialized, srio_link_initialized};
+  assign srio_stat = { 
+	device_id,
+	8'h0,
+	1'b0,         gtrx_disperr_or,   gtrx_notintable_or,    port_error,
+	srio_mode_1x, srio_clk_out_lock, srio_port_initialized, srio_link_initialized};
 
 ////////////////////////////////////////////////////////////////////////////
 // local parameter for addressing 32 bit / 64 bit C_S_AXI_DATA_WIDTH
@@ -534,8 +541,8 @@ assign S_AXI_RRESP  = axi_rresp;
           3'h1   : reg_data_out <= srio_stat;//slv_reg1;
           3'h2   : reg_data_out <= slv_reg2;
           3'h3   : reg_data_out <= slv_reg3;
-          3'h4   : reg_data_out <= srio_srcdest_treq;//slv_reg4;
-          3'h5   : reg_data_out <= srio_srcdest_iresp;//slv_reg5;
+          3'h4   : reg_data_out <= slv_reg4;
+          3'h5   : reg_data_out <= slv_reg5;
           3'h6   : reg_data_out <= slv_reg6;
           default : reg_data_out <= {C_S_AXI_DATA_WIDTH{1'b0}};
         endcase
@@ -564,10 +571,14 @@ assign S_AXI_RRESP  = axi_rresp;
 
 assign srio_reset         = slv_reg0[0];
 assign swrite_bypass      = slv_reg0[1];
- 
-assign srio_srcdest_tresp = slv_reg2;
-assign srio_srcdest_ireq  = slv_reg3;
-assign adc_sw_dest0       = slv_reg6[0];
-assign adc_sw_dest1       = slv_reg6[1];
+assign srio_loopback      = {slv_reg0[4:2],   slv_reg0[4:2],   slv_reg0[4:2],   slv_reg0[4:2]};
+assign gt_diffctrl        = slv_reg0[8:5];
+assign gt_txprecursor     = {slv_reg0[13:9],  slv_reg0[13:9],  slv_reg0[13:9],  slv_reg0[13:9]};
+assign gt_txpostcursor    = {slv_reg0[18:14], slv_reg0[18:14], slv_reg0[18:14], slv_reg0[18:14]};
+assign gt_rxlpmen         = {slv_reg0[19],    slv_reg0[19],    slv_reg0[19],    slv_reg0[19]};
+
+
+assign adc_sw_dest0       = slv_reg2[0];
+assign adc_sw_dest1       = slv_reg2[1];
 
 endmodule
