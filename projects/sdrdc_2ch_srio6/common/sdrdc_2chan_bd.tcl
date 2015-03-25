@@ -264,7 +264,8 @@
 # SRIO AND SWITCHES
     # Create instance: srio_gen2_0, and set properties
     set srio_gen2_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:srio_gen2:3.1 srio_gen2_0 ]
-    set_property -dict [ list CONFIG.assembly_identifier {7045} CONFIG.assembly_revision_level {0001} CONFIG.assembly_vendor_identifier {4242} CONFIG.c_transceivercontrol {1} CONFIG.device_id {02} CONFIG.extended_features_enable_user {false} CONFIG.link_width {4} CONFIG.mode_selection {Advanced} CONFIG.port_init_targ_userdef {true} CONFIG.silicon_rev {Production} CONFIG.software_assisted_error_recovery {true} CONFIG.transfer_frequency {5.0} CONFIG.unified_clk {true}  ] $srio_gen2_0
+    set_property -dict [ list CONFIG.assembly_identifier {7045} CONFIG.assembly_revision_level {0001} CONFIG.assembly_vendor_identifier {4242} CONFIG.c_transceivercontrol {1} CONFIG.device_id {02} CONFIG.extended_features_enable_user {false} CONFIG.link_width {4} CONFIG.mode_selection {Advanced} CONFIG.port_init_targ_userdef {false} CONFIG.silicon_rev {Production} CONFIG.software_assisted_error_recovery {true} CONFIG.transfer_frequency {5.0} CONFIG.unified_clk {true} CONFIG.idle2_support {true}   ] $srio_gen2_0
+
     # Create instance: axi_srio_interconnect, and set properties
     set axi_srio_interconnect [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_srio_interconnect ]
     set_property -dict [ list CONFIG.ENABLE_ADVANCED_OPTIONS {1} CONFIG.M00_HAS_REGSLICE {4} CONFIG.M01_HAS_REGSLICE {4} CONFIG.M02_HAS_REGSLICE {4} CONFIG.M03_HAS_REGSLICE {4} CONFIG.M04_HAS_REGSLICE {4} CONFIG.M05_HAS_REGSLICE {4} CONFIG.M06_HAS_REGSLICE {4} CONFIG.M07_HAS_REGSLICE {4} CONFIG.NUM_MI {5} CONFIG.S00_HAS_REGSLICE {4} CONFIG.STRATEGY {2}  ] $axi_srio_interconnect
@@ -749,7 +750,19 @@ if {$sys_zynq == 1} {
     connect_bd_net -net srio_gen2_0_link_initialized [get_bd_pins srio_gen2_0/link_initialized] [get_bd_pins sys_reg_0/srio_link_initialized]
     connect_bd_net -net srio_gen2_0_mode_1x [get_bd_pins srio_gen2_0/mode_1x] [get_bd_pins sys_reg_0/srio_mode_1x]
     connect_bd_net -net srio_gen2_0_port_initialized [get_bd_pins srio_gen2_0/port_initialized] [get_bd_pins sys_reg_0/srio_port_initialized]
-    connect_bd_net -net gt_loopback_in_1 [get_bd_pins const_loopback/dout] [get_bd_pins srio_gen2_0/gt_loopback_in]
+	connect_bd_net [get_bd_pins srio_gen2_0/gtrx_disperr_or] [get_bd_pins sys_reg_0/gtrx_disperr_or]
+	connect_bd_net [get_bd_pins srio_gen2_0/gtrx_notintable_or] [get_bd_pins sys_reg_0/gtrx_notintable_or]
+	connect_bd_net [get_bd_pins srio_gen2_0/port_error] [get_bd_pins sys_reg_0/port_error]
+	connect_bd_net [get_bd_pins srio_gen2_0/deviceid] [get_bd_pins sys_reg_0/device_id]
+	connect_bd_net [get_bd_pins sys_reg_0/srio_loopback] [get_bd_pins srio_gen2_0/gt_loopback_in]
+	connect_bd_net [get_bd_pins sys_reg_0/gt_diffctrl] [get_bd_pins srio_gen2_0/gt0_txdiffctrl_in]
+	connect_bd_net -net [get_bd_nets sys_reg_0_gt_diffctrl] [get_bd_pins srio_gen2_0/gt1_txdiffctrl_in] [get_bd_pins sys_reg_0/gt_diffctrl]
+	connect_bd_net -net [get_bd_nets sys_reg_0_gt_diffctrl] [get_bd_pins srio_gen2_0/gt2_txdiffctrl_in] [get_bd_pins sys_reg_0/gt_diffctrl]
+	connect_bd_net -net [get_bd_nets sys_reg_0_gt_diffctrl] [get_bd_pins srio_gen2_0/gt3_txdiffctrl_in] [get_bd_pins sys_reg_0/gt_diffctrl]
+	connect_bd_net [get_bd_pins sys_reg_0/gt_txprecursor] [get_bd_pins srio_gen2_0/gt_txprecursor_in]
+	connect_bd_net [get_bd_pins sys_reg_0/gt_txpostcursor] [get_bd_pins srio_gen2_0/gt_txpostcursor_in]
+	connect_bd_net [get_bd_pins sys_reg_0/gt_rxlpmen] [get_bd_pins srio_gen2_0/gt_rxlpmen_in]
+
 	
 	#SRIO AXI-4 INTERCONNECT
 	connect_bd_intf_net -intf_net axi_srio_interconnect_M00_AXI [get_bd_intf_pins axi_srio_interconnect/M00_AXI] [get_bd_intf_pins axi_srio_initiator_fifo/S_AXI]
@@ -1134,35 +1147,35 @@ validate_bd_design
   create_bd_addr_seg -range 0x1000000 -offset 0xFC000000 [get_bd_addr_spaces axi_dma_1/Data_SG] [get_bd_addr_segs sys_ps7/S_AXI_GP0/GP0_QSPI_LINEAR] SEG_sys_ps7_GP0_QSPI_LINEAR
   create_bd_addr_seg -range 0x40000000 -offset 0x0 [get_bd_addr_spaces axi_dma_1/Data_MM2S] [get_bd_addr_segs sys_ps7/S_AXI_HP2/HP2_DDR_LOWOCM] SEG_sys_ps7_HP2_DDR_LOWOCM
   create_bd_addr_seg -range 0x40000000 -offset 0x0 [get_bd_addr_spaces axi_dma_1/Data_S2MM] [get_bd_addr_segs sys_ps7/S_AXI_HP3/HP3_DDR_LOWOCM] SEG_sys_ps7_HP3_DDR_LOWOCM
-  create_bd_addr_seg -range 0x10000 -offset 0x43C60000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axis_vita49_pack_0/S_AXI/reg0] SEG_axis_vita49_pack_0_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43CA0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axis_vita49_pack_1/S_AXI/reg0] SEG_axis_vita49_pack_1_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43C70000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axis_vita49_unpack_0/S_AXI/reg0] SEG_axis_vita49_unpack_0_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43CB0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axis_vita49_unpack_1/S_AXI/reg0] SEG_axis_vita49_unpack_1_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43C60000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axis_vita49_pack_0/S_AXI/reg0] SEG_axis_vita49_pack_0_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43CA0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axis_vita49_pack_1/S_AXI/reg0] SEG_axis_vita49_pack_1_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43C70000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axis_vita49_unpack_0/S_AXI/reg0] SEG_axis_vita49_unpack_0_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43CB0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axis_vita49_unpack_1/S_AXI/reg0] SEG_axis_vita49_unpack_1_reg0
   create_bd_addr_seg -range 0x10000 -offset 0x43C00000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_0/s_axi/axi_lite] SEG_data_ad9361_0
-  create_bd_addr_seg -range 0x10000 -offset 0x43C10000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs adi2axis_0/S_AXI/reg0] SEG_data_ad9361_0_adi2axis
+  create_bd_addr_seg -range 0x1000 -offset 0x43C10000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs adi2axis_0/S_AXI/reg0] SEG_data_ad9361_0_adi2axis
   create_bd_addr_seg -range 0x10000 -offset 0x40400000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_dma_0/S_AXI_LITE/Reg] SEG_data_ad9361_0_dma
   create_bd_addr_seg -range 0x10000 -offset 0x43C20000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_1/s_axi/axi_lite] SEG_data_ad9361_1
-  create_bd_addr_seg -range 0x10000 -offset 0x43C30000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs adi2axis_1/S_AXI/reg0] SEG_data_ad9361_1_adi2axis
+  create_bd_addr_seg -range 0x1000 -offset 0x43C30000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs adi2axis_1/S_AXI/reg0] SEG_data_ad9361_1_adi2axis
   create_bd_addr_seg -range 0x10000 -offset 0x40410000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_dma_1/S_AXI_LITE/Reg] SEG_data_ad9361_1_dma
-  create_bd_addr_seg -range 0x10000 -offset 0x41200000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_gpio/S_AXI/Reg] SEG_data_axi_gpio
-  create_bd_addr_seg -range 0x10000 -offset 0x43CE0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs srio_swrite_pack_0/S_AXI/reg0] SEG_srio_swrite_pack_0_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43D00000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs srio_swrite_pack_1/S_AXI/reg0] SEG_srio_swrite_pack_1_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43CF0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs srio_swrite_unpack_0/S_AXI/reg0] SEG_srio_swrite_unpack_0_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43CD0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs sys_reg_0/S_AXI/reg0] SEG_sys_reg_0_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43D10000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_assem_0/S_AXI/reg0] SEG_vita49_assem_0_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43D20000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_assem_1/S_AXI/reg0] SEG_vita49_assem_1_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43C40000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_clk/S_AXI/reg0] SEG_vita49_clk_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43C50000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_trig_adc_0/S_AXI/reg0] SEG_vita49_trig_adc_0_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43C90000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_trig_adc_1/S_AXI/reg0] SEG_vita49_trig_adc_1_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43C80000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_trig_dac_0/S_AXI/reg0] SEG_vita49_trig_dac_0_reg0
-  create_bd_addr_seg -range 0x10000 -offset 0x43CC0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_trig_dac_1/S_AXI/reg0] SEG_vita49_trig_dac_1_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x41200000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_gpio/S_AXI/Reg] SEG_data_axi_gpio
+  create_bd_addr_seg -range 0x1000 -offset 0x43CE0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs srio_swrite_pack_0/S_AXI/reg0] SEG_srio_swrite_pack_0_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43D00000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs srio_swrite_pack_1/S_AXI/reg0] SEG_srio_swrite_pack_1_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43CF0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs srio_swrite_unpack_0/S_AXI/reg0] SEG_srio_swrite_unpack_0_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43CD0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs sys_reg_0/S_AXI/reg0] SEG_sys_reg_0_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43D10000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_assem_0/S_AXI/reg0] SEG_vita49_assem_0_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43D20000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_assem_1/S_AXI/reg0] SEG_vita49_assem_1_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43C40000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_clk/S_AXI/reg0] SEG_vita49_clk_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43C50000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_trig_adc_0/S_AXI/reg0] SEG_vita49_trig_adc_0_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43C90000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_trig_adc_1/S_AXI/reg0] SEG_vita49_trig_adc_1_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43C80000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_trig_dac_0/S_AXI/reg0] SEG_vita49_trig_dac_0_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x43CC0000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs vita49_trig_dac_1/S_AXI/reg0] SEG_vita49_trig_dac_1_reg0
 
   create_bd_addr_seg -range 0x10000 -offset 0x83C00000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs srio_gen2_0/MAINT_IF/Reg] SEG_srio_gen2_0_Reg  
   set_property range 2M [get_bd_addr_segs {sys_ps7/Data/SEG_srio_gen2_0_Reg}]
-  create_bd_addr_seg -range 0x10000 -offset 0x84C10000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_initiator_fifo/S_AXI/Mem0] SEG_axi_srio_initiator_fifo_Mem0
-  create_bd_addr_seg -range 0x10000 -offset 0x84C20000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_initiator_fifo/S_AXI_FULL/Mem1] SEG_axi_srio_initiator_fifo_Mem1
-  create_bd_addr_seg -range 0x10000 -offset 0x84C30000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_target_fifo/S_AXI/Mem0] SEG_axi_srio_target_fifo_Mem0
-  create_bd_addr_seg -range 0x10000 -offset 0x84C40000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_target_fifo/S_AXI_FULL/Mem1] SEG_axi_srio_target_fifo_Mem1
+  create_bd_addr_seg -range 0x1000 -offset 0x84C10000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_initiator_fifo/S_AXI/Mem0] SEG_axi_srio_initiator_fifo_Mem0
+  create_bd_addr_seg -range 0x1000 -offset 0x84C20000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_initiator_fifo/S_AXI_FULL/Mem1] SEG_axi_srio_initiator_fifo_Mem1
+  create_bd_addr_seg -range 0x1000 -offset 0x84C30000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_target_fifo/S_AXI/Mem0] SEG_axi_srio_target_fifo_Mem0
+  create_bd_addr_seg -range 0x1000 -offset 0x84C40000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_target_fifo/S_AXI_FULL/Mem1] SEG_axi_srio_target_fifo_Mem1
 
 
   create_bd_addr_seg -range 0x40000000 -offset 0x0 [get_bd_addr_spaces ddr_fifo/Data_S2MM] [get_bd_addr_segs sys_ps7/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_sys_ps7_HP0_DDR_LOWOCM
