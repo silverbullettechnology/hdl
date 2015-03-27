@@ -28,35 +28,43 @@ module vita49_trig_logic
   input wire [31:0] tsi,
   input wire [63:0] tsf,
   output reg trig
- );
+  );
 
 parameter integer C_AXIS_TDATA_NUM_BYTES = 4;
  
+reg [31:0] ctrl_reg;
+reg [31:0] tsi_trig_up_reg;
+reg [31:0] tsf_hi_trig_up_reg;
+reg [31:0] tsf_lo_trig_up_reg;
+ 
+reg [31:0] tsi_reg;
+reg [63:0] tsf_reg; 
+always @ (posedge AXIS_ACLK)
+begin
+	ctrl_reg <= ctrl;
+	tsi_reg <= tsi;
+	tsf_reg <= tsf;
+	tsi_trig_up_reg <= tsi_trig_up;
+	tsf_hi_trig_up_reg <= tsf_hi_trig_up;
+	tsf_lo_trig_up_reg <= tsf_lo_trig_up;
+end
+
 // control signals
 wire passthrough_cmd;
 wire set_trig_cmd;
 wire en_cmd;
 wire reset_cmd;
 
-assign en_cmd = ctrl[0];
-assign reset_cmd = ctrl[1]; 
-assign set_trig_on_cmd = ctrl[2];
-assign set_trig_off_cmd = ctrl[3];
-assign passthrough_cmd = ctrl[4];
- 
-reg [31:0] tsi_reg;
-reg [63:0] tsf_reg; 
-always @ (posedge AXIS_ACLK)
-begin
-	tsi_reg <= tsi;
-	tsf_reg <= tsf;
-end
+assign en_cmd = ctrl_reg[0];
+assign reset_cmd = ctrl_reg[1]; 
+assign set_trig_on_cmd = ctrl_reg[2];
+assign set_trig_off_cmd = ctrl_reg[3];
+assign passthrough_cmd = ctrl_reg[4];
 
 reg [31:0] tsi_trig_on;
 reg [63:0] tsf_trig_on; 
 reg [31:0] tsi_trig_off;
 reg [63:0] tsf_trig_off; 
-
 
 wire match_on = 
 	(tsi_reg > tsi_trig_on) |
@@ -80,9 +88,9 @@ begin
    if (reset_cmd | (AXIS_ARESETN == 1'b0))
    begin  
      trig <= 0;
-	 tsi_trig_on <= 31'hffffffff;
+	 tsi_trig_on <= 32'hffffffff;
 	 tsf_trig_on <= 64'h0; 	 
-	 tsi_trig_off <= 31'hffffffff;
+	 tsi_trig_off <= 32'hffffffff;
 	 tsf_trig_off <= 64'h0;
 	 match_on_reg <= 0;
 	 match_off_reg <= 0; 	 
@@ -93,12 +101,12 @@ begin
    end
    
    if (set_trig_on_cmd) begin
-	 tsi_trig_on <= tsi_trig_up;
-	 tsf_trig_on <= {tsf_hi_trig_up, tsf_lo_trig_up}; 
+	 tsi_trig_on <= tsi_trig_up_reg;
+	 tsf_trig_on <= {32'h0, tsf_lo_trig_up_reg}; //{tsf_hi_trig_up_reg, tsf_lo_trig_up_reg}; 
    end
    if (set_trig_off_cmd) begin
-	 tsi_trig_off <= tsi_trig_up;
-	 tsf_trig_off <= {tsf_hi_trig_up, tsf_lo_trig_up}; 
+	 tsi_trig_off <= tsi_trig_up_reg;
+	 tsf_trig_off <= {32'h0, tsf_lo_trig_up_reg}; //{tsf_hi_trig_up_reg, tsf_lo_trig_up_reg}; 
    end
    if (passthrough_cmd) trig <= 1;
    else begin
@@ -109,5 +117,10 @@ begin
    end
 end
  
+// assign dbg_ctrl = ctrl;
+// assign dbg_tsi_on = tsi_trig_on;
+// assign dbg_tsi_off = tsi_trig_off;
+// assign db_match_on = {match_on_reg, match_on};
+// assign db_match_off = {match_off_reg, match_off};
 
 endmodule

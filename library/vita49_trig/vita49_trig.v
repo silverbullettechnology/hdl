@@ -49,6 +49,13 @@ module vita49_trig
   input wire [63:0] tsf,
   
   output wire trig
+  
+  // debug
+  // output wire [31:0]dbg_ctrl,
+  // output wire [31:0]dbg_tsi_on,
+  // output wire [31:0]dbg_tsi_off,
+  // output wire [1:0] dbg_match_on,
+  // output wire [1:0] dbg_match_off
  );
 
 parameter integer C_AXIS_TDATA_NUM_BYTES = 4;
@@ -117,6 +124,12 @@ vita49_trig_logic(
   .tsi (tsi),
   .tsf (tsf),
   .trig (trig)
+  
+  // .dbg_ctrl      (dbg_ctrl),
+  // .dbg_tsi_on    (dbg_tsi_on),
+  // .dbg_tsi_off   (dbg_tsi_off),
+  // .dbg_match_on  (dbg_match_on),
+  // .dbg_match_off (dbg_match_off)
 );
 
   
