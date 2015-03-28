@@ -168,29 +168,29 @@ proc adi_project_run {project_name} {
 
   set_property constrs_type XDC [current_fileset -constrset]
 
-  launch_runs synth_1
-  wait_on_run synth_1
-  open_run synth_1
-  report_timing_summary -file timing_synth.log
+  # launch_runs synth_1
+  # wait_on_run synth_1
+  # open_run synth_1
+  # report_timing_summary -file timing_synth.log
 
-  set_property STEPS.PHYS_OPT_DESIGN.IS_ENABLED true [get_runs impl_1]
-  set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]
-  set_property STRATEGY "Performance_Explore" [get_runs impl_1]
+  # set_property STEPS.PHYS_OPT_DESIGN.IS_ENABLED true [get_runs impl_1]
+  # set_property STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE Explore [get_runs impl_1]
+  # set_property STRATEGY "Performance_Explore" [get_runs impl_1]
 
-  launch_runs impl_1 -to_step write_bitstream
-  wait_on_run impl_1
-  open_run impl_1
-  report_timing_summary -file timing_impl.log
+  # launch_runs impl_1 -to_step write_bitstream
+  # wait_on_run impl_1
+  # open_run impl_1
+  # report_timing_summary -file timing_impl.log
 
-  #get_property STATS.THS [get_runs impl_1]
-  #get_property STATS.TNS [get_runs impl_1]
-  #get_property STATS.TPWS [get_runs impl_1]
+  # get_property STATS.THS [get_runs impl_1]
+  # get_property STATS.TNS [get_runs impl_1]
+  # get_property STATS.TPWS [get_runs impl_1]
 
-  if [expr [get_property SLACK [get_timing_paths]] < 0] {
-    puts "ERROR: Timing Constraints NOT met."
-    use_this_invalid_command_to_crash
-  }
+  # if [expr [get_property SLACK [get_timing_paths]] < 0] {
+    # puts "ERROR: Timing Constraints NOT met."
+    # use_this_invalid_command_to_crash
+  # }
 
-  export_hardware [get_files $project_system_dir/system.bd] [get_runs impl_1] -bitstream
+  # export_hardware [get_files $project_system_dir/system.bd] [get_runs impl_1] -bitstream
 }
 
