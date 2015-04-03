@@ -30,7 +30,7 @@ set_property -dict [list CONFIG.PCW_IRQ_F2P_INTR {1}] $sys_ps7
 
 # zynq clock settings
 
-set_property -dict [list CONFIG.PCW_CRYSTAL_PERIPHERAL_FREQMHZ {38.4}] $sys_ps7
+set_property -dict [list CONFIG.PCW_CRYSTAL_PERIPHERAL_FREQMHZ {40.0}] $sys_ps7
 set_property -dict [list CONFIG.PCW_APU_PERIPHERAL_FREQMHZ {600}]      $sys_ps7
 #set_property -dict [list CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {250}]    $sys_ps7
 
