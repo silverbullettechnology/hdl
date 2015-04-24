@@ -4,7 +4,7 @@
 source ../../scripts/adi_env.tcl
 source $ad_hdl_dir/projects/scripts/adi_project.tcl
 
-adi_project_create tdsdr_2chan_tdsdr
+localbd_project_create tdsdr_2chan_tdsdr
 adi_project_files tdsdr_2chan_tdsdr [list \
   "system_top.v" \
   "system_constr.xdc"\

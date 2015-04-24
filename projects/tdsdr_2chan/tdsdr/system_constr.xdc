@@ -2,6 +2,16 @@
 # constraints
 # ad9361 
 
+
+
+#SRIO
+set_property PACKAGE_PIN W2 [get_ports srio_txp0]
+set_property PACKAGE_PIN U2 [get_ports srio_txp1]
+set_property PACKAGE_PIN AB4  [get_ports srio_txp2]
+set_property PACKAGE_PIN AA2  [get_ports srio_txp3]
+set_property PACKAGE_PIN U5  [get_ports srio_sys_clkn]
+create_clock -period 8.000 -name srio_ref_clk -waveform {0.000 4.000} [get_ports srio_sys_clkp]
+
 # AD9361_0
 set_property  -dict {PACKAGE_PIN  Y12  IOSTANDARD LVDS_25 DIFF_TERM TRUE} [get_ports rx_clk_in_0_p]        ; ##  
 set_property  -dict {PACKAGE_PIN  Y11  IOSTANDARD LVDS_25 DIFF_TERM TRUE} [get_ports rx_clk_in_0_n]        ; ## 
@@ -83,9 +93,9 @@ set_property  -dict {PACKAGE_PIN  K6 IOSTANDARD LVDS} [get_ports tx_data_out_1_n
 
 
 ## SGMII DEBUG
-set_property  -dict {PACKAGE_PIN  U18  IOSTANDARD LVCMOS33} [get_ports mdio_mdc]                  ; ## ASFE_Reserve1
-set_property  -dict {PACKAGE_PIN  V18  IOSTANDARD LVCMOS33} [get_ports mdio_i]                  ; ## ASFE_Reserve2
-set_property  -dict {PACKAGE_PIN  N20  IOSTANDARD LVCMOS33} [get_ports mdio_o]                  ; ## ASFE_Reserve4
+#set_property  -dict {PACKAGE_PIN  U18  IOSTANDARD LVCMOS33} [get_ports mdio_mdc]                  ; ## ASFE_Reserve1
+#set_property  -dict {PACKAGE_PIN  V18  IOSTANDARD LVCMOS33} [get_ports mdio_i]                  ; ## ASFE_Reserve2
+#set_property  -dict {PACKAGE_PIN  N20  IOSTANDARD LVCMOS33} [get_ports mdio_o]                  ; ## ASFE_Reserve4
 
 
 ## SPI0 (MOVE OUT OF GPIO PORTS)
@@ -108,14 +118,14 @@ set_property  -dict {PACKAGE_PIN  N20  IOSTANDARD LVCMOS33} [get_ports mdio_o]  
 #D1 SPI1_ADF5355_2_SS
 
 # SGMII
-set_property  -dict {PACKAGE_PIN  J5 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_refclk125_p]                  ; ##     
-set_property  -dict {PACKAGE_PIN  J4 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_refclk125_n]                  ; ##     
+#set_property  -dict {PACKAGE_PIN  J5 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_refclk125_p]                  ; ##     
+#set_property  -dict {PACKAGE_PIN  J4 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_refclk125_n]                  ; ##     
 
-set_property  -dict {PACKAGE_PIN  L2 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_txp]                  ; ##     
-set_property  -dict {PACKAGE_PIN  L1 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_txn]                  ; ##     
+#set_property  -dict {PACKAGE_PIN  L2 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_txp]                  ; ##     
+#set_property  -dict {PACKAGE_PIN  L1 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_txn]                  ; ##     
 
-set_property  -dict {PACKAGE_PIN  P1 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_rxp]                  ; ##     
-set_property  -dict {PACKAGE_PIN  N1 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_rxn]                  ; ##     
+#set_property  -dict {PACKAGE_PIN  P1 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_rxp]                  ; ##     
+#set_property  -dict {PACKAGE_PIN  N1 IOSTANDARD LVDS DIFF_TERM TRUE} [get_ports sgmii_rxn]                  ; ##     
 
 
 

@@ -92,13 +92,7 @@ module system_top (
   tx_data_out_1_p,
   tx_data_out_1_n,
 
-    sgmii_refclk125_n,
-    sgmii_refclk125_p,
-    sgmii_rxn,
-    sgmii_rxp,
-    sgmii_txn,
-    sgmii_txp,
- 
+
 //  spi0_clk,
 //  spi0_mosi,
 //  spi0_miso,
@@ -107,10 +101,26 @@ module system_top (
 //  spi1_miso,
   
   axi_gpio,
-  
-  mdio_mdc,
-  mdio_i,
-  mdio_o 
+
+  srio_rxn0,
+  srio_rxp0,
+  srio_rxn1,
+  srio_rxp1,
+  srio_rxn2,
+  srio_rxp2,
+  srio_rxn3,
+  srio_rxp3,
+  srio_sys_clkn,
+  srio_sys_clkp,
+  srio_txn0,
+  srio_txp0,
+  srio_txn1,
+  srio_txp1,
+  srio_txn2,
+  srio_txp2,
+  srio_txn3,
+  srio_txp3  
+
   );
 
   inout   [14:0]  DDR_addr;
@@ -171,20 +181,30 @@ module system_top (
 //  output          spi1_mosi;
 //  input           spi1_miso;
   
-  input sgmii_refclk125_n;
-  input sgmii_refclk125_p;
-  input sgmii_rxn;
-  input sgmii_rxp;
-  output sgmii_txn;
-  output sgmii_txp;
+
   
   input [15:0] axi_gpio;
 
-  // SGMII debug signals
-  output mdio_mdc;
-  output mdio_i;
-  output mdio_o;
-  
+  input srio_sys_clkn;
+  input srio_sys_clkp;
+  output srio_txn0;
+  output srio_txp0;
+  input srio_rxn0;
+  input srio_rxp0;
+  output srio_txn1;
+  output srio_txp1;
+  input srio_rxn1;
+  input srio_rxp1;
+
+  output srio_txn2;
+  output srio_txp2;
+  input srio_rxn2;
+  input srio_rxp2;
+  output srio_txn3;
+  output srio_txp3;
+  input srio_rxn3;
+  input srio_rxp3;
+
   // internal signals
 
   wire    [54:0]  gpio_i;
@@ -270,18 +290,26 @@ module system_top (
     .tx_frame_out_1_n (tx_frame_out_1_n),
     .tx_frame_out_1_p (tx_frame_out_1_p),
 
-    .sgmii_refclk125_n (sgmii_refclk125_n),
-    .sgmii_refclk125_p (sgmii_refclk125_p),
-    .sgmii_rxn (sgmii_rxn),
-    .sgmii_rxp (sgmii_rxp),
-    .sgmii_txn (sgmii_txn),
-    .sgmii_txp (sgmii_txp),
-    
     .axi_gpio (axi_gpio),
     
-    .mdio_mdc (mdio_mdc),
-    .mdio_i (mdio_i),
-    .mdio_o (mdio_o)
+    .srio_rxn0(srio_rxn0),
+    .srio_rxp0(srio_rxp0),
+    .srio_rxn1(srio_rxn1),
+    .srio_rxp1(srio_rxp1),
+    .srio_rxn2(srio_rxn2),
+    .srio_rxp2(srio_rxp2),
+    .srio_rxn3(srio_rxn3),
+    .srio_rxp3(srio_rxp3),
+    .srio_sys_clkn(srio_sys_clkn),
+    .srio_sys_clkp(srio_sys_clkp),
+    .srio_txn0(srio_txn0),
+    .srio_txp0(srio_txp0),
+    .srio_txn1(srio_txn1),
+    .srio_txp1(srio_txp1),
+    .srio_txn2(srio_txn2),
+    .srio_txp2(srio_txp2),
+    .srio_txn3(srio_txn3),
+    .srio_txp3(srio_txp3)
     
     );
 
