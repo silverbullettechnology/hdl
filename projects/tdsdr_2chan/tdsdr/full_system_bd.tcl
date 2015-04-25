@@ -586,10 +586,10 @@ proc create_root_design { parentCell } {
   create_bd_addr_seg -range 0x1000 -offset 0x80500000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_initiator_shadowfifo/S_AXI_FULL/Mem1] SEG_axi_srio_initiator_shadowfifo_Mem1
   create_bd_addr_seg -range 0x1000 -offset 0x80200000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_target_fifo/S_AXI/Mem0] SEG_axi_srio_target_fifo_Mem0
   create_bd_addr_seg -range 0x1000 -offset 0x80300000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_srio_target_fifo/S_AXI_FULL/Mem1] SEG_axi_srio_target_fifo_Mem1
-  create_bd_addr_seg -range 0x1000 -offset 0x79000000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_0/s_axi/axi_lite] SEG_data_ad9361_0
+  create_bd_addr_seg -range 0x10000 -offset 0x79000000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_0/s_axi/axi_lite] SEG_data_ad9361_0
   create_bd_addr_seg -range 0x1000 -offset 0x7C400000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_0_adc_dma/s_axi/axi_lite] SEG_data_ad9361_0_adc_dma
   create_bd_addr_seg -range 0x1000 -offset 0x7C420000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_0_dac_dma/s_axi/axi_lite] SEG_data_ad9361_0_dac_dma
-  create_bd_addr_seg -range 0x1000 -offset 0x79020000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_1/s_axi/axi_lite] SEG_data_ad9361_1
+  create_bd_addr_seg -range 0x10000 -offset 0x79020000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_1/s_axi/axi_lite] SEG_data_ad9361_1
   create_bd_addr_seg -range 0x1000 -offset 0x7C440000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_1_adc_dma/s_axi/axi_lite] SEG_data_ad9361_1_adc_dma
   create_bd_addr_seg -range 0x1000 -offset 0x7C460000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_1_dac_dma/s_axi/axi_lite] SEG_data_ad9361_1_dac_dma
   create_bd_addr_seg -range 0x1000 -offset 0x41200000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_gpio/S_AXI/Reg] SEG_data_axi_gpio
