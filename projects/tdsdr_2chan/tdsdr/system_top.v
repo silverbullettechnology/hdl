@@ -146,7 +146,7 @@ module system_top (
   inout           FIXED_IO_ps_porb;
   inout           FIXED_IO_ps_srstb;
 
-  inout   [54:0]  ps7_gpio;
+  inout   [53:0]  ps7_gpio;
 
   input           rx_clk_in_0_p;
   input           rx_clk_in_0_n;
@@ -207,13 +207,13 @@ module system_top (
 
   // internal signals
 
-  wire    [54:0]  gpio_i;
-  wire    [54:0]  gpio_o;
-  wire    [54:0]  gpio_t;
+  wire    [53:0]  gpio_i;
+  wire    [53:0]  gpio_o;
+  wire    [53:0]  gpio_t;
   
   genvar n;
   generate
-  for (n = 0; n <= 54; n = n + 1) begin: g_iobuf_gpio_bd
+  for (n = 0; n <= 53; n = n + 1) begin: g_iobuf_gpio_bd
   IOBUF i_iobuf_gpio_bd (
     .I (gpio_o[n]),
     .O (gpio_i[n]),
@@ -290,7 +290,7 @@ module system_top (
     .tx_frame_out_1_n (tx_frame_out_1_n),
     .tx_frame_out_1_p (tx_frame_out_1_p),
 
-    .axi_gpio (axi_gpio),
+    .axi_gpio ({axi_gpio, 7'h0}),
     
     .srio_rxn0(srio_rxn0),
     .srio_rxp0(srio_rxp0),
