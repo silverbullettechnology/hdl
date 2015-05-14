@@ -162,6 +162,8 @@ proc create_root_design { parentCell } {
   set spi1_mosi_o [ create_bd_port -dir O spi1_mosi_o ]
   set spi1_sclk_i [ create_bd_port -dir I spi1_sclk_i ]
   set spi1_sclk_o [ create_bd_port -dir O spi1_sclk_o ]
+  set srio_gt_clk_div4 [ create_bd_port -dir O -from 0 -to 0 -type clk srio_gt_clk_div4 ]
+  set srio_gt_pcs_clk_out [ create_bd_port -dir O -type clk srio_gt_pcs_clk_out ]
   set srio_rxn0 [ create_bd_port -dir I srio_rxn0 ]
   set srio_rxn1 [ create_bd_port -dir I srio_rxn1 ]
   set srio_rxn2 [ create_bd_port -dir I srio_rxn2 ]
@@ -255,7 +257,7 @@ proc create_root_design { parentCell } {
 
   # Create instance: axi_srio_interconnect, and set properties
   set axi_srio_interconnect [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_srio_interconnect ]
-  set_property -dict [ list CONFIG.M00_HAS_REGSLICE {4} CONFIG.M01_HAS_REGSLICE {4} CONFIG.M02_HAS_REGSLICE {4} CONFIG.M03_HAS_REGSLICE {4} CONFIG.M04_HAS_REGSLICE {4} CONFIG.NUM_MI {7} CONFIG.S00_HAS_REGSLICE {4}  ] $axi_srio_interconnect
+  set_property -dict [ list CONFIG.M00_HAS_REGSLICE {4} CONFIG.M01_HAS_REGSLICE {4} CONFIG.M02_HAS_REGSLICE {4} CONFIG.M03_HAS_REGSLICE {4} CONFIG.M04_HAS_REGSLICE {4} CONFIG.NUM_MI {8} CONFIG.S00_HAS_REGSLICE {4}  ] $axi_srio_interconnect
 
   # Create instance: axi_srio_target_fifo, and set properties
   set axi_srio_target_fifo [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_fifo_mm_s:4.0 axi_srio_target_fifo ]
@@ -279,13 +281,65 @@ proc create_root_design { parentCell } {
   # Create instance: axis_register_slice_0, and set properties
   set axis_register_slice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 axis_register_slice_0 ]
 
+  # Create instance: c_counter_binary_0, and set properties
+  set c_counter_binary_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:c_counter_binary:12.0 c_counter_binary_0 ]
+  set_property -dict [ list CONFIG.Output_Width {4}  ] $c_counter_binary_0
+
   # Create instance: const_1, and set properties
   set const_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 const_1 ]
   set_property -dict [ list CONFIG.CONST_VAL {255} CONFIG.CONST_WIDTH {8}  ] $const_1
 
-  # Create instance: ila_0, and set properties
-  set ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:ila:4.0 ila_0 ]
-  set_property -dict [ list CONFIG.C_DATA_DEPTH {2048} CONFIG.C_EN_STRG_QUAL {1} CONFIG.C_INPUT_PIPE_STAGES {2} CONFIG.C_MONITOR_TYPE {Native} CONFIG.C_NUM_OF_PROBES {10} CONFIG.C_PROBE0_WIDTH {64} CONFIG.C_PROBE1_WIDTH {32} CONFIG.C_PROBE5_WIDTH {32}  ] $ila_0
+  # Create instance: drp_bridge_0, and set properties
+  set drp_bridge_0 [ create_bd_cell -type ip -vlnv xilinx.com:user:drp_bridge:1.0 drp_bridge_0 ]
+  set_property -dict [ list CONFIG.DRP_ADDR_WIDTH {9} CONFIG.DRP_COUNT {4} CONFIG.DRP_DATA_WIDTH {16}  ] $drp_bridge_0
+
+  # Create instance: drpaddr_concat, and set properties
+  set drpaddr_concat [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 drpaddr_concat ]
+  set_property -dict [ list CONFIG.IN0_WIDTH {9} CONFIG.IN1_WIDTH {9} CONFIG.IN2_WIDTH {9} CONFIG.IN3_WIDTH {9} CONFIG.NUM_PORTS {4}  ] $drpaddr_concat
+
+  # Create instance: drpdi_concat, and set properties
+  set drpdi_concat [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 drpdi_concat ]
+  set_property -dict [ list CONFIG.IN0_WIDTH {16} CONFIG.IN1_WIDTH {16} CONFIG.IN2_WIDTH {16} CONFIG.IN3_WIDTH {16} CONFIG.NUM_PORTS {4}  ] $drpdi_concat
+
+  # Create instance: drpdo_slice_0, and set properties
+  set drpdo_slice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 drpdo_slice_0 ]
+  set_property -dict [ list CONFIG.DIN_TO {0} CONFIG.DIN_WIDTH {64}  ] $drpdo_slice_0
+
+  # Create instance: drpdo_slice_1, and set properties
+  set drpdo_slice_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 drpdo_slice_1 ]
+  set_property -dict [ list CONFIG.DIN_TO {16} CONFIG.DIN_WIDTH {64}  ] $drpdo_slice_1
+
+  # Create instance: drpdo_slice_2, and set properties
+  set drpdo_slice_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 drpdo_slice_2 ]
+  set_property -dict [ list CONFIG.DIN_FROM {47} CONFIG.DIN_TO {32} CONFIG.DIN_WIDTH {64}  ] $drpdo_slice_2
+
+  # Create instance: drpdo_slice_3, and set properties
+  set drpdo_slice_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 drpdo_slice_3 ]
+  set_property -dict [ list CONFIG.DIN_FROM {63} CONFIG.DIN_TO {48} CONFIG.DIN_WIDTH {64}  ] $drpdo_slice_3
+
+  # Create instance: drpen_concat, and set properties
+  set drpen_concat [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 drpen_concat ]
+  set_property -dict [ list CONFIG.NUM_PORTS {4}  ] $drpen_concat
+
+  # Create instance: drprdy_slice_0, and set properties
+  set drprdy_slice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 drprdy_slice_0 ]
+  set_property -dict [ list CONFIG.DIN_WIDTH {4}  ] $drprdy_slice_0
+
+  # Create instance: drprdy_slice_1, and set properties
+  set drprdy_slice_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 drprdy_slice_1 ]
+  set_property -dict [ list CONFIG.DIN_FROM {1} CONFIG.DIN_TO {1} CONFIG.DIN_WIDTH {4}  ] $drprdy_slice_1
+
+  # Create instance: drprdy_slice_2, and set properties
+  set drprdy_slice_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 drprdy_slice_2 ]
+  set_property -dict [ list CONFIG.DIN_FROM {2} CONFIG.DIN_TO {2} CONFIG.DIN_WIDTH {4}  ] $drprdy_slice_2
+
+  # Create instance: drprdy_slice_3, and set properties
+  set drprdy_slice_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 drprdy_slice_3 ]
+  set_property -dict [ list CONFIG.DIN_FROM {3} CONFIG.DIN_TO {3} CONFIG.DIN_WIDTH {4}  ] $drprdy_slice_3
+
+  # Create instance: drpwe_concat, and set properties
+  set drpwe_concat [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 drpwe_concat ]
+  set_property -dict [ list CONFIG.NUM_PORTS {4}  ] $drpwe_concat
 
   # Create instance: irq_stub0, and set properties
   set irq_stub0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 irq_stub0 ]
@@ -321,7 +375,7 @@ proc create_root_design { parentCell } {
 
   # Create instance: srio_gen2_0, and set properties
   set srio_gen2_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:srio_gen2:3.1 srio_gen2_0 ]
-  set_property -dict [ list CONFIG.assembly_identifier {7045} CONFIG.assembly_revision_level {0001} CONFIG.assembly_vendor_identifier {4242} CONFIG.c_transceivercontrol {1} CONFIG.device_id {02} CONFIG.extended_features_enable_user {true} CONFIG.idle2_support {true} CONFIG.link_width {4} CONFIG.mode_selection {Advanced} CONFIG.silicon_rev {Production} CONFIG.software_assisted_error_recovery {true} CONFIG.unified_clk {true}  ] $srio_gen2_0
+  set_property -dict [ list CONFIG.assembly_identifier {7045} CONFIG.assembly_revision_level {0001} CONFIG.assembly_vendor_identifier {4242} CONFIG.c_transceivercontrol {1} CONFIG.device_id {02} CONFIG.extended_features_enable_user {true} CONFIG.idle2_support {true} CONFIG.link_width {4} CONFIG.mode_selection {Advanced} CONFIG.silicon_rev {Production} CONFIG.software_assisted_error_recovery {true} CONFIG.transfer_frequency {5.0} CONFIG.unified_clk {true}  ] $srio_gen2_0
 
   # Create instance: srio_ireq_intc, and set properties
   set srio_ireq_intc [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_interconnect:2.1 srio_ireq_intc ]
@@ -345,7 +399,7 @@ proc create_root_design { parentCell } {
 
   # Create instance: sys_ps7, and set properties
   set sys_ps7 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.4 sys_ps7 ]
-  set_property -dict [ list CONFIG.PCW_APU_PERIPHERAL_FREQMHZ {733} CONFIG.PCW_CRYSTAL_PERIPHERAL_FREQMHZ {40} CONFIG.PCW_ENET0_ENET0_IO {MIO 16 .. 27} CONFIG.PCW_ENET0_GRP_MDIO_ENABLE {1} CONFIG.PCW_ENET0_PERIPHERAL_ENABLE {1} CONFIG.PCW_ENET1_PERIPHERAL_ENABLE {0} CONFIG.PCW_EN_CLK1_PORT {1} CONFIG.PCW_EN_CLK2_PORT {1} CONFIG.PCW_EN_RST1_PORT {1} CONFIG.PCW_EN_RST2_PORT {1} CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100.0} CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {200.0} CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {250} CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {1} CONFIG.PCW_GPIO_EMIO_GPIO_IO {54} CONFIG.PCW_GPIO_MIO_GPIO_ENABLE {1} CONFIG.PCW_IRQ_F2P_INTR {1} CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 1.8V} CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 1.8V} CONFIG.PCW_QSPI_GRP_FBCLK_ENABLE {1} CONFIG.PCW_QSPI_GRP_IO1_ENABLE {0} CONFIG.PCW_QSPI_GRP_SINGLE_SS_ENABLE {1} CONFIG.PCW_QSPI_GRP_SS1_ENABLE {0} CONFIG.PCW_QSPI_PERIPHERAL_ENABLE {1} CONFIG.PCW_SD0_GRP_CD_ENABLE {1} CONFIG.PCW_SD0_GRP_CD_IO {MIO 9} CONFIG.PCW_SD0_GRP_WP_ENABLE {0} CONFIG.PCW_SD0_GRP_WP_IO {<Select>} CONFIG.PCW_SD0_PERIPHERAL_ENABLE {1} CONFIG.PCW_SD1_PERIPHERAL_ENABLE {1} CONFIG.PCW_SD1_SD1_IO {MIO 10 .. 15} CONFIG.PCW_SPI0_PERIPHERAL_ENABLE {1} CONFIG.PCW_SPI1_PERIPHERAL_ENABLE {1} CONFIG.PCW_TTC0_PERIPHERAL_ENABLE {1} CONFIG.PCW_UART0_PERIPHERAL_ENABLE {1} CONFIG.PCW_UART0_UART0_IO {MIO 46 .. 47} CONFIG.PCW_UART1_PERIPHERAL_ENABLE {1} CONFIG.PCW_UART1_UART1_IO {MIO 48 .. 49} CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY0 {0.446} CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY1 {0.448} CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY2 {0.453} CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY3 {0.336} CONFIG.PCW_UIPARAM_DDR_CLOCK_0_LENGTH_MM {75} CONFIG.PCW_UIPARAM_DDR_CLOCK_1_LENGTH_MM {75} CONFIG.PCW_UIPARAM_DDR_CLOCK_2_LENGTH_MM {75} CONFIG.PCW_UIPARAM_DDR_CLOCK_3_LENGTH_MM {75} CONFIG.PCW_UIPARAM_DDR_DQS_0_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQS_1_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQS_2_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQS_3_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0 {0.196} CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1 {0.198} CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2 {0.194} CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3 {0.143} CONFIG.PCW_UIPARAM_DDR_DQ_0_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQ_1_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQ_2_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41K256M16 RE-125} CONFIG.PCW_USB0_PERIPHERAL_ENABLE {1} CONFIG.PCW_USE_FABRIC_INTERRUPT {1} CONFIG.PCW_USE_M_AXI_GP1 {1} CONFIG.PCW_USE_S_AXI_HP0 {1} CONFIG.PCW_USE_S_AXI_HP1 {1} CONFIG.PCW_USE_S_AXI_HP2 {1} CONFIG.PCW_USE_S_AXI_HP3 {1} CONFIG.PCW_WDT_PERIPHERAL_ENABLE {1}  ] $sys_ps7
+  set_property -dict [ list CONFIG.PCW_APU_PERIPHERAL_FREQMHZ {733} CONFIG.PCW_CRYSTAL_PERIPHERAL_FREQMHZ {40} CONFIG.PCW_ENET0_ENET0_IO {MIO 16 .. 27} CONFIG.PCW_ENET0_GRP_MDIO_ENABLE {1} CONFIG.PCW_ENET0_PERIPHERAL_ENABLE {1} CONFIG.PCW_ENET1_PERIPHERAL_ENABLE {0} CONFIG.PCW_EN_CLK1_PORT {1} CONFIG.PCW_EN_CLK2_PORT {1} CONFIG.PCW_EN_RST1_PORT {1} CONFIG.PCW_EN_RST2_PORT {1} CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100.0} CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {200.0} CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {250} CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {1} CONFIG.PCW_GPIO_EMIO_GPIO_IO {54} CONFIG.PCW_GPIO_MIO_GPIO_ENABLE {1} CONFIG.PCW_IRQ_F2P_INTR {1} CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 1.8V} CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 1.8V} CONFIG.PCW_QSPI_GRP_FBCLK_ENABLE {1} CONFIG.PCW_QSPI_GRP_IO1_ENABLE {0} CONFIG.PCW_QSPI_GRP_SINGLE_SS_ENABLE {1} CONFIG.PCW_QSPI_GRP_SS1_ENABLE {0} CONFIG.PCW_QSPI_PERIPHERAL_ENABLE {1} CONFIG.PCW_SD0_GRP_CD_ENABLE {1} CONFIG.PCW_SD0_GRP_CD_IO {MIO 9} CONFIG.PCW_SD0_GRP_WP_ENABLE {0} CONFIG.PCW_SD0_PERIPHERAL_ENABLE {1} CONFIG.PCW_SD1_PERIPHERAL_ENABLE {1} CONFIG.PCW_SD1_SD1_IO {MIO 10 .. 15} CONFIG.PCW_SPI0_PERIPHERAL_ENABLE {1} CONFIG.PCW_SPI1_PERIPHERAL_ENABLE {1} CONFIG.PCW_TTC0_PERIPHERAL_ENABLE {1} CONFIG.PCW_UART0_PERIPHERAL_ENABLE {1} CONFIG.PCW_UART0_UART0_IO {MIO 46 .. 47} CONFIG.PCW_UART1_PERIPHERAL_ENABLE {1} CONFIG.PCW_UART1_UART1_IO {MIO 48 .. 49} CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY0 {0.446} CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY1 {0.448} CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY2 {0.453} CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY3 {0.336} CONFIG.PCW_UIPARAM_DDR_CLOCK_0_LENGTH_MM {75} CONFIG.PCW_UIPARAM_DDR_CLOCK_1_LENGTH_MM {75} CONFIG.PCW_UIPARAM_DDR_CLOCK_2_LENGTH_MM {75} CONFIG.PCW_UIPARAM_DDR_CLOCK_3_LENGTH_MM {75} CONFIG.PCW_UIPARAM_DDR_DQS_0_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQS_1_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQS_2_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQS_3_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0 {0.196} CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1 {0.198} CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2 {0.194} CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3 {0.143} CONFIG.PCW_UIPARAM_DDR_DQ_0_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQ_1_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_DQ_2_LENGTH_MM {43} CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41K256M16 RE-125} CONFIG.PCW_USB0_PERIPHERAL_ENABLE {1} CONFIG.PCW_USE_FABRIC_INTERRUPT {1} CONFIG.PCW_USE_M_AXI_GP1 {1} CONFIG.PCW_USE_S_AXI_HP0 {1} CONFIG.PCW_USE_S_AXI_HP1 {1} CONFIG.PCW_USE_S_AXI_HP2 {1} CONFIG.PCW_USE_S_AXI_HP3 {1} CONFIG.PCW_WDT_PERIPHERAL_ENABLE {1}  ] $sys_ps7
 
   # Create instance: sys_reg_0, and set properties
   set sys_reg_0 [ create_bd_cell -type ip -vlnv Silver-Bullet-Tech:user:sys_reg:1.0 sys_reg_0 ]
@@ -365,6 +419,10 @@ proc create_root_design { parentCell } {
 
   # Create instance: util_dac_unpack_1, and set properties
   set util_dac_unpack_1 [ create_bd_cell -type ip -vlnv analog.com:user:util_dac_unpack:1.0 util_dac_unpack_1 ]
+
+  # Create instance: xlslice_0, and set properties
+  set xlslice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_0 ]
+  set_property -dict [ list CONFIG.DIN_TO {2} CONFIG.DIN_WIDTH {4}  ] $xlslice_0
 
   # Create interface connections
   connect_bd_intf_net -intf_net S00_AXIS_2 [get_bd_intf_pins srio_gen2_0/TARGET_REQ] [get_bd_intf_pins srio_treq_intc/S00_AXIS]
@@ -395,6 +453,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net axi_srio_interconnect_M04_AXI [get_bd_intf_pins axi_register_slice_0/S_AXI] [get_bd_intf_pins axi_srio_interconnect/M04_AXI]
   connect_bd_intf_net -intf_net axi_srio_interconnect_M05_AXI [get_bd_intf_pins axi_srio_initiator_shadowfifo/S_AXI] [get_bd_intf_pins axi_srio_interconnect/M05_AXI]
   connect_bd_intf_net -intf_net axi_srio_interconnect_M06_AXI [get_bd_intf_pins axi_srio_initiator_shadowfifo/S_AXI_FULL] [get_bd_intf_pins axi_srio_interconnect/M06_AXI]
+  connect_bd_intf_net -intf_net axi_srio_interconnect_M07_AXI [get_bd_intf_pins axi_srio_interconnect/M07_AXI] [get_bd_intf_pins drp_bridge_0/S_AXI]
   connect_bd_intf_net -intf_net axi_srio_target_fifo_AXI_STR_TXD [get_bd_intf_pins axi_srio_target_fifo/AXI_STR_TXD] [get_bd_intf_pins axis_32to64_srio_target/S_AXIS]
   connect_bd_intf_net -intf_net axis_32to64_srio_init_M_AXIS [get_bd_intf_pins axis_32to64_srio_init/M_AXIS] [get_bd_intf_pins srio_ireq_intc/S00_AXIS]
   connect_bd_intf_net -intf_net axis_32to64_srio_target_M_AXIS [get_bd_intf_pins axis_32to64_srio_target/M_AXIS] [get_bd_intf_pins srio_tresp_intc/S00_AXIS]
@@ -499,14 +558,43 @@ proc create_root_design { parentCell } {
   connect_bd_net -net axi_ad9361_1_tx_frame_out_p [get_bd_ports tx_frame_out_1_p] [get_bd_pins axi_ad9361_1/tx_frame_out_p]
   connect_bd_net -net axi_gpio_1 [get_bd_ports axi_gpio] [get_bd_pins axi_gpio/gpio_io_i]
   connect_bd_net -net axi_gpio_irq [get_bd_pins axi_gpio/ip2intc_irpt] [get_bd_pins sys_concat_intc/In10]
-  connect_bd_net -net axi_srio_initiator_fifo_axi_str_rxd_tready [get_bd_pins axi_srio_initiator_fifo/axi_str_rxd_tready] [get_bd_pins axis_64to32_srio_init/M_AXIS_TREADY] [get_bd_pins ila_0/probe8]
-  connect_bd_net -net axi_srio_initiator_fifo_interrupt [get_bd_pins axi_srio_initiator_fifo/interrupt] [get_bd_pins ila_0/probe9] [get_bd_pins sys_concat_intc/In8]
+  connect_bd_net -net axi_srio_initiator_fifo_axi_str_rxd_tready [get_bd_pins axi_srio_initiator_fifo/axi_str_rxd_tready] [get_bd_pins axis_64to32_srio_init/M_AXIS_TREADY]
+  connect_bd_net -net axi_srio_initiator_fifo_interrupt [get_bd_pins axi_srio_initiator_fifo/interrupt] [get_bd_pins sys_concat_intc/In8]
   connect_bd_net -net axi_srio_initiator_shadowfifo_interrupt [get_bd_pins axi_srio_initiator_shadowfifo/interrupt] [get_bd_pins sys_concat_intc/In11]
   connect_bd_net -net axi_srio_target_fifo_interrupt [get_bd_pins axi_srio_target_fifo/interrupt] [get_bd_pins sys_concat_intc/In9]
-  connect_bd_net -net axis_64to32_srio_init_M_AXIS_TDATA [get_bd_pins axi_srio_initiator_fifo/axi_str_rxd_tdata] [get_bd_pins axis_64to32_srio_init/M_AXIS_TDATA] [get_bd_pins ila_0/probe5]
-  connect_bd_net -net axis_64to32_srio_init_M_AXIS_TLAST [get_bd_pins axi_srio_initiator_fifo/axi_str_rxd_tlast] [get_bd_pins axis_64to32_srio_init/M_AXIS_TLAST] [get_bd_pins ila_0/probe6]
-  connect_bd_net -net axis_64to32_srio_init_M_AXIS_TVALID [get_bd_pins axi_srio_initiator_fifo/axi_str_rxd_tvalid] [get_bd_pins axis_64to32_srio_init/M_AXIS_TVALID] [get_bd_pins ila_0/probe7]
+  connect_bd_net -net axis_64to32_srio_init_M_AXIS_TDATA [get_bd_pins axi_srio_initiator_fifo/axi_str_rxd_tdata] [get_bd_pins axis_64to32_srio_init/M_AXIS_TDATA]
+  connect_bd_net -net axis_64to32_srio_init_M_AXIS_TLAST [get_bd_pins axi_srio_initiator_fifo/axi_str_rxd_tlast] [get_bd_pins axis_64to32_srio_init/M_AXIS_TLAST]
+  connect_bd_net -net axis_64to32_srio_init_M_AXIS_TVALID [get_bd_pins axi_srio_initiator_fifo/axi_str_rxd_tvalid] [get_bd_pins axis_64to32_srio_init/M_AXIS_TVALID]
+  connect_bd_net -net c_counter_binary_0_Q [get_bd_pins c_counter_binary_0/Q] [get_bd_pins xlslice_0/Din]
   connect_bd_net -net const_1_dout [get_bd_pins axis_64to32_srio_init/S_AXIS_TSTRB] [get_bd_pins axis_64to32_srio_target/S_AXIS_TSTRB] [get_bd_pins const_1/dout]
+  connect_bd_net -net drp_bridge_0_drp0_addr [get_bd_pins drp_bridge_0/drp0_addr] [get_bd_pins drpaddr_concat/In0]
+  connect_bd_net -net drp_bridge_0_drp0_di [get_bd_pins drp_bridge_0/drp0_di] [get_bd_pins drpdi_concat/In0]
+  connect_bd_net -net drp_bridge_0_drp0_en [get_bd_pins drp_bridge_0/drp0_en] [get_bd_pins drpen_concat/In0]
+  connect_bd_net -net drp_bridge_0_drp0_we [get_bd_pins drp_bridge_0/drp0_we] [get_bd_pins drpwe_concat/In0]
+  connect_bd_net -net drp_bridge_0_drp1_addr [get_bd_pins drp_bridge_0/drp1_addr] [get_bd_pins drpaddr_concat/In1]
+  connect_bd_net -net drp_bridge_0_drp1_di [get_bd_pins drp_bridge_0/drp1_di] [get_bd_pins drpdi_concat/In1]
+  connect_bd_net -net drp_bridge_0_drp1_en [get_bd_pins drp_bridge_0/drp1_en] [get_bd_pins drpen_concat/In1]
+  connect_bd_net -net drp_bridge_0_drp1_we [get_bd_pins drp_bridge_0/drp1_we] [get_bd_pins drpwe_concat/In1]
+  connect_bd_net -net drp_bridge_0_drp2_addr [get_bd_pins drp_bridge_0/drp2_addr] [get_bd_pins drpaddr_concat/In2]
+  connect_bd_net -net drp_bridge_0_drp2_di [get_bd_pins drp_bridge_0/drp2_di] [get_bd_pins drpdi_concat/In2]
+  connect_bd_net -net drp_bridge_0_drp2_en [get_bd_pins drp_bridge_0/drp2_en] [get_bd_pins drpen_concat/In2]
+  connect_bd_net -net drp_bridge_0_drp2_we [get_bd_pins drp_bridge_0/drp2_we] [get_bd_pins drpwe_concat/In2]
+  connect_bd_net -net drp_bridge_0_drp3_addr [get_bd_pins drp_bridge_0/drp3_addr] [get_bd_pins drpaddr_concat/In3]
+  connect_bd_net -net drp_bridge_0_drp3_di [get_bd_pins drp_bridge_0/drp3_di] [get_bd_pins drpdi_concat/In3]
+  connect_bd_net -net drp_bridge_0_drp3_en [get_bd_pins drp_bridge_0/drp3_en] [get_bd_pins drpen_concat/In3]
+  connect_bd_net -net drp_bridge_0_drp3_we [get_bd_pins drp_bridge_0/drp3_we] [get_bd_pins drpwe_concat/In3]
+  connect_bd_net -net drpaddr_concat_dout [get_bd_pins drpaddr_concat/dout] [get_bd_pins srio_gen2_0/gt_drpaddr_in]
+  connect_bd_net -net drpdi_concat_dout [get_bd_pins drpdi_concat/dout] [get_bd_pins srio_gen2_0/gt_drpdi_in]
+  connect_bd_net -net drpdo_slice_0_Dout [get_bd_pins drp_bridge_0/drp0_do] [get_bd_pins drpdo_slice_0/Dout]
+  connect_bd_net -net drpdo_slice_1_Dout [get_bd_pins drp_bridge_0/drp1_do] [get_bd_pins drpdo_slice_1/Dout]
+  connect_bd_net -net drpdo_slice_2_Dout [get_bd_pins drp_bridge_0/drp2_do] [get_bd_pins drpdo_slice_2/Dout]
+  connect_bd_net -net drpdo_slice_3_Dout [get_bd_pins drp_bridge_0/drp3_do] [get_bd_pins drpdo_slice_3/Dout]
+  connect_bd_net -net drpen_concat_dout [get_bd_pins drpen_concat/dout] [get_bd_pins srio_gen2_0/gt_drpen_in]
+  connect_bd_net -net drprdy_slice_0_Dout [get_bd_pins drp_bridge_0/drp0_rdy] [get_bd_pins drprdy_slice_0/Dout]
+  connect_bd_net -net drprdy_slice_1_Dout [get_bd_pins drp_bridge_0/drp1_rdy] [get_bd_pins drprdy_slice_1/Dout]
+  connect_bd_net -net drprdy_slice_2_Dout [get_bd_pins drp_bridge_0/drp2_rdy] [get_bd_pins drprdy_slice_2/Dout]
+  connect_bd_net -net drprdy_slice_3_Dout [get_bd_pins drp_bridge_0/drp3_rdy] [get_bd_pins drprdy_slice_3/Dout]
+  connect_bd_net -net drpwe_concat_dout [get_bd_pins drpwe_concat/dout] [get_bd_pins srio_gen2_0/gt_drpwe_in]
   connect_bd_net -net fifo_data_0 [get_bd_pins axi_ad9361_0_dac_dma/fifo_rd_dout] [get_bd_pins util_dac_unpack_0/dma_data]
   connect_bd_net -net fifo_data_1 [get_bd_pins axi_ad9361_1_dac_dma/fifo_rd_dout] [get_bd_pins util_dac_unpack_1/dma_data]
   connect_bd_net -net fifo_valid_0 [get_bd_pins axi_ad9361_0_dac_dma/fifo_rd_valid] [get_bd_pins util_dac_unpack_0/fifo_valid]
@@ -534,10 +622,17 @@ proc create_root_design { parentCell } {
   connect_bd_net -net spi1_sclk_o [get_bd_ports spi1_sclk_o] [get_bd_pins sys_ps7/SPI1_SCLK_O]
   connect_bd_net -net srio_gen2_0_clk_lock_out [get_bd_pins srio_gen2_0/clk_lock_out] [get_bd_pins sys_reg_0/srio_clk_out_lock]
   connect_bd_net -net srio_gen2_0_deviceid [get_bd_pins srio_gen2_0/deviceid] [get_bd_pins sys_reg_0/device_id]
+  connect_bd_net -net srio_gen2_0_drpclk_out [get_bd_pins axi_srio_interconnect/M07_ACLK] [get_bd_pins drp_bridge_0/AXI_aclk] [get_bd_pins srio_gen2_0/drpclk_out]
+  connect_bd_net -net srio_gen2_0_gt_clk_out [get_bd_pins c_counter_binary_0/CLK] [get_bd_pins srio_gen2_0/gt_clk_out]
+  connect_bd_net -net srio_gen2_0_gt_drpdo_out [get_bd_pins drpdo_slice_0/Din] [get_bd_pins drpdo_slice_1/Din] [get_bd_pins drpdo_slice_2/Din] [get_bd_pins drpdo_slice_3/Din] [get_bd_pins srio_gen2_0/gt_drpdo_out]
+  connect_bd_net -net srio_gen2_0_gt_drprdy_out [get_bd_pins drprdy_slice_0/Din] [get_bd_pins drprdy_slice_1/Din] [get_bd_pins drprdy_slice_2/Din] [get_bd_pins drprdy_slice_3/Din] [get_bd_pins srio_gen2_0/gt_drprdy_out]
+  connect_bd_net -net srio_gen2_0_gt_pcs_clk_out [get_bd_ports srio_gt_pcs_clk_out] [get_bd_pins srio_gen2_0/gt_pcs_clk_out]
   connect_bd_net -net srio_gen2_0_gtrx_disperr_or [get_bd_pins srio_gen2_0/gtrx_disperr_or] [get_bd_pins sys_reg_0/gtrx_disperr_or]
   connect_bd_net -net srio_gen2_0_gtrx_notintable_or [get_bd_pins srio_gen2_0/gtrx_notintable_or] [get_bd_pins sys_reg_0/gtrx_notintable_or]
   connect_bd_net -net srio_gen2_0_link_initialized [get_bd_pins srio_gen2_0/link_initialized] [get_bd_pins sys_reg_0/srio_link_initialized]
   connect_bd_net -net srio_gen2_0_mode_1x [get_bd_pins srio_gen2_0/mode_1x] [get_bd_pins sys_reg_0/srio_mode_1x]
+  connect_bd_net -net srio_gen2_0_phy_rcvd_link_reset [get_bd_pins srio_gen2_0/phy_rcvd_link_reset] [get_bd_pins sys_reg_0/phy_rcvd_link_reset]
+  connect_bd_net -net srio_gen2_0_phy_rcvd_mce [get_bd_pins srio_gen2_0/phy_rcvd_mce] [get_bd_pins sys_reg_0/phy_rcvd_mce]
   connect_bd_net -net srio_gen2_0_port_error [get_bd_pins srio_gen2_0/port_error] [get_bd_pins sys_reg_0/port_error]
   connect_bd_net -net srio_gen2_0_port_initialized [get_bd_pins srio_gen2_0/port_initialized] [get_bd_pins sys_reg_0/srio_port_initialized]
   connect_bd_net -net srio_gen2_0_srio_txn0 [get_bd_ports srio_txn0] [get_bd_pins srio_gen2_0/srio_txn0]
@@ -557,28 +652,33 @@ proc create_root_design { parentCell } {
   connect_bd_net -net srio_rxp2_1 [get_bd_ports srio_rxp2] [get_bd_pins srio_gen2_0/srio_rxp2]
   connect_bd_net -net srio_rxp3_1 [get_bd_ports srio_rxp3] [get_bd_pins srio_gen2_0/srio_rxp3]
   connect_bd_net -net sys_100m_clk [get_bd_pins axi_ad9361_0/s_axi_aclk] [get_bd_pins axi_ad9361_0_adc_dma/s_axi_aclk] [get_bd_pins axi_ad9361_0_dac_dma/s_axi_aclk] [get_bd_pins axi_ad9361_1/s_axi_aclk] [get_bd_pins axi_ad9361_1_adc_dma/s_axi_aclk] [get_bd_pins axi_ad9361_1_dac_dma/s_axi_aclk] [get_bd_pins axi_cpu_interconnect/ACLK] [get_bd_pins axi_cpu_interconnect/M00_ACLK] [get_bd_pins axi_cpu_interconnect/M01_ACLK] [get_bd_pins axi_cpu_interconnect/M02_ACLK] [get_bd_pins axi_cpu_interconnect/M03_ACLK] [get_bd_pins axi_cpu_interconnect/M04_ACLK] [get_bd_pins axi_cpu_interconnect/M05_ACLK] [get_bd_pins axi_cpu_interconnect/M06_ACLK] [get_bd_pins axi_cpu_interconnect/M07_ACLK] [get_bd_pins axi_cpu_interconnect/M08_ACLK] [get_bd_pins axi_cpu_interconnect/M09_ACLK] [get_bd_pins axi_cpu_interconnect/S00_ACLK] [get_bd_pins axi_gpio/s_axi_aclk] [get_bd_pins axi_srio_interconnect/ACLK] [get_bd_pins axi_srio_interconnect/S00_ACLK] [get_bd_pins sys_ps7/FCLK_CLK0] [get_bd_pins sys_ps7/M_AXI_GP0_ACLK] [get_bd_pins sys_ps7/M_AXI_GP1_ACLK] [get_bd_pins sys_reg_0/S_AXI_ACLK] [get_bd_pins sys_rstgen/slowest_sync_clk]
-  connect_bd_net -net sys_100m_resetn [get_bd_pins axi_ad9361_0/s_axi_aresetn] [get_bd_pins axi_ad9361_0_adc_dma/m_dest_axi_aresetn] [get_bd_pins axi_ad9361_0_adc_dma/s_axi_aresetn] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/ARESETN] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/M00_ARESETN] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/S00_ARESETN] [get_bd_pins axi_ad9361_0_dac_dma/m_src_axi_aresetn] [get_bd_pins axi_ad9361_0_dac_dma/s_axi_aresetn] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/ARESETN] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/M00_ARESETN] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/S00_ARESETN] [get_bd_pins axi_ad9361_1/s_axi_aresetn] [get_bd_pins axi_ad9361_1_adc_dma/m_dest_axi_aresetn] [get_bd_pins axi_ad9361_1_adc_dma/s_axi_aresetn] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/ARESETN] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/M00_ARESETN] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/S00_ARESETN] [get_bd_pins axi_ad9361_1_dac_dma/m_src_axi_aresetn] [get_bd_pins axi_ad9361_1_dac_dma/s_axi_aresetn] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/ARESETN] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/M00_ARESETN] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/S00_ARESETN] [get_bd_pins axi_cpu_interconnect/ARESETN] [get_bd_pins axi_cpu_interconnect/M00_ARESETN] [get_bd_pins axi_cpu_interconnect/M01_ARESETN] [get_bd_pins axi_cpu_interconnect/M02_ARESETN] [get_bd_pins axi_cpu_interconnect/M03_ARESETN] [get_bd_pins axi_cpu_interconnect/M04_ARESETN] [get_bd_pins axi_cpu_interconnect/M05_ARESETN] [get_bd_pins axi_cpu_interconnect/M06_ARESETN] [get_bd_pins axi_cpu_interconnect/M07_ARESETN] [get_bd_pins axi_cpu_interconnect/M08_ARESETN] [get_bd_pins axi_cpu_interconnect/M09_ARESETN] [get_bd_pins axi_cpu_interconnect/S00_ARESETN] [get_bd_pins axi_gpio/s_axi_aresetn] [get_bd_pins axi_register_slice_0/aresetn] [get_bd_pins axi_srio_initiator_fifo/s_axi_aresetn] [get_bd_pins axi_srio_initiator_shadowfifo/s_axi_aresetn] [get_bd_pins axi_srio_interconnect/ARESETN] [get_bd_pins axi_srio_interconnect/M00_ARESETN] [get_bd_pins axi_srio_interconnect/M01_ARESETN] [get_bd_pins axi_srio_interconnect/M02_ARESETN] [get_bd_pins axi_srio_interconnect/M03_ARESETN] [get_bd_pins axi_srio_interconnect/M04_ARESETN] [get_bd_pins axi_srio_interconnect/M05_ARESETN] [get_bd_pins axi_srio_interconnect/M06_ARESETN] [get_bd_pins axi_srio_interconnect/S00_ARESETN] [get_bd_pins axi_srio_target_fifo/s_axi_aresetn] [get_bd_pins axis_32to64_srio_init/AXIS_ARESETN] [get_bd_pins axis_32to64_srio_target/AXIS_ARESETN] [get_bd_pins axis_64to32_srio_init/AXIS_ARESETN] [get_bd_pins axis_64to32_srio_target/AXIS_ARESETN] [get_bd_pins axis_broadcaster_0/aresetn] [get_bd_pins axis_register_slice_0/aresetn] [get_bd_pins srio_ireq_intc/ARESETN] [get_bd_pins srio_ireq_intc/M00_AXIS_ARESETN] [get_bd_pins srio_ireq_intc/S00_AXIS_ARESETN] [get_bd_pins srio_iresp_intc/ARESETN] [get_bd_pins srio_iresp_intc/M00_AXIS_ARESETN] [get_bd_pins srio_iresp_intc/S00_AXIS_ARESETN] [get_bd_pins srio_treq_intc/ARESETN] [get_bd_pins srio_treq_intc/M00_AXIS_ARESETN] [get_bd_pins srio_treq_intc/S00_AXIS_ARESETN] [get_bd_pins srio_tresp_intc/ARESETN] [get_bd_pins srio_tresp_intc/M00_AXIS_ARESETN] [get_bd_pins srio_tresp_intc/S00_AXIS_ARESETN] [get_bd_pins sys_reg_0/S_AXI_ARESETN] [get_bd_pins sys_rstgen/peripheral_aresetn]
+  connect_bd_net -net sys_100m_resetn [get_bd_pins axi_ad9361_0/s_axi_aresetn] [get_bd_pins axi_ad9361_0_adc_dma/m_dest_axi_aresetn] [get_bd_pins axi_ad9361_0_adc_dma/s_axi_aresetn] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/ARESETN] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/M00_ARESETN] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/S00_ARESETN] [get_bd_pins axi_ad9361_0_dac_dma/m_src_axi_aresetn] [get_bd_pins axi_ad9361_0_dac_dma/s_axi_aresetn] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/ARESETN] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/M00_ARESETN] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/S00_ARESETN] [get_bd_pins axi_ad9361_1/s_axi_aresetn] [get_bd_pins axi_ad9361_1_adc_dma/m_dest_axi_aresetn] [get_bd_pins axi_ad9361_1_adc_dma/s_axi_aresetn] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/ARESETN] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/M00_ARESETN] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/S00_ARESETN] [get_bd_pins axi_ad9361_1_dac_dma/m_src_axi_aresetn] [get_bd_pins axi_ad9361_1_dac_dma/s_axi_aresetn] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/ARESETN] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/M00_ARESETN] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/S00_ARESETN] [get_bd_pins axi_cpu_interconnect/ARESETN] [get_bd_pins axi_cpu_interconnect/M00_ARESETN] [get_bd_pins axi_cpu_interconnect/M01_ARESETN] [get_bd_pins axi_cpu_interconnect/M02_ARESETN] [get_bd_pins axi_cpu_interconnect/M03_ARESETN] [get_bd_pins axi_cpu_interconnect/M04_ARESETN] [get_bd_pins axi_cpu_interconnect/M05_ARESETN] [get_bd_pins axi_cpu_interconnect/M06_ARESETN] [get_bd_pins axi_cpu_interconnect/M07_ARESETN] [get_bd_pins axi_cpu_interconnect/M08_ARESETN] [get_bd_pins axi_cpu_interconnect/M09_ARESETN] [get_bd_pins axi_cpu_interconnect/S00_ARESETN] [get_bd_pins axi_gpio/s_axi_aresetn] [get_bd_pins axi_register_slice_0/aresetn] [get_bd_pins axi_srio_initiator_fifo/s_axi_aresetn] [get_bd_pins axi_srio_initiator_shadowfifo/s_axi_aresetn] [get_bd_pins axi_srio_interconnect/ARESETN] [get_bd_pins axi_srio_interconnect/M00_ARESETN] [get_bd_pins axi_srio_interconnect/M01_ARESETN] [get_bd_pins axi_srio_interconnect/M02_ARESETN] [get_bd_pins axi_srio_interconnect/M03_ARESETN] [get_bd_pins axi_srio_interconnect/M04_ARESETN] [get_bd_pins axi_srio_interconnect/M05_ARESETN] [get_bd_pins axi_srio_interconnect/M06_ARESETN] [get_bd_pins axi_srio_interconnect/M07_ARESETN] [get_bd_pins axi_srio_interconnect/S00_ARESETN] [get_bd_pins axi_srio_target_fifo/s_axi_aresetn] [get_bd_pins axis_32to64_srio_init/AXIS_ARESETN] [get_bd_pins axis_32to64_srio_target/AXIS_ARESETN] [get_bd_pins axis_64to32_srio_init/AXIS_ARESETN] [get_bd_pins axis_64to32_srio_target/AXIS_ARESETN] [get_bd_pins axis_broadcaster_0/aresetn] [get_bd_pins axis_register_slice_0/aresetn] [get_bd_pins drp_bridge_0/AXI_aresetn] [get_bd_pins srio_ireq_intc/ARESETN] [get_bd_pins srio_ireq_intc/M00_AXIS_ARESETN] [get_bd_pins srio_ireq_intc/S00_AXIS_ARESETN] [get_bd_pins srio_iresp_intc/ARESETN] [get_bd_pins srio_iresp_intc/M00_AXIS_ARESETN] [get_bd_pins srio_iresp_intc/S00_AXIS_ARESETN] [get_bd_pins srio_treq_intc/ARESETN] [get_bd_pins srio_treq_intc/M00_AXIS_ARESETN] [get_bd_pins srio_treq_intc/S00_AXIS_ARESETN] [get_bd_pins srio_tresp_intc/ARESETN] [get_bd_pins srio_tresp_intc/M00_AXIS_ARESETN] [get_bd_pins srio_tresp_intc/S00_AXIS_ARESETN] [get_bd_pins sys_reg_0/S_AXI_ARESETN] [get_bd_pins sys_rstgen/peripheral_aresetn]
   connect_bd_net -net sys_200m_clk [get_bd_pins axi_ad9361_0/delay_clk] [get_bd_pins axi_ad9361_1/delay_clk] [get_bd_pins sys_ps7/FCLK_CLK1]
   connect_bd_net -net sys_aux_reset [get_bd_pins sys_ps7/FCLK_RESET0_N] [get_bd_pins sys_rstgen/ext_reset_in]
   connect_bd_net -net sys_clkn_1 [get_bd_ports srio_sys_clkn] [get_bd_pins srio_gen2_0/sys_clkn]
   connect_bd_net -net sys_clkp_1 [get_bd_ports srio_sys_clkp] [get_bd_pins srio_gen2_0/sys_clkp]
-  connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axi_ad9361_0_adc_dma/m_dest_axi_aclk] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/ACLK] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/M00_ACLK] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/S00_ACLK] [get_bd_pins axi_ad9361_0_dac_dma/m_src_axi_aclk] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/ACLK] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/M00_ACLK] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/S00_ACLK] [get_bd_pins axi_ad9361_1_adc_dma/m_dest_axi_aclk] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/ACLK] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/M00_ACLK] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/S00_ACLK] [get_bd_pins axi_ad9361_1_dac_dma/m_src_axi_aclk] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/ACLK] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/M00_ACLK] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/S00_ACLK] [get_bd_pins axi_srio_initiator_fifo/s_axi_aclk] [get_bd_pins axi_srio_initiator_shadowfifo/s_axi_aclk] [get_bd_pins axi_srio_interconnect/M00_ACLK] [get_bd_pins axi_srio_interconnect/M01_ACLK] [get_bd_pins axi_srio_interconnect/M02_ACLK] [get_bd_pins axi_srio_interconnect/M03_ACLK] [get_bd_pins axi_srio_interconnect/M05_ACLK] [get_bd_pins axi_srio_interconnect/M06_ACLK] [get_bd_pins axi_srio_target_fifo/s_axi_aclk] [get_bd_pins axis_32to64_srio_init/AXIS_ACLK] [get_bd_pins axis_32to64_srio_target/AXIS_ACLK] [get_bd_pins axis_64to32_srio_init/AXIS_ACLK] [get_bd_pins axis_64to32_srio_target/AXIS_ACLK] [get_bd_pins axis_broadcaster_0/aclk] [get_bd_pins ila_0/clk] [get_bd_pins srio_ireq_intc/ACLK] [get_bd_pins srio_ireq_intc/S00_AXIS_ACLK] [get_bd_pins srio_iresp_intc/ACLK] [get_bd_pins srio_iresp_intc/M00_AXIS_ACLK] [get_bd_pins srio_treq_intc/ACLK] [get_bd_pins srio_treq_intc/M00_AXIS_ACLK] [get_bd_pins srio_tresp_intc/ACLK] [get_bd_pins srio_tresp_intc/S00_AXIS_ACLK] [get_bd_pins sys_ps7/FCLK_CLK2] [get_bd_pins sys_ps7/S_AXI_HP0_ACLK] [get_bd_pins sys_ps7/S_AXI_HP1_ACLK] [get_bd_pins sys_ps7/S_AXI_HP2_ACLK] [get_bd_pins sys_ps7/S_AXI_HP3_ACLK]
+  connect_bd_net -net sys_fmc_dma_clk [get_bd_pins axi_ad9361_0_adc_dma/m_dest_axi_aclk] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/ACLK] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/M00_ACLK] [get_bd_pins axi_ad9361_0_adc_dma_interconnect/S00_ACLK] [get_bd_pins axi_ad9361_0_dac_dma/m_src_axi_aclk] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/ACLK] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/M00_ACLK] [get_bd_pins axi_ad9361_0_dac_dma_interconnect/S00_ACLK] [get_bd_pins axi_ad9361_1_adc_dma/m_dest_axi_aclk] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/ACLK] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/M00_ACLK] [get_bd_pins axi_ad9361_1_adc_dma_interconnect/S00_ACLK] [get_bd_pins axi_ad9361_1_dac_dma/m_src_axi_aclk] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/ACLK] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/M00_ACLK] [get_bd_pins axi_ad9361_1_dac_dma_interconnect/S00_ACLK] [get_bd_pins axi_srio_initiator_fifo/s_axi_aclk] [get_bd_pins axi_srio_initiator_shadowfifo/s_axi_aclk] [get_bd_pins axi_srio_interconnect/M00_ACLK] [get_bd_pins axi_srio_interconnect/M01_ACLK] [get_bd_pins axi_srio_interconnect/M02_ACLK] [get_bd_pins axi_srio_interconnect/M03_ACLK] [get_bd_pins axi_srio_interconnect/M05_ACLK] [get_bd_pins axi_srio_interconnect/M06_ACLK] [get_bd_pins axi_srio_target_fifo/s_axi_aclk] [get_bd_pins axis_32to64_srio_init/AXIS_ACLK] [get_bd_pins axis_32to64_srio_target/AXIS_ACLK] [get_bd_pins axis_64to32_srio_init/AXIS_ACLK] [get_bd_pins axis_64to32_srio_target/AXIS_ACLK] [get_bd_pins axis_broadcaster_0/aclk] [get_bd_pins srio_ireq_intc/ACLK] [get_bd_pins srio_ireq_intc/S00_AXIS_ACLK] [get_bd_pins srio_iresp_intc/ACLK] [get_bd_pins srio_iresp_intc/M00_AXIS_ACLK] [get_bd_pins srio_treq_intc/ACLK] [get_bd_pins srio_treq_intc/M00_AXIS_ACLK] [get_bd_pins srio_tresp_intc/ACLK] [get_bd_pins srio_tresp_intc/S00_AXIS_ACLK] [get_bd_pins sys_ps7/FCLK_CLK2] [get_bd_pins sys_ps7/S_AXI_HP0_ACLK] [get_bd_pins sys_ps7/S_AXI_HP1_ACLK] [get_bd_pins sys_ps7/S_AXI_HP2_ACLK] [get_bd_pins sys_ps7/S_AXI_HP3_ACLK]
   connect_bd_net -net sys_ps7_GPIO_I [get_bd_ports GPIO_I] [get_bd_pins sys_ps7/GPIO_I]
   connect_bd_net -net sys_ps7_GPIO_O [get_bd_ports GPIO_O] [get_bd_pins sys_ps7/GPIO_O]
   connect_bd_net -net sys_ps7_GPIO_T [get_bd_ports GPIO_T] [get_bd_pins sys_ps7/GPIO_T]
   connect_bd_net -net sys_ps7_interrupt [get_bd_pins sys_concat_intc/dout] [get_bd_pins sys_ps7/IRQ_F2P]
   connect_bd_net -net sys_reg_0_gt_diffctrl [get_bd_pins srio_gen2_0/gt0_txdiffctrl_in] [get_bd_pins srio_gen2_0/gt1_txdiffctrl_in] [get_bd_pins srio_gen2_0/gt2_txdiffctrl_in] [get_bd_pins srio_gen2_0/gt3_txdiffctrl_in] [get_bd_pins sys_reg_0/gt_diffctrl]
-  connect_bd_net -net sys_reg_0_gt_rxlpmen [get_bd_pins srio_gen2_0/gt_rxlpmen_in] [get_bd_pins sys_reg_0/gt_rxlpmen]
-  connect_bd_net -net sys_reg_0_gt_txpostcursor [get_bd_pins srio_gen2_0/gt_txpostcursor_in] [get_bd_pins sys_reg_0/gt_txpostcursor]
-  connect_bd_net -net sys_reg_0_gt_txprecursor [get_bd_pins srio_gen2_0/gt_txprecursor_in] [get_bd_pins sys_reg_0/gt_txprecursor]
-  connect_bd_net -net sys_reg_0_srio_loopback [get_bd_pins srio_gen2_0/gt_loopback_in] [get_bd_pins sys_reg_0/srio_loopback]
-  connect_bd_net -net sys_reg_0_srio_reset [get_bd_pins srio_gen2_0/sys_rst] [get_bd_pins sys_reg_0/srio_reset]
+  connect_bd_net -net sys_reg_1_force_reinit [get_bd_pins srio_gen2_0/force_reinit] [get_bd_pins sys_reg_0/force_reinit]
+  connect_bd_net -net sys_reg_1_gt_rxdfelpmreset_in [get_bd_pins srio_gen2_0/gt_rxdfelpmreset_in] [get_bd_pins sys_reg_0/gt_rxdfelpmreset_in]
+  connect_bd_net -net sys_reg_1_gt_rxlpmen [get_bd_pins srio_gen2_0/gt_rxlpmen_in] [get_bd_pins sys_reg_0/gt_rxlpmen]
+  connect_bd_net -net sys_reg_1_gt_txpostcursor [get_bd_pins srio_gen2_0/gt_txpostcursor_in] [get_bd_pins sys_reg_0/gt_txpostcursor]
+  connect_bd_net -net sys_reg_1_gt_txprecursor [get_bd_pins srio_gen2_0/gt_txprecursor_in] [get_bd_pins sys_reg_0/gt_txprecursor]
+  connect_bd_net -net sys_reg_1_phy_link_reset [get_bd_pins srio_gen2_0/phy_link_reset] [get_bd_pins sys_reg_0/phy_link_reset]
+  connect_bd_net -net sys_reg_1_phy_mce [get_bd_pins srio_gen2_0/phy_mce] [get_bd_pins sys_reg_0/phy_mce]
+  connect_bd_net -net sys_reg_1_srio_loopback [get_bd_pins srio_gen2_0/gt_loopback_in] [get_bd_pins sys_reg_0/srio_loopback]
+  connect_bd_net -net sys_reg_1_srio_reset [get_bd_pins srio_gen2_0/sys_rst] [get_bd_pins sys_reg_0/srio_reset]
   connect_bd_net -net util_adc_pack_0_ddata [get_bd_pins axi_ad9361_0_adc_dma/fifo_wr_din] [get_bd_pins util_adc_pack_0/ddata]
   connect_bd_net -net util_adc_pack_0_dsync [get_bd_pins axi_ad9361_0_adc_dma/fifo_wr_sync] [get_bd_pins util_adc_pack_0/dsync]
   connect_bd_net -net util_adc_pack_0_dvalid [get_bd_pins axi_ad9361_0_adc_dma/fifo_wr_en] [get_bd_pins util_adc_pack_0/dvalid]
   connect_bd_net -net util_adc_pack_1_ddata [get_bd_pins axi_ad9361_1_adc_dma/fifo_wr_din] [get_bd_pins util_adc_pack_1/ddata]
   connect_bd_net -net util_adc_pack_1_dsync [get_bd_pins axi_ad9361_1_adc_dma/fifo_wr_sync] [get_bd_pins util_adc_pack_1/dsync]
   connect_bd_net -net util_adc_pack_1_dvalid [get_bd_pins axi_ad9361_1_adc_dma/fifo_wr_en] [get_bd_pins util_adc_pack_1/dvalid]
+  connect_bd_net -net xlslice_0_Dout [get_bd_ports srio_gt_clk_div4] [get_bd_pins xlslice_0/Dout]
 
   # Create address segments
   create_bd_addr_seg -range 0x40000000 -offset 0x0 [get_bd_addr_spaces axi_ad9361_0_adc_dma/m_dest_axi] [get_bd_addr_segs sys_ps7/S_AXI_HP1/HP1_DDR_LOWOCM] SEG_sys_ps7_hp1_ddr_lowocm
@@ -598,8 +698,9 @@ proc create_root_design { parentCell } {
   create_bd_addr_seg -range 0x1000 -offset 0x7C440000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_1_adc_dma/s_axi/axi_lite] SEG_data_ad9361_1_adc_dma
   create_bd_addr_seg -range 0x1000 -offset 0x7C460000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_ad9361_1_dac_dma/s_axi/axi_lite] SEG_data_ad9361_1_dac_dma
   create_bd_addr_seg -range 0x1000 -offset 0x41200000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs axi_gpio/S_AXI/Reg] SEG_data_axi_gpio
+  create_bd_addr_seg -range 0x2000 -offset 0x81000000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs drp_bridge_0/S_AXI/reg0] SEG_drp_bridge_0_reg0
   create_bd_addr_seg -range 0x10000000 -offset 0x90000000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs srio_gen2_0/MAINT_IF/Reg] SEG_srio_gen2_0_Reg
-  create_bd_addr_seg -range 0x1000 -offset 0x42000000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs sys_reg_0/S_AXI/reg0] SEG_sys_reg_0_reg0
+  create_bd_addr_seg -range 0x1000 -offset 0x42000000 [get_bd_addr_spaces sys_ps7/Data] [get_bd_addr_segs sys_reg_0/S_AXI/reg0] SEG_sys_reg_1_reg0
   
 
   # Restore current instance

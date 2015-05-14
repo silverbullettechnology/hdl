@@ -99,7 +99,10 @@ module system_top (
 //  spi1_clk,
 //  spi1_mosi,
 //  spi1_miso,
-  
+
+  srio_gt_clk_div4,
+  srio_gt_pcs_clk_out,
+    
   axi_gpio,
 
   srio_rxn0,
@@ -146,6 +149,9 @@ module system_top (
   inout           FIXED_IO_ps_porb;
   inout           FIXED_IO_ps_srstb;
 
+  output srio_gt_clk_div4;
+  output srio_gt_pcs_clk_out;
+  
   inout   [53:0]  ps7_gpio;
 
   input           rx_clk_in_0_p;
@@ -291,6 +297,9 @@ module system_top (
     .tx_frame_out_1_p (tx_frame_out_1_p),
 
     .axi_gpio ({axi_gpio, 7'h0}),
+ 
+    .srio_gt_clk_div4(srio_gt_clk_div4),
+    .srio_gt_pcs_clk_out(srio_gt_pcs_clk_out),
     
     .srio_rxn0(srio_rxn0),
     .srio_rxp0(srio_rxp0),
