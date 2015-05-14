@@ -1,6 +1,6 @@
 
 `define C_S_AXI_DATA_WIDTH 32
-`define C_S_AXI_ADDR_WIDTH 5
+`define C_S_AXI_ADDR_WIDTH 6
 
 module vita49_clk
 (

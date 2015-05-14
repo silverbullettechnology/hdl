@@ -27,7 +27,13 @@ module vita49_trig_logic
   // from timing unit
   input wire [31:0] tsi,
   input wire [63:0] tsf,
-  output reg trig
+  output reg trig,
+ 
+  output [31:0] dbg_ctrl,
+  output [31:0] dbg_tsi_on,
+  output [31:0] dbg_tsi_off,
+  output [1:0] dbg_match_on,
+  output [1:0] dbg_match_off
   );
 
 parameter integer C_AXIS_TDATA_NUM_BYTES = 4;
@@ -36,14 +42,19 @@ reg [31:0] ctrl_reg;
 reg [31:0] tsi_trig_up_reg;
 reg [31:0] tsf_hi_trig_up_reg;
 reg [31:0] tsf_lo_trig_up_reg;
- 
+
+reg [31:0] tsi_reg_0;
+reg [63:0] tsf_reg_0;
+  
 reg [31:0] tsi_reg;
 reg [63:0] tsf_reg; 
 always @ (posedge AXIS_ACLK)
 begin
 	ctrl_reg <= ctrl;
-	tsi_reg <= tsi;
-	tsf_reg <= tsf;
+	tsi_reg_0 <= tsi;
+	tsf_reg_0 <= tsf;
+	tsi_reg <= tsi_reg_0;
+	tsf_reg <= tsf_reg_0;
 	tsi_trig_up_reg <= tsi_trig_up;
 	tsf_hi_trig_up_reg <= tsf_hi_trig_up;
 	tsf_lo_trig_up_reg <= tsf_lo_trig_up;
@@ -117,10 +128,10 @@ begin
    end
 end
  
-// assign dbg_ctrl = ctrl;
-// assign dbg_tsi_on = tsi_trig_on;
-// assign dbg_tsi_off = tsi_trig_off;
-// assign db_match_on = {match_on_reg, match_on};
-// assign db_match_off = {match_off_reg, match_off};
+ assign dbg_ctrl = ctrl_reg;
+ assign dbg_tsi_on = tsi_trig_on;
+ assign dbg_tsi_off = tsi_trig_off;
+ assign dbg_match_on = {match_on_reg, match_on};
+ assign dbg_match_off = {match_off_reg, match_off};
 
 endmodule

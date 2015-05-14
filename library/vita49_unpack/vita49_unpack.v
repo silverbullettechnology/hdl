@@ -47,10 +47,19 @@ wire passthrough;
 wire reset_cmd;
 wire start_cmd;
 
-assign start_cmd = ctrl[0];
-assign reset_cmd = ctrl[1]; 
-assign passthrough = ctrl[2];
- 
+assign start_cmd = ctrl_reg[0];
+assign reset_cmd = ctrl_reg[1]; 
+assign passthrough = ctrl_reg[2];
+
+reg [31:0] ctrl_reg;
+reg [31:0] streamID_reg;
+
+ always @ (posedge AXIS_ACLK)
+begin
+	ctrl_reg     <= ctrl;
+	streamID_reg <= streamID;
+end
+
 
 assign status = {
     start_cmd, reset_cmd,     passthrough,   AXIS_ARESETN,
@@ -246,7 +255,7 @@ begin
 				Mstate <= (c_reg)?    M_CHK_CLASS_ID_0:
 				          (tsi_reg)?  M_CHK_TSI :
 						  (tsf_reg)?  M_CHK_TSF_0 :M_SEND_PAYLOAD;
-				if (streamID != tdata_reg) begin
+				if (streamID_reg != tdata_reg) begin
 					strm_id_err <= strm_id_err + 1;
 					pkt_dropped <= pkt_dropped + 1;
 			        pkt_cnt_reg  <= pkt_cnt_reg-1;						
