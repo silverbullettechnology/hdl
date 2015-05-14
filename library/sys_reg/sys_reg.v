@@ -102,6 +102,10 @@ module sys_reg
   output wire [19:0] gt_txprecursor,
   output wire [19:0] gt_txpostcursor,
   output wire [3:0] gt_rxlpmen,  
+  output wire [3:0] gt_rxdfelpmreset_in,
+  output wire phy_link_reset,
+  output wire force_reinit,
+  output wire phy_mce,
   
   // ADI DATA SINK DESTINATION (DDR or SRIO)
   output wire adc_sw_dest0,
@@ -115,6 +119,8 @@ module sys_reg
   input wire gtrx_disperr_or,
   input wire gtrx_notintable_or,
   input wire port_error,
+  input wire phy_rcvd_link_reset,
+  input wire phy_rcvd_mce,
   input wire [15:0] device_id
 );
 
@@ -124,7 +130,8 @@ module sys_reg
   wire [31:0] srio_stat;
   assign srio_stat = { 
 	device_id,
-	8'h0,
+	4'h0,
+	2'h0,                            phy_rcvd_link_reset,   phy_rcvd_mce,
 	1'b0,         gtrx_disperr_or,   gtrx_notintable_or,    port_error,
 	srio_mode_1x, srio_clk_out_lock, srio_port_initialized, srio_link_initialized};
 
@@ -576,7 +583,10 @@ assign gt_diffctrl        = slv_reg0[8:5];
 assign gt_txprecursor     = {slv_reg0[13:9],  slv_reg0[13:9],  slv_reg0[13:9],  slv_reg0[13:9]};
 assign gt_txpostcursor    = {slv_reg0[18:14], slv_reg0[18:14], slv_reg0[18:14], slv_reg0[18:14]};
 assign gt_rxlpmen         = {slv_reg0[19],    slv_reg0[19],    slv_reg0[19],    slv_reg0[19]};
-
+assign gt_rxdfelpmreset   = {slv_reg0[20],    slv_reg0[20],    slv_reg0[20],    slv_reg0[20]};
+assign phy_link_reset     = slv_reg0[21];
+assign force_reinit       = slv_reg0[22];
+assign phy_mce            = slv_reg0[23];
 
 assign adc_sw_dest0       = slv_reg2[0];
 assign adc_sw_dest1       = slv_reg2[1];
