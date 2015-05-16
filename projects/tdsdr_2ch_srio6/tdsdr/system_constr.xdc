@@ -212,10 +212,10 @@ set_property  -dict {PACKAGE_PIN  R18   IOSTANDARD LVCMOS33} [get_ports axi_gpio
 
 
 # clocks
-create_clock -name rx_clk_0     -period  5 [get_ports rx_clk_in_0_p]
-create_clock -name rx_clk_1     -period  5 [get_ports rx_clk_in_1_p]
-create_clock -name ad9361_0_clk   -period  5 [get_pins i_system_wrapper/system_i/axi_ad9361_0/clk]
-create_clock -name ad9361_1_clk   -period  5 [get_pins i_system_wrapper/system_i/axi_ad9361_1/clk]
+create_clock -name rx_clk_0     -period  4 [get_ports rx_clk_in_0_p]
+create_clock -name rx_clk_1     -period  4 [get_ports rx_clk_in_1_p]
+create_clock -name ad9361_0_clk   -period  4 [get_pins i_system_wrapper/system_i/axi_ad9361_0/clk]
+create_clock -name ad9361_1_clk   -period  4 [get_pins i_system_wrapper/system_i/axi_ad9361_1/clk]
 #create_clock -name rx_clk_0     -period  4 [get_ports rx_clk_in_0_p]
 #create_clock -name rx_clk_1     -period  4 [get_ports rx_clk_in_1_p]
 #create_clock -name ad9361_0_clk   -period  4 [get_pins i_system_wrapper/system_i/axi_ad9361_0/clk]
