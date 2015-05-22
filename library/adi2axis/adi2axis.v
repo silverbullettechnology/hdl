@@ -80,7 +80,7 @@ adi2axis_if adi2axis_if (
 
 adi2axis_conv
 #(
-  .C_M_AXIS_TDATA_NUM_BYTES (C_M_AXIS_TDATA_NUM_BYTES),
+  .C_M_AXIS_TDATA_NUM_BYTES (C_M_AXIS_TDATA_NUM_BYTES)
 ) 
 adi2axis_conv(
   .S_AXI_ACLK    (S_AXI_ACLK),
