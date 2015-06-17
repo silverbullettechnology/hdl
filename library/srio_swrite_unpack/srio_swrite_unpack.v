@@ -41,6 +41,7 @@ module srio_swrite_unpack
   output wire [63:0] M_AXIS_TDATA,
   output wire M_AXIS_TLAST,
 //  output wire M_AXIS_TUSER,
+  output wire M_AXIS_TID,
   output wire [3:0] M_AXIS_TDEST, 
   input wire M_AXIS_TREADY,
   
@@ -93,6 +94,7 @@ srio_swrite_unpack_logic srio_swrite_unpack_logic (
 	.M_AXIS_TDATA (M_AXIS_TDATA),
 	.M_AXIS_TLAST (M_AXIS_TLAST),
 //	.M_AXIS_TUSER (M_AXIS_TUSER),
+	.M_AXIS_TID   (M_AXIS_TID),
 	.M_AXIS_TDEST (M_AXIS_TDEST),
 	.M_AXIS_TREADY (M_AXIS_TREADY),
 	.cmd             (cmd),

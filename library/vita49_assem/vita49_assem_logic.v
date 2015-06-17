@@ -95,15 +95,27 @@ reg [15:0] strmID_err;
 
 assign hdr_err_cnt = header_err;
  
+wire [31:0] tdata_reg_smallendian;
+
+assign tdata_reg_smallendian = {
+	tdata_reg[7:0],
+	tdata_reg[15:8],
+	tdata_reg[23:16],
+	tdata_reg[31:24]
+	};
+
 // header
-wire [3:0] pkt_type  = tdata_reg[31:28];
-wire       c         = tdata_reg[27];       
-wire       t         = tdata_reg[26];           
-wire [1:0] tsi       = tdata_reg[23:22]; 
-wire [1:0] tsf       = tdata_reg[21:20]; 
-wire [3:0] pkt_cnt   = tdata_reg[19:16]; 
-wire [15:0] pkt_size = tdata_reg[15:0];  reg [15:0] pkt_size_reg;
+wire [3:0] pkt_type  = tdata_reg_smallendian[31:28];
+wire       c         = tdata_reg_smallendian[27];       
+wire       t         = tdata_reg_smallendian[26];           
+wire [1:0] tsi       = tdata_reg_smallendian[23:22]; 
+wire [1:0] tsf       = tdata_reg_smallendian[21:20]; 
+wire [3:0] pkt_cnt   = tdata_reg_smallendian[19:16]; 
+wire [15:0] pkt_size = tdata_reg_smallendian[15:0];  
+
 wire [31:0] strmID   = tdata_reg[63:32];
+
+reg [15:0] pkt_size_reg;
 
 assign M_AXIS_TLAST = 
     (passthrough)              ? tlast_reg:

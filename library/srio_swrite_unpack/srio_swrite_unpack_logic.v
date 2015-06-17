@@ -16,7 +16,7 @@ module srio_swrite_unpack_logic
   output wire M_AXIS_TVALID,
   output wire [63:0] M_AXIS_TDATA,
   output wire M_AXIS_TLAST,
-//  output wire M_AXIS_TUSER,
+  output wire M_AXIS_TID,
   output wire [3:0] M_AXIS_TDEST,
   input wire M_AXIS_TREADY,
  
@@ -91,6 +91,7 @@ assign M_AXIS_TLAST = tlast_reg;
 assign M_AXIS_TDATA = tdata_reg;
 
 assign M_AXIS_TDEST = tdest_reg;
+assign M_AXIS_TID   = tdest_reg[0];
 
 assign M_AXIS_TVALID = 
 	(Mstate == M_SEND_PAYLOAD) ? dval : 0;

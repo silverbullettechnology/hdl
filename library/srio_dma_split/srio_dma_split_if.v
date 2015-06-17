@@ -1,7 +1,7 @@
 //define C_S_AXI_DATA_WIDTH 32
 //define C_S_AXI_ADDR_WIDTH 5
 
-module vita49_clk_if
+module srio_dma_split_if
 (
   ////////////////////////////////////////////////////////////////////////////
   // System Signals
@@ -93,31 +93,17 @@ module vita49_clk_if
   // accept the read data and response information.
   input  wire                          S_AXI_RREADY,
   
-  
-  output wire [31:0] ctrl,
-  input  wire [31:0] status,
-  output wire [31:0] tsi_prog,
-  
-  output wire [31:0] tsf_0_rollover,
-  output wire [31:0] tsf_1_rollover,
-  
-  input wire [31:0] tsi_0_up,
-  input wire [31:0] tsf_0_hi_up,
-  input wire [31:0] tsf_0_lo_up,
-  input wire [31:0] tsi_1_up,
-  input wire [31:0] tsf_1_hi_up,
-  input wire [31:0] tsf_1_lo_up
+  output wire [31:0] cmd,
+  output wire [31:0] num_pkts,
+  input wire [31:0] status,
+  input wire [31:0] tuser_last
+
 );
 
   parameter integer C_S_AXI_DATA_WIDTH = 32;
-  parameter integer C_S_AXI_ADDR_WIDTH = 6;
+  parameter integer C_S_AXI_ADDR_WIDTH = 5;
 
-  reg [31:0] tsi_0_upreg;
-  reg [31:0] tsf_0_hi_upreg;
-  reg [31:0] tsf_0_lo_upreg;
-  reg [31:0] tsi_1_upreg;
-  reg [31:0] tsf_1_hi_upreg;
-  reg [31:0] tsf_1_lo_upreg;
+
 
 ////////////////////////////////////////////////////////////////////////////
 // local parameter for addressing 32 bit / 64 bit C_S_AXI_DATA_WIDTH
@@ -200,10 +186,6 @@ reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg3;
 reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg4;
 reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg5;
 reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg6;
-reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg7;
-reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg8;
-reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg9;
-reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg10;
 ////////////////////////////////////////////////////////////////////////////
 // Slave register read enable
 wire                            slv_reg_rden;
@@ -352,16 +334,12 @@ assign S_AXI_RRESP  = axi_rresp;
         slv_reg4 <= {C_S_AXI_DATA_WIDTH{1'b0}};
         slv_reg5 <= {C_S_AXI_DATA_WIDTH{1'b0}};
         slv_reg6 <= {C_S_AXI_DATA_WIDTH{1'b0}};
-        slv_reg7 <= {C_S_AXI_DATA_WIDTH{1'b0}};
-        slv_reg8 <= {C_S_AXI_DATA_WIDTH{1'b0}};
-        slv_reg9 <= {C_S_AXI_DATA_WIDTH{1'b0}};
-        slv_reg10 <= {C_S_AXI_DATA_WIDTH{1'b0}};
       end
     else begin
       if (slv_reg_wren)
         begin
           case ( axi_awaddr[ADDR_MSB-1:ADDR_LSB] )
-            4'h0 :
+            3'h0 :
               begin
               for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
                 if ( S_AXI_WSTRB[byte_index] == 1 ) begin
@@ -369,65 +347,41 @@ assign S_AXI_RRESP  = axi_rresp;
                   slv_reg0[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                 end
               end
-            4'h1 :
+            3'h1 :
               for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
                 if ( S_AXI_WSTRB[byte_index] == 1 ) begin
                    // Respective byte enables are asserted as per write strobes
                    slv_reg1[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                 end
-            4'h2 :
+            3'h2 :
               for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
                 if ( S_AXI_WSTRB[byte_index] == 1 ) begin
                   // Respective byte enables are asserted as per write strobes
                   slv_reg2[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                 end
-            4'h3 :
+            3'h3 :
               for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
                 if ( S_AXI_WSTRB[byte_index] == 1 ) begin
                   // Respective byte enables are asserted as per write strobes
                   slv_reg3[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                 end
-            4'h4 :
+            3'h4 :
               for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
                 if ( S_AXI_WSTRB[byte_index] == 1 ) begin
                   // Respective byte enables are asserted as per write strobes
                   slv_reg4[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                 end
-            4'h5 :
+            3'h5 :
               for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
                 if ( S_AXI_WSTRB[byte_index] == 1 ) begin
                   // Respective byte enables are asserted as per write strobes
                   slv_reg5[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                 end
-            4'h6 :
+            3'h6 :
               for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
                 if ( S_AXI_WSTRB[byte_index] == 1 ) begin
                   // Respective byte enables are asserted as per write strobes
                   slv_reg6[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-                end
-            4'h7 :
-              for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-                if ( S_AXI_WSTRB[byte_index] == 1 ) begin
-                  // Respective byte enables are asserted as per write strobes
-                  slv_reg7[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-                end
-            4'h8 :
-              for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-                if ( S_AXI_WSTRB[byte_index] == 1 ) begin
-                  // Respective byte enables are asserted as per write strobes
-                  slv_reg8[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-                end
-            4'h9 :
-              for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-                if ( S_AXI_WSTRB[byte_index] == 1 ) begin
-                  // Respective byte enables are asserted as per write strobes
-                  slv_reg9[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
-                end
-            4'ha :
-              for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
-                if ( S_AXI_WSTRB[byte_index] == 1 ) begin
-                  // Respective byte enables are asserted as per write strobes
-                  slv_reg10[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
                 end
             default : begin
                         slv_reg0 <= slv_reg0;
@@ -437,10 +391,6 @@ assign S_AXI_RRESP  = axi_rresp;
                         slv_reg4 <= slv_reg4;
                         slv_reg5 <= slv_reg5;
                         slv_reg6 <= slv_reg6;
-                        slv_reg7 <= slv_reg7;
-                        slv_reg8 <= slv_reg8;
-                        slv_reg9 <= slv_reg9;
-                        slv_reg10 <= slv_reg10;
                       end
           endcase
         end
@@ -554,7 +504,7 @@ assign S_AXI_RRESP  = axi_rresp;
 // and the slave is ready to accept the read address.
   assign slv_reg_rden = axi_arready & S_AXI_ARVALID & ~axi_rvalid;
 
-  always @( slv_reg0, slv_reg1, slv_reg2, slv_reg9, slv_reg10, S_AXI_ARESETN, slv_reg_rden, axi_araddr, status, tsi_0_upreg, tsf_0_hi_upreg, tsf_0_lo_upreg, tsi_1_upreg, tsf_1_hi_upreg, tsf_1_lo_upreg)
+  always @( *)
   begin
     if ( S_AXI_ARESETN == 1'b0 )
       begin
@@ -564,17 +514,13 @@ assign S_AXI_RRESP  = axi_rresp;
       begin
         // Read address mux
         case ( axi_araddr[ADDR_MSB-1:ADDR_LSB] )
-          4'h0   : reg_data_out <= slv_reg0;
-          4'h1   : reg_data_out <= status;//slv_reg1;
-          4'h2   : reg_data_out <= slv_reg2;
-          4'h3   : reg_data_out <= tsi_0_upreg;
-          4'h4   : reg_data_out <= tsf_0_hi_upreg;
-          4'h5   : reg_data_out <= tsf_0_lo_upreg;
-          4'h6   : reg_data_out <= tsi_1_upreg;
-          4'h7   : reg_data_out <= tsf_1_hi_upreg;
-          4'h8   : reg_data_out <= tsf_1_lo_upreg;
-          4'h9   : reg_data_out <= slv_reg9;
-          4'ha   : reg_data_out <= slv_reg10;
+          3'h0   : reg_data_out <= slv_reg0;
+          3'h1   : reg_data_out <= status;
+          3'h2   : reg_data_out <= slv_reg2;
+          3'h3   : reg_data_out <= tuser_last;
+          3'h4   : reg_data_out <= slv_reg4;
+          3'h5   : reg_data_out <= slv_reg5;
+          3'h6   : reg_data_out <= slv_reg6;
           default : reg_data_out <= {C_S_AXI_DATA_WIDTH{1'b0}};
         endcase
         //end
@@ -600,20 +546,7 @@ assign S_AXI_RRESP  = axi_rresp;
       end
   end
 
-  always @( posedge S_AXI_ACLK )
-  begin
-       tsi_0_upreg <= tsi_0_up;
-       tsf_0_hi_upreg <= tsf_0_hi_up;
-       tsf_0_lo_upreg <= tsf_0_lo_up;
-       tsi_1_upreg <= tsi_1_up;
-       tsf_1_hi_upreg <= tsf_1_hi_up;
-       tsf_1_lo_upreg <= tsf_1_lo_up;
-  end
-
-assign ctrl             = slv_reg0;
-assign tsi_prog         = slv_reg2;
-
-assign tsf_0_rollover = slv_reg9;
-assign tsf_1_rollover = slv_reg10;
+assign cmd            = slv_reg0;
+assign num_pkts       = slv_reg2;
 
 endmodule

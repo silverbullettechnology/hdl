@@ -148,14 +148,24 @@ reg [31:0] tsi_last;
 reg [63:0] tsf_last;
 reg tsi_eq;
 
+
+wire [31:0] tdata_reg_smallendian;
+
+assign tdata_reg_smallendian = {
+	tdata_reg[7:0],
+	tdata_reg[15:8],
+	tdata_reg[23:16],
+	tdata_reg[31:24]
+	};
+
 // header
-wire [3:0] pkt_type  = tdata_reg[31:28];
-wire       c         = tdata_reg[27];    reg c_reg;         
-wire       t         = tdata_reg[26];           
-wire [1:0] tsi       = tdata_reg[23:22]; reg [1:0] tsi_reg; 
-wire [1:0] tsf       = tdata_reg[21:20]; reg [1:0] tsf_reg; 
-wire [3:0] pkt_cnt   = tdata_reg[19:16]; reg [3:0] pkt_cnt_reg;
-wire [15:0] pkt_size = tdata_reg[15:0];  reg [15:0] pkt_size_reg;
+wire [3:0] pkt_type  = tdata_reg_smallendian[31:28];
+wire       c         = tdata_reg_smallendian[27];    reg c_reg;         
+wire       t         = tdata_reg_smallendian[26];           
+wire [1:0] tsi       = tdata_reg_smallendian[23:22]; reg [1:0] tsi_reg; 
+wire [1:0] tsf       = tdata_reg_smallendian[21:20]; reg [1:0] tsf_reg; 
+wire [3:0] pkt_cnt   = tdata_reg_smallendian[19:16]; reg [3:0] pkt_cnt_reg;
+wire [15:0] pkt_size = tdata_reg_smallendian[15:0];  reg [15:0] pkt_size_reg;
 
 wire [3:0] pkt_cnt_reg_plusone = pkt_cnt_reg + 1;
 
@@ -164,7 +174,7 @@ assign M_AXIS_TLAST = (passthrough) ? tlast_reg:
 	(Mstate == M_SEND_PAYLOAD_ERR)? tlast_reg:0;
 	
 
-assign M_AXIS_TDATA = tdata_reg;
+assign M_AXIS_TDATA =  (passthrough) ? tdata_reg : tdata_reg_smallendian;
 
 assign M_AXIS_TVALID = 
     (passthrough)                  ? dval :
@@ -255,7 +265,7 @@ begin
 				Mstate <= (c_reg)?    M_CHK_CLASS_ID_0:
 				          (tsi_reg)?  M_CHK_TSI :
 						  (tsf_reg)?  M_CHK_TSF_0 :M_SEND_PAYLOAD;
-				if (streamID_reg != tdata_reg) begin
+				if (streamID_reg != tdata_reg_smallendian) begin
 					strm_id_err <= strm_id_err + 1;
 					pkt_dropped <= pkt_dropped + 1;
 			        pkt_cnt_reg  <= pkt_cnt_reg-1;						
@@ -275,13 +285,13 @@ begin
  		end
 	    M_CHK_TSI: begin
 			payload_cnt  <= (d_xfr)? payload_cnt+1 : payload_cnt;
-			tsi_last     <= (d_xfr)? tdata_reg : tsi_last;
+			tsi_last     <= (d_xfr)? tdata_reg_smallendian : tsi_last;
 			if (d_xfr)
 			begin
 				Mstate <= M_CHK_TSF_0; // default next state
-				tsi_eq <=  (tdata_reg == tsi_last)? 1:0;
+				tsi_eq <=  (tdata_reg_smallendian == tsi_last)? 1:0;
 
-				if (tdata_reg < tsi_last) begin
+				if (tdata_reg_smallendian < tsi_last) begin
 					ts_order_err <= ts_order_err + 1;
 				end
 			end
@@ -289,16 +299,16 @@ begin
 		
 	    M_CHK_TSF_0: begin
 			payload_cnt  <= (d_xfr)? payload_cnt+1 : payload_cnt;
-			tsf_pkt_msb <= (d_xfr)? tdata_reg : 0;
+			tsf_pkt_msb <= (d_xfr)? tdata_reg_smallendian : 0;
 			Mstate    <= (d_xfr)? M_CHK_TSF_1 : Mstate;	    
   		end
  	    M_CHK_TSF_1: begin
 			payload_cnt  <= (d_xfr)? payload_cnt+1 : payload_cnt;
-			tsf_last     <= (d_xfr)? {tsf_pkt_msb, tdata_reg} : tsf_last;
+			tsf_last     <= (d_xfr)? {tsf_pkt_msb, tdata_reg_smallendian} : tsf_last;
 			if (d_xfr)
 			begin
 				Mstate <= M_SEND_PAYLOAD; // default next state
-				if (tsi_eq && ({tsf_pkt_msb, tdata_reg} < tsf_last)) begin
+				if (tsi_eq && ({tsf_pkt_msb, tdata_reg_smallendian} < tsf_last)) begin
 					ts_order_err <= ts_order_err+1;
 				end
 			end

@@ -157,7 +157,10 @@ assign M_AXIS_TLAST =
     ((Mstate == M_SEND_ZERO)    & (payload_cnt+1 == pkt_size_reg))? 1:
     (Mstate == M_SEND_TRAIL)?  1:0;
 
-assign M_AXIS_TDATA =
+wire [31:0] m_tdata_smallendian;
+wire [31:0] m_tdata_bigendian;
+
+assign m_tdata_smallendian =
 	(passthrough)              ? tdata_reg:
 	(Mstate == M_SEND_HDR)     ? header :
 	(Mstate == M_SEND_STRM_ID) ? streamID_reg:
@@ -167,6 +170,15 @@ assign M_AXIS_TDATA =
 	(Mstate == M_SEND_PAYLOAD) ? tdata_reg : 
 	(Mstate == M_SEND_ZERO)    ? 0 :
     (Mstate == M_SEND_TRAIL)   ? trailer_reg : 0;
+
+assign m_tdata_bigendian = {
+	m_tdata_smallendian[7:0],
+	m_tdata_smallendian[15:8],
+	m_tdata_smallendian[23:16],
+	m_tdata_smallendian[31:24]
+	};
+
+assign M_AXIS_TDATA = (passthrough)? tdata_reg : m_tdata_bigendian;
 
 assign M_AXIS_TVALID =
 	(passthrough)              ? dval :

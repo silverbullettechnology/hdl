@@ -20,8 +20,14 @@ module hello_router
   output wire [31:0] M_AXIS_TUSER,
   input wire M_AXIS_TREADY,
   
-  input wire swrite_bypass
+  input wire [1:0] swrite_bypass
  );
+ 
+// 	swrite_bypass: 
+//      2'b00 swrites get sent to adi chain; 
+//      2'b01 swrites get sent to srio_fifo; 
+//      2'b1x swrites get sent to srio_dma
+ 
  
 wire m_xfr;    // master data transferred
 wire s_xfr;    // slave data transferred
@@ -39,12 +45,19 @@ localparam
 
 reg [1:0] Sstate;
 reg [63:0] tdata_reg;
-reg        tdest_reg;
+reg [1:0]  tdest_reg;
 reg        tlast_reg;
 reg [31:0] tuser_reg;
 
 wire [3:0] ftype = S_AXIS_TDATA[55:52];
-assign tdest = (~swrite_bypass)? ((ftype == 4'h6)? 1 : 0) : 0;
+wire [1:0] swrite_dest;
+wire [1:0] tdest;
+
+assign swrite_dest = 
+	(swrite_bypass == 2'b00)? 2'b01 :
+	(swrite_bypass == 2'b01)? 2'b00 : 2'b10;
+		
+assign tdest = (ftype ==4'h6)? swrite_dest : 0;
 
 assign dval          = ((Sstate == S_S1) | (Sstate == S_S3))? 1 : 0;
 assign S_AXIS_TREADY = ((Sstate == S_S0) | (Sstate == S_S2))? 1 : d_xfr;

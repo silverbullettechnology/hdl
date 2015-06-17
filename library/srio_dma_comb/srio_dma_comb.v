@@ -1,8 +1,8 @@
 
 `define C_S_AXI_DATA_WIDTH 32
-`define C_S_AXI_ADDR_WIDTH 6
+`define C_S_AXI_ADDR_WIDTH 5
 
-module vita49_clk
+module srio_dma_comb
 (
   ////////////////////////////////////////////////////////////////////////////
   // AXI-LITE
@@ -27,32 +27,28 @@ module vita49_clk
   output wire                          S_AXI_RVALID,
   input  wire                          S_AXI_RREADY,
 
-  // input clocks
-  input wire pps_clk,
-  input wire samp_clk_0,
-  input wire samp_clk_1,
-  
-  //  output counters
-  output wire [31:0] tsi_0,
-  output wire [31:0] tsi_1,
-  output wire [63:0] tsf_0,
-  output wire [63:0] tsf_1
- );
+  /////////
+  //AXIS
+  input wire AXIS_ACLK,
+  input wire AXIS_ARESETN,
 
-wire [31:0] ctrl;
+  output wire S_AXIS_TREADY,
+  input wire [63:0] S_AXIS_TDATA,
+  input wire S_AXIS_TLAST,
+  input wire S_AXIS_TVALID,
+  input wire [31:0] S_AXIS_TUSER,
+ 
+  output wire M_AXIS_TVALID,
+  output wire [63:0] M_AXIS_TDATA,
+  output wire M_AXIS_TLAST,
+  input wire M_AXIS_TREADY
+);
+
+wire [31:0] cmd;
+wire [31:0] num_pkts;
 wire [31:0] status;
-wire [31:0] tsi_prog;
-wire [31:0] tsf_0_rollover;
-wire [31:0] tsf_1_rollover;
 
-wire [31:0] tsi_0_up;
-wire [31:0] tsf_0_hi_up;
-wire [31:0] tsf_0_lo_up;
-wire [31:0] tsi_1_up;
-wire [31:0] tsf_1_hi_up;
-wire [31:0] tsf_1_lo_up;
-  
-vita49_clk_if vita49_clk_if (
+srio_dma_comb_if srio_dma_comb_if (
   .S_AXI_ACLK    (S_AXI_ACLK),
   .S_AXI_ARESETN (S_AXI_ARESETN),
   .S_AXI_AWADDR  (S_AXI_AWADDR),
@@ -72,45 +68,29 @@ vita49_clk_if vita49_clk_if (
   .S_AXI_RRESP   (S_AXI_RRESP),
   .S_AXI_RVALID  (S_AXI_RVALID),
   .S_AXI_RREADY  (S_AXI_RREADY),
-  .ctrl          (ctrl),
+  .cmd	         (cmd),
   .status        (status),
-  .tsf_0_rollover (tsf_0_rollover),
-  .tsf_1_rollover (tsf_1_rollover),
-  .tsi_prog      (tsi_prog),
-  .tsi_0_up      (tsi_0_up),
-  .tsf_0_hi_up   (tsf_0_hi_up),
-  .tsf_0_lo_up   (tsf_0_lo_up),
-  .tsi_1_up      (tsi_1_up),
-  .tsf_1_hi_up   (tsf_1_hi_up),
-  .tsf_1_lo_up   (tsf_1_lo_up)
-);
-  
-vita49_clk_logic  vita49_clk_logic
-(
-  .ARESETN (S_AXI_ARESETN),
-  .pps_clk(pps_clk),
-  .samp_clk_0(samp_clk_0),
-  .samp_clk_1(samp_clk_1),
- 
-  // from procesor 
-  .ctrl          (ctrl),
-  .status        (status),
-  .tsi_prog      (tsi_prog),
-  .tsi_0_up      (tsi_0_up),
-  .tsf_0_hi_up   (tsf_0_hi_up),
-  .tsf_0_lo_up   (tsf_0_lo_up),
-  .tsi_1_up      (tsi_1_up),
-  .tsf_1_hi_up   (tsf_1_hi_up),
-  .tsf_1_lo_up   (tsf_1_lo_up),
-  .tsf_0_rollover (tsf_0_rollover),
-  .tsf_1_rollover (tsf_1_rollover),
-  
-  // from timing unit
-  .tsi_0(tsi_0),
-  .tsi_1(tsi_1),
-  .tsf_0(tsf_0),
-  .tsf_1(tsf_1)
- );
+  .num_pkts      (num_pkts)
+  );
 
+srio_dma_comb_logic srio_dma_comb_logic (
+	.AXIS_ACLK (AXIS_ACLK),
+	.AXIS_ARESETN (AXIS_ARESETN),
+	.S_AXIS_TREADY (S_AXIS_TREADY),
+	.S_AXIS_TDATA (S_AXIS_TDATA),
+	.S_AXIS_TVALID (S_AXIS_TVALID),
+	.S_AXIS_TLAST (S_AXIS_TLAST),
+	.S_AXIS_TUSER (S_AXIS_TUSER),
+	.M_AXIS_TVALID (M_AXIS_TVALID),
+	.M_AXIS_TDATA (M_AXIS_TDATA),
+	.M_AXIS_TLAST (M_AXIS_TLAST),
+	.M_AXIS_TREADY (M_AXIS_TREADY),
+	
+    .cmd	       (cmd),
+    .status        (status),
+    .num_pkts      (num_pkts)
+	);
+	  
+  
   
 endmodule
