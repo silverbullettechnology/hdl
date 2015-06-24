@@ -274,8 +274,9 @@ module axi_ad9361_tx_channel (
   assign dac_data_i_s = (IQSEL == 1) ? dac_data_in  : dac_data_out;
   assign dac_data_q_s = (IQSEL == 1) ? dac_data_out : dac_data_in;
 
+  // SBT: modified to remove 4 bit left shift
   always @(posedge dac_clk) begin
-    dac_enable <= (dac_data_sel_s == 4'h2) ? 1'b1 : 1'b0;
+    dac_enable <= ((dac_data_sel_s == 4'h4) | (dac_data_sel_s == 4'h2)) ? 1'b1 : 1'b0;
     if (dac_iqcor_valid_s == 1'b1) begin
       dac_data <= dac_iqcor_data_s[15:4];
     end
@@ -301,10 +302,13 @@ module axi_ad9361_tx_channel (
 
   // dac mux
 
+    // SBT: modified to remove 4 bit left shift
+
   always @(posedge dac_clk) begin
     case (dac_data_sel_s)
       4'h9: dac_data_out <= dac_pn_data;
       4'h8: dac_data_out <= adc_data;
+      4'h4: dac_data_out <= dma_data[11:0];
       4'h3: dac_data_out <= 12'd0;
       4'h2: dac_data_out <= dma_data[15:4];
       4'h1: dac_data_out <= dac_pat_data[15:4];

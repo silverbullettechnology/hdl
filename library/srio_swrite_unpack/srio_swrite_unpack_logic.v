@@ -79,7 +79,8 @@ begin
 localparam
   M_INIT           = 4'h0,
   M_CHK_HDR        = 4'h1,
-  M_SEND_PAYLOAD   = 4'h2;
+  M_SEND_PAYLOAD   = 4'h2,
+  M_DROP_PKT       = 4'h3;
 
   reg [3:0]  Mstate;
   reg [3:0] tdest_reg;
@@ -99,6 +100,7 @@ assign M_AXIS_TVALID =
 assign drdy =
 	(Mstate == M_INIT)           ? 0 :
 	(Mstate == M_CHK_HDR)        ? dval :
+	(Mstate == M_DROP_PKT)       ? dval :
 	(Mstate == M_SEND_PAYLOAD)   ? m_xfr : 0;
 
 always @ (posedge AXIS_ACLK)
@@ -120,7 +122,7 @@ begin
 							(srio_addr == addr_1)? 1: 'hf;
 			if (d_xfr)
 			begin
-				Mstate <= M_SEND_PAYLOAD; // default next state
+				Mstate <= ((srio_addr != addr_0) & (srio_addr != addr_1)) ? M_DROP_PKT : M_SEND_PAYLOAD; // default next state
 			end
   		end
  		
@@ -130,7 +132,12 @@ begin
 			else
 				Mstate      <= (m_xfr)? M_SEND_PAYLOAD : Mstate;				
  		end
-
+ 		
+ 	    M_DROP_PKT: begin
+			if (tlast_reg) 
+				Mstate      <= (d_xfr)? M_CHK_HDR : Mstate;					
+ 		end
+		
  	  endcase
 	end
 end
