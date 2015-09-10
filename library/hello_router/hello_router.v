@@ -20,7 +20,8 @@ module hello_router
   output wire [31:0] M_AXIS_TUSER,
   input wire M_AXIS_TREADY,
   
-  input wire [1:0] swrite_bypass
+  input wire [1:0] swrite_bypass,
+  input wire [1:0] type9_bypass
  );
  
 // 	swrite_bypass: 
@@ -51,13 +52,19 @@ reg [31:0] tuser_reg;
 
 wire [3:0] ftype = S_AXIS_TDATA[55:52];
 wire [1:0] swrite_dest;
+wire [1:0] type9_dest;
 wire [1:0] tdest;
 
 assign swrite_dest = 
 	(swrite_bypass == 2'b00)? 2'b01 :
 	(swrite_bypass == 2'b01)? 2'b00 : 2'b10;
-		
-assign tdest = (ftype ==4'h6)? swrite_dest : 0;
+
+assign type9_dest = 
+	(type9_bypass == 2'b00)? 2'b01 :
+	(type9_bypass == 2'b01)? 2'b00 : 2'b10;
+	
+assign tdest = (ftype ==4'h6)? swrite_dest : 
+               (ftype ==4'h9)? type9_dest: 0;
 
 assign dval          = ((Sstate == S_S1) | (Sstate == S_S3))? 1 : 0;
 assign S_AXIS_TREADY = ((Sstate == S_S0) | (Sstate == S_S2))? 1 : d_xfr;

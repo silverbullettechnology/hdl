@@ -101,7 +101,8 @@ module routing_reg
   output wire dac_ddr_sw_0_tdest,
   output wire adc_ddr_sw_1_tdest,
   output wire dac_ddr_sw_1_tdest,
-  output wire [1:0] swrite_bypass
+  output wire [1:0] swrite_bypass,
+  output wire [1:0] type9_bypass
 );
 
   parameter integer C_S_AXI_DATA_WIDTH = 32;
@@ -559,4 +560,5 @@ assign adc_ddr_sw_1_tdest = ~slv_reg0[3];;
 assign dac_ddr_sw_1_tdest =  slv_reg0[3];
 
 assign swrite_bypass = slv_reg0[5:4];
+assign type9_bypass = slv_reg0[7:6];
 endmodule
