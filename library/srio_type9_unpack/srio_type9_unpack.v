@@ -43,18 +43,17 @@ module srio_type9_unpack
 //  output wire M_AXIS_TUSER,
   output wire M_AXIS_TID,
   output wire [3:0] M_AXIS_TDEST, 
-  input wire M_AXIS_TREADY,
+  input wire M_AXIS_TREADY
   
-  output wire debugs_rdy,
-  output wire debugs_tvld
+//  output wire type9_start_dbg,
+//  output wire type9_end_dbg,
+//  output wire pdu_start_dbug,
+//  output wire [3:0] mstate_dbug
 );
 
-assign debugs_rdy = S_AXIS_TREADY;
-assign debugs_tvld = S_AXIS_TVALID;
 
 wire [31:0] srio_streamID_if;
 wire [31:0] cmd;
-
 
 srio_type9_unpack_if srio_type9_unpack_if (
   .S_AXI_ACLK    (S_AXI_ACLK),
@@ -97,6 +96,11 @@ srio_type9_unpack_logic srio_type9_unpack_logic (
 	.M_AXIS_TREADY (M_AXIS_TREADY),
 	.cmd              (cmd),
 	.srio_streamID_if (srio_streamID_if)
+	
+//	.type9_start_dbg (type9_start_dbg),
+//	.type9_end_dbg (type9_end_dbg),
+//	.pdu_start_dbug (pdu_start_dbug),
+//	.mstate_dbug (mstate_dbug)
 	);
 	  
   

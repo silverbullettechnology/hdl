@@ -102,7 +102,8 @@ module routing_reg
   output wire adc_ddr_sw_1_tdest,
   output wire dac_ddr_sw_1_tdest,
   output wire [1:0] swrite_bypass,
-  output wire [1:0] type9_bypass
+  output wire [1:0] type9_bypass,
+  output wire fifo_resetn
 );
 
   parameter integer C_S_AXI_DATA_WIDTH = 32;
@@ -333,7 +334,7 @@ assign S_AXI_RRESP  = axi_rresp;
     if ( S_AXI_ARESETN == 1'b0 )
       begin
         slv_reg0 <= {C_S_AXI_DATA_WIDTH{1'b0}};
-        slv_reg1 <= {C_S_AXI_DATA_WIDTH{1'b0}};
+        slv_reg1 <= {C_S_AXI_DATA_WIDTH{1'b1}};
         slv_reg2 <= {C_S_AXI_DATA_WIDTH{1'b0}};
         slv_reg3 <= {C_S_AXI_DATA_WIDTH{1'b0}};
         slv_reg4 <= {C_S_AXI_DATA_WIDTH{1'b0}};
@@ -561,4 +562,7 @@ assign dac_ddr_sw_1_tdest =  slv_reg0[3];
 
 assign swrite_bypass = slv_reg0[5:4];
 assign type9_bypass = slv_reg0[7:6];
+
+assign fifo_resetn = (S_AXI_ARESETN & (&slv_reg1));
+
 endmodule

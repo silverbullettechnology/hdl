@@ -13,6 +13,7 @@ module srio_type9_pack_logic
   output wire M_AXIS_TLAST,
   output wire [31:0] M_AXIS_TUSER,
   input wire M_AXIS_TREADY,
+  output wire [7:0] M_AXIS_TKEEP,
  
   input wire [31:0] cmd,
   input wire [15:0] srio_streamID,
@@ -21,6 +22,8 @@ module srio_type9_pack_logic
   input wire [31:0] srcdest
   );
 
+assign M_AXIS_TKEEP = 'hff;
+  
 wire [15:0] payload_size;  // in 64bit words
 
 reg [6:0] payload_cnt;
@@ -49,9 +52,10 @@ reg        tlast_reg;
 assign dval          = (Sstate == S_S1)? 1 : 0;
 assign S_AXIS_TREADY = (Sstate == S_S0)? 1 : d_xfr;
 
+
 always @ (posedge AXIS_ACLK)
 begin
-	if ( AXIS_ARESETN == 1'b0)
+	if ( (AXIS_ARESETN == 1'b0) | reset_cmd)
 	begin
 		Sstate <= S_S0;
 		tdata_reg <= 64'h0;

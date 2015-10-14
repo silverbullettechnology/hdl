@@ -94,13 +94,13 @@ assign user_ireq_tready = ((count_data <= 8)|| (count_256 != 6'b011111)) &  ireq
 
 assign last_tkeep_i = (size[2:0] == 3'b111)? 8'b11111111: (size[2:0] == 3'b110)? 8'b11111100 : (size[2:0] == 3'b101)? 8'b11111100 : (size[2:0] == 3'b100)? 8'b11110000 : (size[2:0] == 3'b011)? 8'b11110000: (size[2:0] == 3'b010)? 8'b11000000 : (size[2:0] ==3'b001) ? 8'b11000000: 8'b11111111;
 
-assign pad_i = (user_ireq_tvalid == 1'b1 && user_ireq_tdata[55:52] == 4'b1001 && ireq_tready == 1'b1 && user_ireq_tdata[0] == 1'b0);
-assign odd_i = (user_ireq_tvalid == 1'b1 && user_ireq_tdata[55:52] == 4'b1001 && ireq_tready == 1'b1 && user_ireq_tdata[1] == 1'b0);
+assign pad_i = (user_ireq_tvalid == 1'b1 && user_ireq_tdata[55:52] == 4'b1001 && ireq_tready == 1'b1 && (user_ireq_tdata[0]));
+assign odd_i = (user_ireq_tvalid == 1'b1 && user_ireq_tdata[55:52] == 4'b1001 && ireq_tready == 1'b1 && (^user_ireq_tdata[1:0]));
 
 assign actual_size = user_ireq_tdata[15:0];// + 1'b1;
 
-assign greater_than_256_i =  user_ireq_tdata[8] || user_ireq_tdata[9] || user_ireq_tdata[10] || user_ireq_tdata[11] || user_ireq_tdata[12] || user_ireq_tdata[13] || user_ireq_tdata[14] || user_ireq_tdata[15];
-
+//assign greater_than_256_i =  user_ireq_tdata[8] || user_ireq_tdata[9] || user_ireq_tdata[10] || user_ireq_tdata[11] || user_ireq_tdata[12] || user_ireq_tdata[13] || user_ireq_tdata[14] || user_ireq_tdata[15];
+assign greater_than_256_i = (user_ireq_tdata[15:0] > 'h100)? 1 : 0;
 
 assign count_data_greater_256_i =  (count_data[8] && (count_data[7] || count_data[6] || count_data[5] || count_data[4] || count_data[3] || count_data[2] || count_data[1] || count_data[0])) || count_data[9] || count_data[10] || count_data[11] || count_data[12] || count_data[13] || count_data[14] || count_data[15];
  
@@ -143,28 +143,28 @@ always @ (posedge clk)
               ireq_tkeep          <= user_ireq_tkeep;
               ireq_tuser          <= user_ireq_tuser;
               state               <= WAIT_FOR_TLAST;
-              count_data          <= user_ireq_tdata[15:0] + 1'b1;
+              count_data          <= user_ireq_tdata[15:0];// + 1'b1;
               last                <= user_ireq_tdata[55:16];
-              size                <= user_ireq_tdata[15:0] + 1'b1;
-              pad_reg_i           <= !user_ireq_tdata[0];
-              odd_reg_i           <= !user_ireq_tdata[1];
+              size                <= user_ireq_tdata[15:0];// + 1'b1;
+              pad_reg_i           <=  (user_ireq_tdata[0]);//!user_ireq_tdata[0];
+              odd_reg_i           <=  (^user_ireq_tdata[1:0]);//!user_ireq_tdata[1];
               type                <= 1'b1;
 
              end
            else if (user_ireq_tvalid == 1'b1 && user_ireq_tdata[55:52] == 4'b1001 && ireq_tready == 1'b1 && user_ireq_tlast == 1'b0 && greater_than_256_i == 1'b1) 
              begin
               ireq_tdata          <= {1'b1,1'b0,4'b0000,odd_i,pad_i,user_ireq_tdata[55:16],actual_size};
-              count_data          <= user_ireq_tdata[15:0] + 1'b1;
+              count_data          <= user_ireq_tdata[15:0];// + 1'b1;
               last                <= user_ireq_tdata[55:16];
-              size                <= user_ireq_tdata[15:0] + 1'b1;
+              size                <= user_ireq_tdata[15:0];// + 1'b1;
               ireq_tvalid         <= user_ireq_tvalid;
               user_ireq_tready_i  <= 1'b1;
               ireq_tlast          <= 1'b0;
               ireq_tkeep          <= user_ireq_tkeep;
               ireq_tuser          <= user_ireq_tuser;
               state               <= WAIT_FOR_TLAST;
-              pad_reg_i           <= !user_ireq_tdata[0];
-              odd_reg_i           <= !user_ireq_tdata[1];
+              pad_reg_i           <=  (user_ireq_tdata[0]);//!user_ireq_tdata[0];
+              odd_reg_i           <=  (^user_ireq_tdata[1:0]);//!user_ireq_tdata[1];
               type                <= 1'b1;
              end
            else if (user_ireq_tvalid == 1'b1 && user_ireq_tlast == 1'b1 && ireq_tready == 1'b1) 

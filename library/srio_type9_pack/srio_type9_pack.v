@@ -42,6 +42,7 @@ module srio_type9_pack
   output wire M_AXIS_TLAST,
   output wire [31:0] M_AXIS_TUSER,
   input wire M_AXIS_TREADY,
+  output wire [7:0] M_AXIS_TKEEP,
   
   //////
   // DEBUG
@@ -101,6 +102,7 @@ srio_type9_pack_logic srio_type9_pack_logic (
 	.M_AXIS_TLAST (M_AXIS_TLAST),
 	.M_AXIS_TUSER (M_AXIS_TUSER),
 	.M_AXIS_TREADY (M_AXIS_TREADY),
+	.M_AXIS_TKEEP (M_AXIS_TKEEP),
 	
 	.cmd           (cmd),
   .srio_streamID (srio_streamID),

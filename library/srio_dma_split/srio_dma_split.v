@@ -41,14 +41,17 @@ module srio_dma_split
   output wire [63:0] M_AXIS_TDATA,
   output wire M_AXIS_TLAST,
   output wire [31:0] M_AXIS_TUSER,
-  input wire M_AXIS_TREADY
+  input wire M_AXIS_TREADY,
+  output wire [7:0] M_AXIS_TKEEP
 );
 
 wire [31:0] cmd;
 wire [31:0] num_pkts;
 wire [31:0] tuser_last;
 wire [31:0] status;
+wire [31:0] pkt_size;
 
+assign M_AXIS_TKEEP = 8'hff;
 
 srio_dma_split_if srio_dma_split_if (
   .S_AXI_ACLK    (S_AXI_ACLK),
@@ -73,7 +76,8 @@ srio_dma_split_if srio_dma_split_if (
   .cmd	         (cmd),
   .num_pkts      (num_pkts),
   .status        (status),
-  .tuser_last    (tuser_last)
+  .tuser_last    (tuser_last),
+  .pkt_size      (pkt_size)
   );
 
 srio_dma_split_logic srio_dma_split_logic (
@@ -92,7 +96,8 @@ srio_dma_split_logic srio_dma_split_logic (
     .cmd	         (cmd),
     .num_pkts      (num_pkts),
     .status        (status),
-    .tuser_last    (tuser_last)
+    .tuser_last    (tuser_last),
+    .pkt_size      (pkt_size)
 	);
 	  
   

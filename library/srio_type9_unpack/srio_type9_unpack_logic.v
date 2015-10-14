@@ -22,6 +22,11 @@ module srio_type9_unpack_logic
  
   input wire [31:0] cmd,
   input wire [31:0] srio_streamID_if
+  
+//output wire type9_start_dbg,
+//  output wire type9_end_dbg,
+//  output wire pdu_start_dbug,
+//  output wire [3:0] mstate_dbug
   );
 
 wire [15:0] streamID_0 = srio_streamID_if [15:0];
@@ -86,8 +91,11 @@ localparam
 
   reg [3:0]  Mstate;
   reg [3:0] tdest_reg;
+  reg pdu_start;
  
 wire [15:0] srio_streamID = tdata_reg[31:16];  
+wire type9_start = tdata_reg[63];
+wire type9_end   = tdata_reg[62];
   
 assign M_AXIS_TLAST = tlast_reg;
 
@@ -116,21 +124,36 @@ begin
 	  if (reset_cmd) Mstate <= M_INIT;
  	  case(Mstate)
  	    M_INIT: begin
-			tdest_reg   <= 0;
+			tdest_reg   <= 'hf;
+			pdu_start   <= 0;
 			Mstate      <= (start_cmd)? M_CHK_HDR : Mstate;
  		end
 	    M_CHK_HDR: begin
-			tdest_reg <= 	(srio_streamID == streamID_0)? 0:
-							(srio_streamID == streamID_1)? 1: 'hf;
-			if (d_xfr)
+			if (type9_start & d_xfr)
 			begin
-				Mstate <= ((srio_streamID != streamID_0) & (srio_streamID != streamID_1)) ? M_DROP_PKT : M_SEND_PAYLOAD; // default next state
+				tdest_reg <= 	(srio_streamID == streamID_0)? 0:
+								(srio_streamID == streamID_1)? 1: 'hf;
+				pdu_start <=  	(srio_streamID == streamID_0)? 1:
+								(srio_streamID == streamID_1)? 1: 'h0;
+			end
+			if (type9_end & d_xfr)
+			begin
+				pdu_start <= 0;
+			end
+			if (d_xfr)
+			begin			
+				Mstate <= (pdu_start) ? M_SEND_PAYLOAD :
+						  ((type9_start) & (srio_streamID == streamID_0)) ? M_SEND_PAYLOAD :
+						  ((type9_start) & (srio_streamID == streamID_1)) ? M_SEND_PAYLOAD : M_DROP_PKT;		  
 			end
   		end
  		
  	    M_SEND_PAYLOAD: begin
-			if (tlast_reg) 
+			if (tlast_reg)
+			begin			
+			    tdest_reg   <= (m_xfr)? ((pdu_start)? tdest_reg : 'hf) : tdest_reg; 
 				Mstate      <= (m_xfr)? M_CHK_HDR : Mstate;				
+			end
 			else
 				Mstate      <= (m_xfr)? M_SEND_PAYLOAD : Mstate;				
  		end
@@ -143,6 +166,12 @@ begin
  	  endcase
 	end
 end
+
+
+//  assign  type9_start_dbg = type9_start;
+//  assign  type9_end_dbg = type9_end;
+//  assign pdu_start_dbug = pdu_start;
+//  assign mstate_dbug = Mstate;
 
 
 endmodule	

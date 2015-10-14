@@ -18,7 +18,8 @@ module srio_dma_split_logic
   input wire [31:0] cmd,  
   input wire [31:0] num_pkts, 
   output wire [31:0] status,
-  output wire [31:0] tuser_last
+  output wire [31:0] tuser_last,
+  input wire [31:0] pkt_size      // includes hello header
   );
 
 localparam max_swrite_size = 32 + 1; // number of 64bit words plus hello header
@@ -111,7 +112,7 @@ assign drdy =
 	(Mstate == M_TUSER)? 1 :
 	(Mstate == M_PAYLOAD)?   m_xfr : 0;
   
-assign last_word = (word_cnt ==  max_swrite_size-1);
+assign last_word = (word_cnt ==  pkt_size-1);
 assign last_pkt  = (pkt_cnt ==  num_pkts-1);
 
 always @ (posedge AXIS_ACLK)

@@ -96,7 +96,8 @@ module srio_dma_split_if
   output wire [31:0] cmd,
   output wire [31:0] num_pkts,
   input wire [31:0] status,
-  input wire [31:0] tuser_last
+  input wire [31:0] tuser_last,
+  output wire [31:0] pkt_size
 
 );
 
@@ -331,7 +332,7 @@ assign S_AXI_RRESP  = axi_rresp;
         slv_reg1 <= {C_S_AXI_DATA_WIDTH{1'b0}};
         slv_reg2 <= {C_S_AXI_DATA_WIDTH{1'b0}};
         slv_reg3 <= {C_S_AXI_DATA_WIDTH{1'b0}};
-        slv_reg4 <= {C_S_AXI_DATA_WIDTH{1'b0}};
+        slv_reg4 <=  32+1;   // {C_S_AXI_DATA_WIDTH{1'b0}};      // pkt_size:  number of 64bit words plus hello header  (default swrite size)
         slv_reg5 <= {C_S_AXI_DATA_WIDTH{1'b0}};
         slv_reg6 <= {C_S_AXI_DATA_WIDTH{1'b0}};
       end
@@ -548,5 +549,6 @@ assign S_AXI_RRESP  = axi_rresp;
 
 assign cmd            = slv_reg0;
 assign num_pkts       = slv_reg2;
+assign pkt_size       = slv_reg4;
 
 endmodule
