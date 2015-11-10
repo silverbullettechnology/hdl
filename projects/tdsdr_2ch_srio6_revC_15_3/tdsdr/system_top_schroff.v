@@ -197,16 +197,29 @@ module system_top (
   wire    [63:0]  gpio_o;
   wire    [63:0]  gpio_t;
   
-  genvar n;
-  generate
-  for (n = 0; n <= 63; n = n + 1) begin: g_iobuf_gpio_bd
-  IOBUF i_iobuf_gpio_bd (
-    .I (gpio_o[n]),
-    .O (gpio_i[n]),
-    .T (gpio_t[n]),
-    .IO (ps7_gpio[n]));
-  end
-  endgenerate
+//  genvar n;
+//  generate
+//  for (n = 0; n <= 63; n = n + 1) begin: g_iobuf_gpio_bd
+//  IOBUF i_iobuf_gpio_bd (
+//    .I (gpio_o[n]),
+//    .O (gpio_i[n]),
+//    .T (gpio_t[n]),
+//    .IO (ps7_gpio[n]));
+//  end
+//  endgenerate
+
+ad_iobuf 
+    #(.DATA_WIDTH (62)) 
+g_iobuf_gpio_bd (
+    .dt  ( {gpio_t[63:31], gpio_t[28:0]}),
+    .di  ( {gpio_o[63:31], gpio_o[28:0]}),
+    .do  ( {gpio_i[63:31], gpio_i[28:0]}),
+    .dio ( {ps7_gpio[63:31], ps7_gpio[28:0]}) 
+);
+ 
+
+assign ps7_gpio[29] = 0;   //SEL-2
+assign ps7_gpio[30] = 1;   //SEL
 
   system_wrapper i_system_wrapper (
     .DDR_addr (DDR_addr),

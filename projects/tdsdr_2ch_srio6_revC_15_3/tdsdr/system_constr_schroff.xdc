@@ -5,16 +5,20 @@
 
 #SRIO
 # Lanes 4-7
-set_property PACKAGE_PIN U2 [get_ports srio_txp0]
-set_property PACKAGE_PIN W2 [get_ports srio_txp1]
-set_property PACKAGE_PIN AA2  [get_ports srio_txp2]
-set_property PACKAGE_PIN AB4  [get_ports srio_txp3]
+# SRIO_PCIE_SEL = 0
+# SRIO_PCIE_SEL-2 = 1
+#set_property PACKAGE_PIN U2 [get_ports srio_txp0]
+#set_property PACKAGE_PIN W2 [get_ports srio_txp1]
+#set_property PACKAGE_PIN AA2  [get_ports srio_txp2]
+#set_property PACKAGE_PIN AB4  [get_ports srio_txp3]
 
 # Lanes 8-11
-#set_property PACKAGE_PIN AB4 [get_ports srio_txp0]
-#set_property PACKAGE_PIN AA2 [get_ports srio_txp1]
-#set_property PACKAGE_PIN W2  [get_ports srio_txp2]
-#set_property PACKAGE_PIN U2  [get_ports srio_txp3]
+# SRIO_PCIE_SEL = 1
+# SRIO_PCIE_SEL-2 = 0
+set_property PACKAGE_PIN AB4 [get_ports srio_txp0]
+set_property PACKAGE_PIN AA2 [get_ports srio_txp1]
+set_property PACKAGE_PIN W2  [get_ports srio_txp2]
+set_property PACKAGE_PIN U2  [get_ports srio_txp3]
 
 set_property PACKAGE_PIN U5  [get_ports srio_sys_clkn]
 create_clock -period 8.000 -name srio_ref_clk -waveform {0.000 4.000} [get_ports srio_sys_clkp]
