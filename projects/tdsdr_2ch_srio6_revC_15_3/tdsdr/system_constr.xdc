@@ -5,12 +5,16 @@
 
 #SRIO
 # Lanes 4-7
+# SRIO_PCIE_SEL = 0
+# SRIO_PCIE_SEL-2 = 1
 set_property PACKAGE_PIN U2 [get_ports srio_txp0]
 set_property PACKAGE_PIN W2 [get_ports srio_txp1]
 set_property PACKAGE_PIN AA2  [get_ports srio_txp2]
 set_property PACKAGE_PIN AB4  [get_ports srio_txp3]
 
 # Lanes 8-11
+# SRIO_PCIE_SEL = 1
+# SRIO_PCIE_SEL-2 = 0
 #set_property PACKAGE_PIN AB4 [get_ports srio_txp0]
 #set_property PACKAGE_PIN AA2 [get_ports srio_txp1]
 #set_property PACKAGE_PIN W2  [get_ports srio_txp2]
