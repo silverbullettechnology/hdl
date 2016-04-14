@@ -35,6 +35,7 @@ wire passthrough;
 wire reset_cmd;
 wire start_cmd;
 wire trailer_en;
+wire tsi_en;
 // status signals
 reg done;
 
@@ -47,6 +48,7 @@ assign start_cmd   = ctrl_reg[0];
 assign reset_cmd   = ctrl_reg[1]; 
 assign passthrough = ctrl_reg[2];
 assign trailer_en  = ctrl_reg[3];
+assign tsi_en      = ctrl_reg[4];
 
 assign status = {'h0, payload_cnt, Mstate};
  
@@ -140,11 +142,13 @@ localparam
   C        = 1'b0,         // No class identifier
 //  T        = 1'b0,         // No trailer
   RR       = 2'b00,        // reserved
-  TSI      = 2'b11,        // Integer Timestamp (other)
+//  TSI      = 2'b11,        // Integer Timestamp (other)
   TSF      = 2'b01;        // Fractional Timestamp (sample count)
 
-wire T; 
-assign T = trailer_en;  
+wire T;
+wire [1:0] TSI; 
+assign T   = trailer_en;  
+assign TSI = tsi_en? 2'b11: 2'b00;
 
 wire [31:0] header;
 assign header = {PKT_TYPE, C, T, RR, TSI, TSF, pkt_cnt, pkt_size_reg};
@@ -225,7 +229,7 @@ begin
   		end
  	    M_SEND_STRM_ID: begin
 			payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;
-			Mstate    <= (m_xfr)? M_SEND_TSI : Mstate;	    
+			Mstate    <= (m_xfr)? (tsi_en? M_SEND_TSI : M_SEND_TSF_0) : Mstate;	    
  		end
 	    M_SEND_TSI: begin
 			payload_cnt <= (m_xfr)? payload_cnt+1 : payload_cnt;

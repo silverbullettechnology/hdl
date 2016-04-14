@@ -152,9 +152,10 @@ initial begin
  #50
     dsrc_cmd = 'h1;
     dsrc_new_cmd = 1;  
-    //vita_ctrl = 'h4; // passthrough
-    //vita_ctrl = 'h1; // start
-    vita_ctrl = 'h9; // start / trailer enabled
+    //vita_ctrl = 'h04; // passthrough
+    //vita_ctrl = 'h01; // start / tsi disabled
+    //vita_ctrl = 'h09; // start / trailer enabled
+    vita_ctrl = 'h19; // start / trailer enabled/ tsi enabled
        
 #50
     dsrc_new_cmd = 0;
